@@ -165,4 +165,16 @@ describe("Hydra heads", function() {
             ['/foobar//file.txt', fileContents]
         ], done);
     });
+
+    it("can serve content from Javascript functions", function(done) {
+        var head = new HydraHead({path: '/foobar',
+                                  handler: function(req, res, cb) {
+                                      res.send('Response for ' + req.url);
+                                      cb();
+                                  }});
+
+        checkRouting(head, [
+            ['/foobar', 'Response for /foobar']
+        ], done);
+    });
 });
