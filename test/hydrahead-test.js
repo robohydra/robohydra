@@ -116,49 +116,42 @@ describe("Hydra heads", function() {
         ], done);
     });
 
-    /*
-    it("mounts file systems in the correct path", function(done) {
+    it("serve files from the file system with a trailing slash in documentRoot", function(done) {
+        var fileContents = "file contents";
         var head = new HydraHead({path: '/foobar',
-                                  content: 'static content',
-                                  fs: {
-                                      readFile: function(path, cb) {
-                                          if (path === '/file.txt')
-                                              cb("", "file contents");
-                                          else
-                                              cb("Can't find file");
-                                      }
-                                  }});
-        withResponse(head, '/file.txt', function(res) {
-            expect(res).toMatchResponse({status: 404});
-        });
+                                  documentRoot: '/var/www/',
+                                  fs: fakeFs({'/var/www/file.txt':
+                                              fileContents})});
 
-        expect(head).toProduceResponseForPath('/', {status: 404});
-        expect(head).toProduceResponseForPath('/foobarqux', {status: 404});
+        checkRouting(head, [
+            ['/foobar/file.txt', fileContents],
+            ['/foobar//file.txt', fileContents]
+        ], done);
     });
 
-    it("return 404 when the static file is not there", function(done) {
-        var head = new HydraHead({path: '/foobar',
-                                  content: 'static content',
-                                  fs: {
-                                      readFile: function(path, cb) {
-                                          if (path === '/file.txt')
-                                              cb("", "file contents");
-                                          else
-                                              cb("Can't find file");
-                                      }
-                                  }});
-        withResponse(head, '/file.txt', function(res) {
-            expect(res).toMatchResponse({status: 404});
-        });
+    it("serve files from the file system with a trailing slash in path", function(done) {
+        var fileContents = "file contents";
+        var head = new HydraHead({path: '/foobar/',
+                                  documentRoot: '/var/www',
+                                  fs: fakeFs({'/var/www/file.txt':
+                                              fileContents})});
 
-        expect(head).toProduceResponseForPath('/', {status: 404});
-        expect(head).toProduceResponseForPath('/foobarqux', {status: 404});
+        checkRouting(head, [
+            ['/foobar/file.txt', fileContents],
+            ['/foobar//file.txt', fileContents]
+        ], done);
     });
 
-    it("can serve content from Javascript functions", function() {
-        var head = new HydraHead({path: '/foobar', content: 'static content'});
-        expect(head).toProduceResponseForPath('/', {status: 404});
-        expect(head).toProduceResponseForPath('/foobarqux', {status: 404});
+    it("serve files from the file system with trailing slashes in path and documentRoot", function(done) {
+        var fileContents = "file contents";
+        var head = new HydraHead({path: '/foobar/',
+                                  documentRoot: '/var/www/',
+                                  fs: fakeFs({'/var/www/file.txt':
+                                              fileContents})});
+
+        checkRouting(head, [
+            ['/foobar/file.txt', fileContents],
+            ['/foobar//file.txt', fileContents]
+        ], done);
     });
-     */
 });
