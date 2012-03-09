@@ -46,6 +46,17 @@ function checkRouting(head, list, cb) {
     }
 }
 
+function fakeFs(fileMap) {
+    return {
+        readFile: function(path, cb) {
+            if (fileMap.hasOwnProperty(path))
+                cb("", fileMap[path]);
+            else
+                cb("File not found");
+        }
+    };
+}
+
 
 
 describe("Hydra heads", function() {
@@ -93,15 +104,8 @@ describe("Hydra heads", function() {
         var fileContents = "file contents";
         var head = new HydraHead({path: '/foobar',      // TEST with /foobar/!!
                                   documentRoot: '/var/www',
-                                  fs: {
-                                      readFile: function(path, cb) {
-                                          if (path === '/var/www/file.txt')
-                                              cb("", fileContents);
-                                          else {
-                                              cb("Can't find file");
-                                          }
-                                      }
-                                  }});
+                                  fs: fakeFs({'/var/www/file.txt':
+                                              fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
