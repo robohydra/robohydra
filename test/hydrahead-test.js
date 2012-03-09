@@ -100,16 +100,27 @@ describe("Hydra heads", function() {
         ], done);
     });
 
-    it("can serve a file from the file system", function(done) {
+    it("serve files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHead({path: '/foobar',      // TEST with /foobar/!!
+        var head = new HydraHead({path: '/foobar',
                                   documentRoot: '/var/www',
                                   fs: fakeFs({'/var/www/file.txt':
                                               fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
-            ['/foobar//file.txt', fileContents],
+            ['/foobar//file.txt', fileContents]
+        ], done);
+    });
+
+    it("don't serve non-existent files from the file system", function(done) {
+        var fileContents = "file contents";
+        var head = new HydraHead({path: '/foobar',
+                                  documentRoot: '/var/www',
+                                  fs: fakeFs({'/var/www/file.txt':
+                                              fileContents})});
+
+        checkRouting(head, [
             ['/foobar/file.txt~', {status: 404}],
             ['/foobar/something-completely-different.txt', {status: 404}],
             ['/file.txt~', {status: 404}]
