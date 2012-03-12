@@ -242,7 +242,8 @@ describe("Hydra heads", function() {
 
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /mounted/'],
-            ['/foobar/blah/', 'Proxied GET response for /mounted/blah/']
+            ['/foobar/blah/', 'Proxied GET response for /mounted/blah/'],
+            ['/blah/',        {status: 404}]
         ], done);
     });
 });
