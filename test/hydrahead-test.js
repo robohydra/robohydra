@@ -7,19 +7,21 @@ buster.spec.expose();
 buster.assertions.add("responseMatches", {
     assert: function (actual, expectedResponse) {
         var r = true;
+        this.actualProps = {};
         if (typeof(expectedResponse) === 'string') {
             expectedResponse = {content: expectedResponse};
         }
         if (expectedResponse.hasOwnProperty('content')) {
-            this.actualContent = actual.send.getCall(0).args[0];
-            r = r && (this.actualContent === expectedResponse.content);
+            this.actualProps.content = actual.send.getCall(0).args[0];
+            r = r && (this.actualProps.content === expectedResponse.content);
         }
         if (expectedResponse.hasOwnProperty('status')) {
-            r = r && (actual.statusCode === expectedResponse.status);
+            this.actualProps.status = actual.statusCode;
+            r = r && (this.actualProps.status === expectedResponse.status);
         }
         return r;
     },
-    assertMessage: "Expected ${0} to produce response '${1}' (was '${actualContent}')!",
+    assertMessage: "Expected ${0} to produce response '${1}' (was '${actualProps}')!",
     refuteMessage: "Expected ${0} to not produce response '${1}'!",
     expectation: "toMatchResponse"
 });
