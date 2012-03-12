@@ -235,12 +235,12 @@ describe("Hydra heads", function() {
             return "Proxied " + m + " response for " + p;
         });
         var head = new HydraHead({path: '/foobar',
-                                  proxyTo: 'http://example.com',
+                                  proxyTo: 'http://example.com/mounted',
                                   httpCreateClientFunction: fakeHttpCC});
 
         checkRouting(head, [
-            ['/foobar/',      'Proxied GET response for /'],
-            ['/foobar/blah/', 'Proxied GET response for /blah/']
+            ['/foobar/',      'Proxied GET response for /mounted/'],
+            ['/foobar/blah/', 'Proxied GET response for /mounted/blah/']
         ], done);
     });
 });
