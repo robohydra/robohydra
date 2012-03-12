@@ -25,14 +25,30 @@ buster.assertions.add("responseMatches", {
 });
 
 function withResponse(head, path, cb) {
-    var fakeReq = { url: path };
+    var fakeReq = { url: path,
+                    handlers: {},
+                    method: 'GET',
+                    addListener: function(event, handler) {
+                        this.handlers[event] = handler;
+                    },
+                    end: function() {
+                        if (typeof(this.handlers.end) === 'function') {
+                            this.handlers.end();
+                        }
+                    } };
     var fakeRes = { send: sinon.spy(),
+                    write: function(data) { this.send(data); },
+                    end: function() {},
                     toString: function() {
                         return 'Fake response for ' + path;
+                    },
+                    writeHead: function(status, headers) {
+                        this.statusCode = status;
                     } };
     head.handle(fakeReq, fakeRes, function() {
         cb(fakeRes);
     });
+    fakeReq.end();
 }
 
 function checkRouting(head, list, cb) {
@@ -54,6 +70,42 @@ function fakeFs(fileMap) {
             else
                 cb("File not found");
         }
+    };
+}
+
+function fakeHttpCreateClient(responseFunction) {
+    return function(h, p) {
+        return {
+            request: function(method, path, headers) {
+                return {
+                    handlers: [],
+
+                    addListener: function(event, handler) {
+                        this.handlers[event] = handler;
+                    },
+
+                    write: function(data, mode) {},
+
+                    end: function() {
+                        var self = this;
+                        this.handlers.response({
+                            addListener: function(event, handler) {
+                                self.handlers[event] = handler;
+                                if (event === 'data') {
+                                    self.handlers[event](responseFunction(method, path, headers));
+                                }
+                                if (event === 'end') {
+                                    self.handlers[event]();
+                                }
+                            }
+                        });
+                    }
+                };
+            },
+
+            on: function(event, handler) {
+            }
+        };
     };
 }
 
@@ -175,6 +227,20 @@ describe("Hydra heads", function() {
 
         checkRouting(head, [
             ['/foobar', 'Response for /foobar']
+        ], done);
+    });
+
+    it("can proxy simple GET requests", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+            return "Proxied " + m + " response for " + p;
+        });
+        var head = new HydraHead({path: '/foobar',
+                                  proxyTo: 'http://example.com',
+                                  httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            ['/foobar/',      'Proxied GET response for /'],
+            ['/foobar/blah/', 'Proxied GET response for /blah/']
         ], done);
     });
 });
