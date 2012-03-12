@@ -11,15 +11,15 @@ buster.assertions.add("responseMatches", {
             expectedResponse = {content: expectedResponse};
         }
         if (expectedResponse.hasOwnProperty('content')) {
-            r = r && (actual.send.getCall(0).args[0] ===
-                      expectedResponse.content);
+            this.actualContent = actual.send.getCall(0).args[0];
+            r = r && (this.actualContent === expectedResponse.content);
         }
         if (expectedResponse.hasOwnProperty('status')) {
             r = r && (actual.statusCode === expectedResponse.status);
         }
         return r;
     },
-    assertMessage: "Expected ${0} to produce response '${1}'!",
+    assertMessage: "Expected ${0} to produce response '${1}' (was '${actualContent}')!",
     refuteMessage: "Expected ${0} to not produce response '${1}'!",
     expectation: "toMatchResponse"
 });
