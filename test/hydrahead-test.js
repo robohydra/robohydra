@@ -155,7 +155,7 @@ describe("Generic Hydra heads", function() {
         }).toThrow("InvalidHydraHeadException");
     });
 
-    it("can serve content from Javascript functions", function(done) {
+    it("can serve simple content", function(done) {
         var head = new HydraHead({path: '/foobar',
                                   handler: function(req, res, cb) {
                                       res.send('Response for ' + req.url);
@@ -164,6 +164,22 @@ describe("Generic Hydra heads", function() {
 
         checkRouting(head, [
             ['/foobar', 'Response for /foobar']
+        ], done);
+    });
+
+    it("can serve content from path matching a regular expression", function(done) {
+        var head = new HydraHead({path: '/foobar(/[a-z]*)?',
+                                  handler: function(req, res, cb) {
+                                      res.send('Response for ' + req.url);
+                                      cb();
+                                  }});
+
+        checkRouting(head, [
+            ['/foobar', 'Response for /foobar'],
+            ['/foobar/', 'Response for /foobar/'],
+            ['/foobar/qux', 'Response for /foobar/qux'],
+            ['/foobar/qux123', {status: 404}],
+            ['/foobar/123qux', {status: 404}]
         ], done);
     });
 });
@@ -212,7 +228,7 @@ describe("Static content Hydra heads", function() {
 
     it("know which paths they can dispatch", function() {
         var validPaths = ['/foobar', '/foobar/'];
-        var invalidPaths = ['/', 'fooba', '/foobar/qux'];
+        var invalidPaths = ['/', '/fooba', '/foobar/qux', '/qux/foobar'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
             var head = new HydraHeadStatic({path: dispatchPath,
@@ -223,6 +239,13 @@ describe("Static content Hydra heads", function() {
             invalidPaths.forEach(function(path) {
                 expect(head).not().toDispatch(path);
             });
+        });
+    });
+
+    it("know which paths they can dispatch by default", function() {
+        var head = new HydraHeadStatic({content: "Some test content"});
+        ['/', '/foobar', '/foo/bar'].forEach(function(path) {
+            expect(head).toDispatch(path);
         });
     });
 });
@@ -321,7 +344,8 @@ describe("Filesystem Hydra heads", function() {
     it("know which paths they can dispatch", function() {
         var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
                           '/foobar/dir/file', '/foobar/dir/file.txt'];
-        var invalidPaths = ['/', '/fooba', '/fooba/'];
+        var invalidPaths = ['/', '/fooba', '/fooba/', '/qux/foobar',
+                            '/foobarqux'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
             var head = new HydraHeadFilesystem({basePath: dispatchPath,
