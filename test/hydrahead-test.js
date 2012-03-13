@@ -1,6 +1,9 @@
 var buster = require("buster");
-var sinon = require('sinon');
+var sinon = require("sinon");
 var HydraHead = require("../lib/hydraHead").HydraHead;
+var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
+var HydraHeadFilesystem = require("../lib/hydraHead").HydraHeadFilesystem;
+var HydraHeadProxy = require("../lib/hydraHead").HydraHeadProxy;
 
 buster.spec.expose();
 
@@ -137,11 +140,39 @@ describe("Hydra heads", function() {
         expect(function() {
             head = new HydraHead({path: '/'});
         }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHead({handler: function() {}});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadStatic();
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadStatic({path: '/'});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadFilesystem({path: '/'});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadFilesystem({documenRoot: '/'});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadProxy({path: '/'});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadProxy({proxyTo: 'http://example.com'});
+        }).toThrow("InvalidHydraHeadException");
     });
 
     it("can be created with only static content", function(done) {
         var text = 'static content';
-        var head = new HydraHead({content: text});
+        var head = new HydraHeadStatic({content: text});
 
         checkRouting(head, [
             ['/', text],
@@ -151,7 +182,7 @@ describe("Hydra heads", function() {
 
     it("can be created with path and static content", function(done) {
         var text = 'static content';
-        var head = new HydraHead({path: '/', content: text});
+        var head = new HydraHeadStatic({path: '/', content: text});
         checkRouting(head, [
             ['/', text],
             ['/foobarqux', {status: 404}] // only the given path is served
@@ -159,7 +190,8 @@ describe("Hydra heads", function() {
     });
 
     it("return 404 when requesting unknown paths", function(done) {
-        var head = new HydraHead({path: '/foobar', content: 'static content'});
+        var head = new HydraHeadStatic({path: '/foobar',
+                                        content: 'static content'});
         checkRouting(head, [
             ['/', {status: 404}],
             ['/foobarqux', {status: 404}],
@@ -169,10 +201,10 @@ describe("Hydra heads", function() {
 
     it("serve files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHead({path: '/foobar',
-                                  documentRoot: '/var/www',
-                                  fs: fakeFs({'/var/www/file.txt':
-                                              fileContents})});
+        var head = new HydraHeadFilesystem({path: '/foobar',
+                                            documentRoot: '/var/www',
+                                            fs: fakeFs({'/var/www/file.txt':
+                                                        fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -182,10 +214,10 @@ describe("Hydra heads", function() {
 
     it("don't serve non-existent files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHead({path: '/foobar',
-                                  documentRoot: '/var/www',
-                                  fs: fakeFs({'/var/www/file.txt':
-                                              fileContents})});
+        var head = new HydraHeadFilesystem({path: '/foobar',
+                                            documentRoot: '/var/www',
+                                            fs: fakeFs({'/var/www/file.txt':
+                                                        fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt~', {status: 404}],
@@ -196,10 +228,10 @@ describe("Hydra heads", function() {
 
     it("serve files from the file system with a trailing slash in documentRoot", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHead({path: '/foobar',
-                                  documentRoot: '/var/www/',
-                                  fs: fakeFs({'/var/www/file.txt':
-                                              fileContents})});
+        var head = new HydraHeadFilesystem({path: '/foobar',
+                                            documentRoot: '/var/www/',
+                                            fs: fakeFs({'/var/www/file.txt':
+                                                        fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -209,10 +241,10 @@ describe("Hydra heads", function() {
 
     it("serve files from the file system with a trailing slash in path", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHead({path: '/foobar/',
-                                  documentRoot: '/var/www',
-                                  fs: fakeFs({'/var/www/file.txt':
-                                              fileContents})});
+        var head = new HydraHeadFilesystem({path: '/foobar/',
+                                            documentRoot: '/var/www',
+                                            fs: fakeFs({'/var/www/file.txt':
+                                                        fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -222,10 +254,10 @@ describe("Hydra heads", function() {
 
     it("serve files from the file system with trailing slashes in path and documentRoot", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHead({path: '/foobar/',
-                                  documentRoot: '/var/www/',
-                                  fs: fakeFs({'/var/www/file.txt':
-                                              fileContents})});
+        var head = new HydraHeadFilesystem({path: '/foobar/',
+                                            documentRoot: '/var/www/',
+                                            fs: fakeFs({'/var/www/file.txt':
+                                                        fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -249,9 +281,9 @@ describe("Hydra heads", function() {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHead({path: '/foobar',
-                                  proxyTo: 'http://example.com/mounted',
-                                  httpCreateClientFunction: fakeHttpCC});
+        var head = new HydraHeadProxy({path: '/foobar',
+                                       proxyTo: 'http://example.com/mounted',
+                                       httpCreateClientFunction: fakeHttpCC});
 
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /mounted/'],
@@ -266,9 +298,9 @@ describe("Hydra heads", function() {
             return res + (typeof(data) === 'undefined' ? '' :
                           " with data \"" + data + "\"");
         });
-        var head = new HydraHead({path: '/foobar',
-                                  proxyTo: 'http://example.com/mounted',
-                                  httpCreateClientFunction: fakeHttpCC});
+        var head = new HydraHeadProxy({path: '/foobar',
+                                       proxyTo: 'http://example.com/mounted',
+                                       httpCreateClientFunction: fakeHttpCC});
 
         checkRouting(head, [
             [{path: '/foobar/',
