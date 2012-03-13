@@ -232,17 +232,29 @@ describe("Filesystem Hydra heads", function() {
         var head;
 
         expect(function() {
-            head = new HydraHeadFilesystem({path: '/'});
+            head = new HydraHeadFilesystem({basePath: '/'});
         }).toThrow("InvalidHydraHeadException");
+    });
 
-        expect(function() {
-            head = new HydraHeadFilesystem({documenRoot: '/'});
-        }).toThrow("InvalidHydraHeadException");
+    it("serve files from default basePath = /", function(done) {
+        var fileContents    = "file contents",
+            dirFileContents = "dir file contents";
+        var head = new HydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({'/var/www/file.txt': fileContents,
+                        '/var/www/dir/file.txt': dirFileContents})
+        });
+
+        checkRouting(head, [
+            ['/file.txt', fileContents],
+            ['/dir/file.txt', dirFileContents],
+            ['/dir/non-existentfile.txt', {status: 404}]
+        ], done);
     });
 
     it("serve files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({path: '/foobar',
+        var head = new HydraHeadFilesystem({basePath: '/foobar',
                                             documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -255,7 +267,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("don't serve non-existent files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({path: '/foobar',
+        var head = new HydraHeadFilesystem({basePath: '/foobar',
                                             documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -269,7 +281,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system with a trailing slash in documentRoot", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({path: '/foobar',
+        var head = new HydraHeadFilesystem({basePath: '/foobar',
                                             documentRoot: '/var/www/',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -282,7 +294,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system with a trailing slash in path", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({path: '/foobar/',
+        var head = new HydraHeadFilesystem({basePath: '/foobar/',
                                             documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -295,7 +307,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system with trailing slashes in path and documentRoot", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({path: '/foobar/',
+        var head = new HydraHeadFilesystem({basePath: '/foobar/',
                                             documentRoot: '/var/www/',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -312,7 +324,7 @@ describe("Filesystem Hydra heads", function() {
         var invalidPaths = ['/', '/fooba', '/fooba/'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadFilesystem({path: dispatchPath,
+            var head = new HydraHeadFilesystem({basePath: dispatchPath,
                                                 documentRoot: '/var/www'});
             validPaths.forEach(function(path) {
                 expect(head).toDispatch(path);
@@ -329,19 +341,28 @@ describe("Proxying Hydra heads", function() {
         var head;
 
         expect(function() {
-            head = new HydraHeadProxy({path: '/'});
+            head = new HydraHeadProxy({basePath: '/'});
         }).toThrow("InvalidHydraHeadException");
+    });
 
-        expect(function() {
-            head = new HydraHeadProxy({proxyTo: 'http://example.com'});
-        }).toThrow("InvalidHydraHeadException");
+    it("proxy from default basePath = /", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+            return "Proxied " + m + " response for " + p;
+        });
+        var head = new HydraHeadProxy({proxyTo: 'http://example.com/mounted',
+                                       httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            ['/',      'Proxied GET response for /mounted/'],
+            ['/blah/', 'Proxied GET response for /mounted/blah/']
+        ], done);
     });
 
     it("can proxy simple GET requests", function(done) {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHeadProxy({path: '/foobar',
+        var head = new HydraHeadProxy({basePath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -358,7 +379,7 @@ describe("Proxying Hydra heads", function() {
             return res + (typeof(data) === 'undefined' ? '' :
                           " with data \"" + data + "\"");
         });
-        var head = new HydraHeadProxy({path: '/foobar',
+        var head = new HydraHeadProxy({basePath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -384,7 +405,7 @@ describe("Proxying Hydra heads", function() {
         var invalidPaths = ['/', '/fooba', '/fooba/'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadProxy({path: dispatchPath,
+            var head = new HydraHeadProxy({basePath: dispatchPath,
                                            proxyTo: 'http://www.example.com'});
             validPaths.forEach(function(path) {
                 expect(head).toDispatch(path);
