@@ -26,12 +26,23 @@ buster.assertions.add("responseMatches", {
     expectation: "toMatchResponse"
 });
 
-function withResponse(head, path, cb) {
+function withResponse(head, pathOrObject, cb) {
+    var path, method = 'GET', postData;
+    if (typeof(pathOrObject) === 'string') {
+        path = pathOrObject;
+    } else {
+        path     = pathOrObject.path;
+        method   = pathOrObject.method || 'GET';
+        postData = pathOrObject.postData;
+    }
     var fakeReq = { url: path,
                     handlers: {},
-                    method: 'GET',
+                    method: method,
                     addListener: function(event, handler) {
                         this.handlers[event] = handler;
+                        if (event === 'data') {
+                            handler(postData);
+                        }
                     },
                     end: function() {
                         if (typeof(this.handlers.end) === 'function') {
@@ -86,7 +97,9 @@ function fakeHttpCreateClient(responseFunction) {
                         this.handlers[event] = handler;
                     },
 
-                    write: function(data, mode) {},
+                    write: function(data, mode) {
+                        this.data = data;
+                    },
 
                     end: function() {
                         var self = this;
@@ -94,7 +107,7 @@ function fakeHttpCreateClient(responseFunction) {
                             addListener: function(event, handler) {
                                 self.handlers[event] = handler;
                                 if (event === 'data') {
-                                    self.handlers[event](responseFunction(method, path, headers));
+                                    self.handlers[event](responseFunction(method, path, headers, self.data));
                                 }
                                 if (event === 'end') {
                                     self.handlers[event]();
@@ -244,6 +257,32 @@ describe("Hydra heads", function() {
             ['/foobar/',      'Proxied GET response for /mounted/'],
             ['/foobar/blah/', 'Proxied GET response for /mounted/blah/'],
             ['/blah/',        {status: 404}]
+        ], done);
+    });
+
+    it("can proxy simple POST requests", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, data) {
+            var res = "Proxied " + m + " response for " + p;
+            return res + (typeof(data) === 'undefined' ? '' :
+                          " with data \"" + data + "\"");
+        });
+        var head = new HydraHead({path: '/foobar',
+                                  proxyTo: 'http://example.com/mounted',
+                                  httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            [{path: '/foobar/',
+              method: 'POST',
+              postData: 'some data'},
+             'Proxied POST response for /mounted/ with data "some data"'],
+            [{path: '/foobar/blah/',
+              method: 'POST',
+              postData: 'other data'},
+             'Proxied POST response for /mounted/blah/ with data "other data"'],
+            [{path: '/blah/',
+              method: 'POST',
+              postData: 'will not be found'},
+             {status: 404}]
         ], done);
     });
 });
