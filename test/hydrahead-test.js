@@ -138,7 +138,7 @@ function fakeHttpCreateClient(responseFunction) {
 
 
 
-describe("Hydra heads", function() {
+describe("Generic Hydra heads", function() {
     it("can't be created without necessary properties", function() {
         var head;
 
@@ -153,6 +153,24 @@ describe("Hydra heads", function() {
         expect(function() {
             head = new HydraHead({handler: function() {}});
         }).toThrow("InvalidHydraHeadException");
+    });
+
+    it("can serve content from Javascript functions", function(done) {
+        var head = new HydraHead({path: '/foobar',
+                                  handler: function(req, res, cb) {
+                                      res.send('Response for ' + req.url);
+                                      cb();
+                                  }});
+
+        checkRouting(head, [
+            ['/foobar', 'Response for /foobar']
+        ], done);
+    });
+});
+
+describe("Static content Hydra heads", function() {
+    it("can't be created without necessary properties", function() {
+        var head;
 
         expect(function() {
             head = new HydraHeadStatic();
@@ -160,22 +178,6 @@ describe("Hydra heads", function() {
 
         expect(function() {
             head = new HydraHeadStatic({path: '/'});
-        }).toThrow("InvalidHydraHeadException");
-
-        expect(function() {
-            head = new HydraHeadFilesystem({path: '/'});
-        }).toThrow("InvalidHydraHeadException");
-
-        expect(function() {
-            head = new HydraHeadFilesystem({documenRoot: '/'});
-        }).toThrow("InvalidHydraHeadException");
-
-        expect(function() {
-            head = new HydraHeadProxy({path: '/'});
-        }).toThrow("InvalidHydraHeadException");
-
-        expect(function() {
-            head = new HydraHeadProxy({proxyTo: 'http://example.com'});
         }).toThrow("InvalidHydraHeadException");
     });
 
@@ -206,6 +208,36 @@ describe("Hydra heads", function() {
             ['/foobarqux', {status: 404}],
             ['/fooba', {status: 404}]
         ], done);
+    });
+
+    it("know which paths they can dispatch", function() {
+        var validPaths = ['/foobar', '/foobar/'];
+        var invalidPaths = ['/', 'fooba', '/foobar/qux'];
+
+        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
+            var head = new HydraHeadStatic({path: dispatchPath,
+                                            content: "Some test content"});
+            validPaths.forEach(function(path) {
+                expect(head).toDispatch(path);
+            });
+            invalidPaths.forEach(function(path) {
+                expect(head).not().toDispatch(path);
+            });
+        });
+    });
+});
+
+describe("Filesystem Hydra heads", function() {
+    it("can't be created without necessary properties", function() {
+        var head;
+
+        expect(function() {
+            head = new HydraHeadFilesystem({path: '/'});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadFilesystem({documenRoot: '/'});
+        }).toThrow("InvalidHydraHeadException");
     });
 
     it("serve files from the file system", function(done) {
@@ -274,16 +306,35 @@ describe("Hydra heads", function() {
         ], done);
     });
 
-    it("can serve content from Javascript functions", function(done) {
-        var head = new HydraHead({path: '/foobar',
-                                  handler: function(req, res, cb) {
-                                      res.send('Response for ' + req.url);
-                                      cb();
-                                  }});
+    it("know which paths they can dispatch", function() {
+        var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
+                          '/foobar/dir/file', '/foobar/dir/file.txt'];
+        var invalidPaths = ['/', '/fooba', '/fooba/'];
 
-        checkRouting(head, [
-            ['/foobar', 'Response for /foobar']
-        ], done);
+        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
+            var head = new HydraHeadFilesystem({path: dispatchPath,
+                                                documentRoot: '/var/www'});
+            validPaths.forEach(function(path) {
+                expect(head).toDispatch(path);
+            });
+            invalidPaths.forEach(function(path) {
+                expect(head).not().toDispatch(path);
+            });
+        });
+    });
+});
+
+describe("Proxying Hydra heads", function() {
+    it("can't be created without necessary properties", function() {
+        var head;
+
+        expect(function() {
+            head = new HydraHeadProxy({path: '/'});
+        }).toThrow("InvalidHydraHeadException");
+
+        expect(function() {
+            head = new HydraHeadProxy({proxyTo: 'http://example.com'});
+        }).toThrow("InvalidHydraHeadException");
     });
 
     it("can proxy simple GET requests", function(done) {
@@ -327,40 +378,7 @@ describe("Hydra heads", function() {
         ], done);
     });
 
-    it("of type 'static' know which paths they can dispatch", function() {
-        var validPaths = ['/foobar', '/foobar/'];
-        var invalidPaths = ['/', 'fooba', '/foobar/qux'];
-
-        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadStatic({path: dispatchPath,
-                                            content: "Some test content"});
-            validPaths.forEach(function(path) {
-                expect(head).toDispatch(path);
-            });
-            invalidPaths.forEach(function(path) {
-                expect(head).not().toDispatch(path);
-            });
-        });
-    });
-
-    it("of type 'file' know which paths they can dispatch", function() {
-        var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
-                          '/foobar/dir/file', '/foobar/dir/file.txt'];
-        var invalidPaths = ['/', '/fooba', '/fooba/'];
-
-        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadFilesystem({path: dispatchPath,
-                                                documentRoot: '/var/www'});
-            validPaths.forEach(function(path) {
-                expect(head).toDispatch(path);
-            });
-            invalidPaths.forEach(function(path) {
-                expect(head).not().toDispatch(path);
-            });
-        });
-    });
-
-    it("of type 'proxy' know which paths they can dispatch", function() {
+    it("know which paths they can dispatch", function() {
         var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
                           '/foobar/dir/file', '/foobar/dir/file.txt'];
         var invalidPaths = ['/', '/fooba', '/fooba/'];
