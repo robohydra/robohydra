@@ -29,6 +29,15 @@ buster.assertions.add("responseMatches", {
     expectation: "toMatchResponse"
 });
 
+buster.assertions.add("dispatches", {
+    assert: function(actual, urlPath) {
+        return actual.canDispatch(urlPath);
+    },
+    assertMessage: "Expected ${0} to consider path '${1}' dispatchable!",
+    refuteMessage: "Expected ${0} to not consider path '${1}' dispatchable!",
+    expectation: "toDispatch"
+});
+
 function withResponse(head, pathOrObject, cb) {
     var path, method = 'GET', postData;
     if (typeof(pathOrObject) === 'string') {
@@ -316,5 +325,55 @@ describe("Hydra heads", function() {
               postData: 'will not be found'},
              {status: 404}]
         ], done);
+    });
+
+    it("of type 'static' know which paths they can dispatch", function() {
+        var validPaths = ['/foobar', '/foobar/'];
+        var invalidPaths = ['/', 'fooba', '/foobar/qux'];
+
+        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
+            var head = new HydraHeadStatic({path: dispatchPath,
+                                            content: "Some test content"});
+            validPaths.forEach(function(path) {
+                expect(head).toDispatch(path);
+            });
+            invalidPaths.forEach(function(path) {
+                expect(head).not().toDispatch(path);
+            });
+        });
+    });
+
+    it("of type 'file' know which paths they can dispatch", function() {
+        var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
+                          '/foobar/dir/file', '/foobar/dir/file.txt'];
+        var invalidPaths = ['/', '/fooba', '/fooba/'];
+
+        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
+            var head = new HydraHeadFilesystem({path: dispatchPath,
+                                                documentRoot: '/var/www'});
+            validPaths.forEach(function(path) {
+                expect(head).toDispatch(path);
+            });
+            invalidPaths.forEach(function(path) {
+                expect(head).not().toDispatch(path);
+            });
+        });
+    });
+
+    it("of type 'proxy' know which paths they can dispatch", function() {
+        var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
+                          '/foobar/dir/file', '/foobar/dir/file.txt'];
+        var invalidPaths = ['/', '/fooba', '/fooba/'];
+
+        ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
+            var head = new HydraHeadProxy({path: dispatchPath,
+                                           proxyTo: 'http://www.example.com'});
+            validPaths.forEach(function(path) {
+                expect(head).toDispatch(path);
+            });
+            invalidPaths.forEach(function(path) {
+                expect(head).not().toDispatch(path);
+            });
+        });
     });
 });
