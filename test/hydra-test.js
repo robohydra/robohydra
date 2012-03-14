@@ -5,6 +5,21 @@ var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
 
 buster.spec.expose();
 
+buster.assertions.add("hasHeadAttached", {
+    assert: function (actual, pluginName, headName) {
+        var head = actual.findHead(pluginName, headName);
+        if (head) {
+            return head.attached();
+        } else {
+            throw new Error("Head " + pluginName + "/" + headName +
+                            " didn't even exist!");
+        }
+    },
+    assertMessage: "Expected ${0} to have a head '${1}/${2}' attached!",
+    refuteMessage: "Expected ${0} to have a head '${1}/${2}' detached!",
+    expectation: "toHaveHeadAttached"
+});
+
 function simpleHydraHead(path, content, name) {
     path    = path    || '/.*';
     content = content || 'foo';
@@ -136,5 +151,104 @@ describe("Hydras", function() {
         hydra.registerPlugin({name: 'plugin1', heads: headsPlugin1});
         hydra.registerPlugin({name: 'plugin2', heads: headsPlugin2});
         expect(hydra.pluginNames()).toEqual(['plugin1', 'plugin2']);
+    });
+
+    it("find existing heads", function() {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo', 'foo path',  'head1'),
+                     simpleHydraHead('/.*',  'catch-all', 'head2')];
+        hydra.registerPlugin({name: 'plugin', heads: heads});
+
+        expect(hydra.findHead('plugin', 'head1').name()).toEqual('head1');
+        expect(hydra.findHead('plugin', 'head2').name()).toEqual('head2');
+    });
+
+    it("throw an error when finding non-existing heads", function() {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo', 'foo path',  'head1'),
+                     simpleHydraHead('/.*',  'catch-all', 'head2')];
+        hydra.registerPlugin({name: 'plugin', heads: heads});
+
+        expect(function() {
+            hydra.findHead('plugin1', 'head1');
+        }).toThrow("HydraHeadNotFoundException");
+        expect(function() {
+            hydra.findHead('plugin', 'head3');
+        }).toThrow("HydraHeadNotFoundException");
+        expect(function() {
+            hydra.findHead('plugin', 'head22');
+        }).toThrow("HydraHeadNotFoundException");
+        expect(function() {
+            hydra.findHead('_plugin', 'head2');
+        }).toThrow("HydraHeadNotFoundException");
+    });
+
+    it("allow attaching and detaching heads", function() {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo', 'foo path', 'head1')];
+        hydra.registerPlugin({name: 'plugin', heads: heads});
+
+        hydra.detachHead('plugin', 'head1');
+        expect(hydra).not().toHaveHeadAttached('plugin', 'head1');
+        hydra.attachHead('plugin', 'head1');
+        expect(hydra).toHaveHeadAttached('plugin', 'head1');
+    });
+
+    it("throw an error when attaching/detaching non-existing heads", function() {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo', 'foo path', 'head1')];
+        hydra.registerPlugin({name: 'plugin', heads: heads});
+
+        expect(function() {
+            hydra.detachHead('plugin', 'head2');
+        }).toThrow("HydraHeadNotFoundException");
+        expect(function() {
+            hydra.detachHead('plugin2', 'head1');
+        }).toThrow("HydraHeadNotFoundException");
+        expect(function() {
+            hydra.detachHead('_plugin', 'head1');
+        }).toThrow("HydraHeadNotFoundException");
+    });
+
+    it("throw an error when attaching/detaching already attached/detached heads", function() {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo', 'foo path', 'head1')];
+        hydra.registerPlugin({name: 'plugin', heads: heads});
+
+        expect(function() {
+            hydra.attachHead('plugin', 'head1');
+        }).toThrow("InvalidHydraHeadStateException");
+        hydra.detachHead('plugin', 'head1');
+        expect(function() {
+            hydra.detachHead('plugin', 'head1');
+        }).toThrow("InvalidHydraHeadStateException");
+    });
+
+    it("skips detached heads when dispatching", function(done) {
+        var hydra = new Hydra();
+        var path = '/foo';
+        var heads = [simpleHydraHead(path,   'foo path', 'head1'),
+                     simpleHydraHead('/.*',  'catch-all', 'head2')];
+        hydra.registerPlugin({name: 'plugin', heads: heads});
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.statusCode).toEqual(200);
+            expect(res.send).toBeCalledWith('foo path');
+
+            hydra.detachHead('plugin', 'head1');
+            var res2 = {send: sinon.spy()};
+            hydra.handle({url: path}, res2, function() {
+                expect(res2.statusCode).toEqual(200);
+                expect(res2.send).toBeCalledWith('catch-all');
+
+                hydra.attachHead('plugin', 'head1');
+                var res3 = {send: sinon.spy()};
+                hydra.handle({url: path}, res3, function() {
+                    expect(res3.statusCode).toEqual(200);
+                    expect(res3.send).toBeCalledWith('foo path');
+                    done();
+                });
+            });
+        });
     });
 });
