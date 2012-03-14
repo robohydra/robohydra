@@ -46,7 +46,7 @@ describe("Hydras", function() {
         var hydra = new Hydra();
         hydra.registerPlugin({name: 'simple_plugin',
                               heads: [simpleHydraHead()]});
-        expect(hydra.plugins()).toEqual(['simple_plugin']);
+        expect(hydra.pluginNames()).toEqual(['simple_plugin']);
     });
 
     it("can't register two plugins with the same name", function() {
@@ -56,7 +56,7 @@ describe("Hydras", function() {
         var plugin2 = {name: 'simple_plugin',
                        heads: [simpleHydraHead('/.*', 'bar')]};
         hydra.registerPlugin(plugin1);
-        expect(hydra.plugins()).toEqual(['simple_plugin']);
+        expect(hydra.pluginNames()).toEqual(['simple_plugin']);
         expect(function() {
             hydra.registerPlugin(plugin2);
         }).toThrow("DuplicateHydraPluginException");
@@ -70,9 +70,9 @@ describe("Hydras", function() {
         var plugin2 = {name: 'plugin2',
                        heads: [simpleHydraHead('/.*', 'Not Found')]};
         hydra.registerPlugin(plugin1);
-        expect(hydra.plugins()).toEqual(['plugin1']);
+        expect(hydra.pluginNames()).toEqual(['plugin1']);
         hydra.registerPlugin(plugin2);
-        expect(hydra.plugins()).toEqual(['plugin1', 'plugin2']);
+        expect(hydra.pluginNames()).toEqual(['plugin1', 'plugin2']);
     });
 
     it("consider all paths 404 when there are no plugins", function() {
@@ -117,26 +117,24 @@ describe("Hydras", function() {
         });
     });
 
-    it("doesn't allow registering two heads with the same name", function() {
-        var t = "some dummy text";
-
-        // Same plugin
-        var hydraSame = new Hydra();
-        var heads = [simpleHydraHead('/foo', t, 'name'),
-                     simpleHydraHead('/bar', t, 'name')];
+    it("don't allow registering a plugin with duplicate head names", function() {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo', 'dummy name', 'name'),
+                     simpleHydraHead('/bar', 'dummy name', 'name')];
         expect(function() {
-            hydraSame.registerPlugin({name: 'plugin1', heads: heads});
+            hydra.registerPlugin({name: 'plugin1', heads: heads});
         }).toThrow("DuplicateHydraHeadNameException");
+        expect(hydra.pluginNames()).toEqual([]);
+    });
 
-        // Different plugin
-        var hydraDifferent = new Hydra();
-        var headsPlugin1 = [simpleHydraHead('/foo', t, 'duplicateHead'),
-                            simpleHydraHead('/bar', t, 'plugin1Head2')];
-        var headsPlugin2 = [simpleHydraHead('/foo', t, 'plugin2Head'),
-                            simpleHydraHead('/bar', t, 'duplicateHead')];
-        hydraDifferent.registerPlugin({name: 'p1', heads: headsPlugin1});
-        expect(function() {
-            hydraDifferent.registerPlugin({name: 'p2', heads: headsPlugin2});
-        }).toThrow("DuplicateHydraHeadNameException");
+    it("allow registering different plugins with common head names", function() {
+        var hydra = new Hydra();
+        var headsPlugin1 = [simpleHydraHead('/foo', 'content', 'head1'),
+                            simpleHydraHead('/bar', 'content', 'head2')];
+        var headsPlugin2 = [simpleHydraHead('/foo', 'content', 'head1'),
+                            simpleHydraHead('/bar', 'content', 'head2')];
+        hydra.registerPlugin({name: 'plugin1', heads: headsPlugin1});
+        hydra.registerPlugin({name: 'plugin2', heads: headsPlugin2});
+        expect(hydra.pluginNames()).toEqual(['plugin1', 'plugin2']);
     });
 });
