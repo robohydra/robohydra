@@ -226,7 +226,7 @@ describe("Static content Hydra heads", function() {
         ], done);
     });
 
-    it("know which paths they can dispatch", function() {
+    it("know which static paths they can dispatch", function() {
         var validPaths = ['/foobar', '/foobar/'];
         var invalidPaths = ['/', '/fooba', '/foobar/qux', '/qux/foobar'];
 
@@ -239,6 +239,20 @@ describe("Static content Hydra heads", function() {
             invalidPaths.forEach(function(path) {
                 expect(head).not().toDispatch(path);
             });
+        });
+    });
+
+    it("know which regular expression paths they can dispatch", function() {
+        var validPaths = ['/foo/a', '/foo/abcd', '/foo/abcd/'];
+        var invalidPaths = ['/', '/foo/', '/foobar/', '/foo/qux/mux'];
+
+        var head = new HydraHeadStatic({path: '/foo/[^/]+',
+                                        content: "Some test content"});
+        validPaths.forEach(function(path) {
+            expect(head).toDispatch(path);
+        });
+        invalidPaths.forEach(function(path) {
+            expect(head).not().toDispatch(path);
         });
     });
 
@@ -426,7 +440,8 @@ describe("Proxying Hydra heads", function() {
     it("know which paths they can dispatch", function() {
         var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
                           '/foobar/dir/file', '/foobar/dir/file.txt'];
-        var invalidPaths = ['/', '/fooba', '/fooba/'];
+        var invalidPaths = ['/', '/fooba', '/fooba/', '/qux/foobar',
+                            '/foobarqux'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
             var head = new HydraHeadProxy({basePath: dispatchPath,
