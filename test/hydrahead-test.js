@@ -271,6 +271,19 @@ describe("Static content Hydra heads", function() {
             expect(head).toDispatch(path);
         });
     });
+
+    it("can automatically stringify a Javascript object", function(done) {
+        var head = new HydraHeadStatic({content: ['one', 'two', {three: 3}]});
+        withResponse(head, '/json', function(res) {
+            var jsonText = res.send.getCall(0).args[0];
+            var resultObject = JSON.parse(jsonText);
+            expect(resultObject.length).toEqual(3);
+            expect(resultObject[0]).toEqual('one');
+            expect(resultObject[1]).toEqual('two');
+            expect(resultObject[2].three).toEqual(3);
+            done();
+        });
+    });
 });
 
 describe("Filesystem Hydra heads", function() {
