@@ -5,10 +5,10 @@ var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
 
 buster.spec.expose();
 
-function simpleHydraHead(path, content) {
+function simpleHydraHead(path, content, name) {
     path    = path    || '/.*';
     content = content || 'foo';
-    return new HydraHeadStatic({path: path, content: content})
+    return new HydraHeadStatic({name: name, path: path, content: content})
 }
 
 describe("Hydras", function() {
@@ -115,5 +115,28 @@ describe("Hydras", function() {
             hydra.handle({url: path}, res, function() {});
             expect(res.statusCode).toEqual(404);
         });
+    });
+
+    it("doesn't allow registering two heads with the same name", function() {
+        var t = "some dummy text";
+
+        // Same plugin
+        var hydraSame = new Hydra();
+        var heads = [simpleHydraHead('/foo', t, 'name'),
+                     simpleHydraHead('/bar', t, 'name')];
+        expect(function() {
+            hydraSame.registerPlugin({name: 'plugin1', heads: heads});
+        }).toThrow("DuplicateHydraHeadNameException");
+
+        // Different plugin
+        var hydraDifferent = new Hydra();
+        var headsPlugin1 = [simpleHydraHead('/foo', t, 'duplicateHead'),
+                            simpleHydraHead('/bar', t, 'plugin1Head2')];
+        var headsPlugin2 = [simpleHydraHead('/foo', t, 'plugin2Head'),
+                            simpleHydraHead('/bar', t, 'duplicateHead')];
+        hydraDifferent.registerPlugin({name: 'p1', heads: headsPlugin1});
+        expect(function() {
+            hydraDifferent.registerPlugin({name: 'p2', heads: headsPlugin2});
+        }).toThrow("DuplicateHydraHeadNameException");
     });
 });
