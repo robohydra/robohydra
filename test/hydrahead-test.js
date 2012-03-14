@@ -191,6 +191,63 @@ describe("Generic Hydra heads", function() {
             ['/foobar/123qux', {status: 404}]
         ], done);
     });
+
+    it("can be created attached/detached", function() {
+        var detachedHead = new HydraHead({detached: true,
+                                          path: '/',
+                                          handler: function() {}});
+        expect(detachedHead.attached()).toEqual(false);
+
+        var normalHead = new HydraHead({path: '/', handler: function() {}});
+        expect(normalHead.attached()).toEqual(true);
+
+        var explicitHead = new HydraHead({path: '/', handler: function() {}});
+        expect(explicitHead.attached()).toEqual(true);
+    });
+
+    it("can be attached/detached dynamically", function() {
+        var head = new HydraHead({path: '/', handler: function() {}});
+        expect(head.attached()).toEqual(true);
+        head.detach();
+        expect(head.attached()).toEqual(false);
+        head.attach();
+        expect(head.attached()).toEqual(true);
+    });
+
+    it("can't be attached/detached when already in that state", function() {
+        var head = new HydraHead({path: '/', handler: function() {}});
+        expect(function() {
+            head.attach();
+        }).toThrow("InvalidHydraHeadStateException");
+        expect(head.attached()).toEqual(true);
+        head.detach();
+        expect(head.attached()).toEqual(false);
+        expect(function() {
+            head.detach();
+        }).toThrow("InvalidHydraHeadStateException");
+        expect(head.attached()).toEqual(false);
+    });
+
+    it("never dispatch any paths when detached", function() {
+        var headStatic = new HydraHead({detached: true, path: '/foo.*',
+                                        handler: function() {}});
+        var headDynamic = new HydraHead({path: '/foo.*',
+                                         handler: function() {}});
+        headDynamic.detach();
+
+        var paths = ['/foo', '/foo/bar'];
+        [headStatic, headDynamic].forEach(function(head) {
+            expect(head).not().toDispatch('/');
+            paths.forEach(function(path) {
+                expect(head).not().toDispatch(path);
+            });
+            head.attach();
+            expect(head).not().toDispatch('/');
+            paths.forEach(function(path) {
+                expect(head).toDispatch(path);
+            });
+        });
+    });
 });
 
 describe("Static content Hydra heads", function() {
