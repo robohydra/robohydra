@@ -248,6 +248,47 @@ describe("Generic Hydra heads", function() {
             });
         });
     });
+
+    it("know which paths they can dispatch", function() {
+        var validPaths = ['/article/show/123', '/page/edit/123/'];
+        var invalidPaths = ['/article/show/123/456', '/article/',
+                            '/article/show'];
+
+        var head = new HydraHead({path: '/:controller/:action/:id',
+                                  handler: function() {}});
+        validPaths.forEach(function(path) {
+            expect(head).toDispatch(path);
+        });
+        invalidPaths.forEach(function(path) {
+            expect(head).not().toDispatch(path);
+        });
+    });
+
+    it("set the appropriate request params with the request variables", function(done) {
+        var controller, action, id;
+        var head = new HydraHead({path: '/:controller/:action/:id',
+                                  handler: function(req, res, cb) {
+                                      controller = req.params.controller;
+                                      action     = req.params.action;
+                                      id         = req.params.id;
+                                      res.send("Response for " + req.url);
+                                      cb();
+                                  }});
+
+        withResponse(head, '/article/show/123', function(res) {
+            expect(res).toMatchResponse('Response for /article/show/123');
+            expect(controller).toEqual('article');
+            expect(action).toEqual('show');
+            expect(id).toEqual('123');
+            withResponse(head, '/page/edit/456/', function(res) {
+                expect(res).toMatchResponse('Response for /page/edit/456/');
+                expect(controller).toEqual('page');
+                expect(action).toEqual('edit');
+                expect(id).toEqual('456');
+                done();
+            });
+        });
+    });
 });
 
 describe("Static content Hydra heads", function() {
