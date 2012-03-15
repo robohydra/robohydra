@@ -249,8 +249,23 @@ describe("Generic Hydra heads", function() {
         });
     });
 
-    it("know which paths they can dispatch", function() {
-        var validPaths = ['/article/show/123', '/page/edit/123/'];
+    it("know which static paths they can dispatch", function() {
+        var validPaths = ['/foo/ba', '/foo/b/',
+                          '/foo/baaaa', '/foo/baa?param=value'];
+        var invalidPaths = ['/foo/bar', '/foo/'];
+
+        var head = new HydraHead({path: '/foo/ba*', handler: function() {}});
+        validPaths.forEach(function(path) {
+            expect(head).toDispatch(path);
+        });
+        invalidPaths.forEach(function(path) {
+            expect(head).not().toDispatch(path);
+        });
+    });
+
+    it("know which paths they can dispatch with variables", function() {
+        var validPaths = ['/article/show/123', '/page/edit/123/',
+                          '/article/list/all?page=3'];
         var invalidPaths = ['/article/show/123/456', '/article/',
                             '/article/show'];
 
@@ -285,7 +300,13 @@ describe("Generic Hydra heads", function() {
                 expect(controller).toEqual('page');
                 expect(action).toEqual('edit');
                 expect(id).toEqual('456');
-                done();
+                withResponse(head, '/widget/search/term?page=2', function(res) {
+                    expect(res).toMatchResponse('Response for /widget/search/term?page=2');
+                    expect(controller).toEqual('widget');
+                    expect(action).toEqual('search');
+                    expect(id).toEqual('term');
+                    done();
+                });
             });
         });
     });
