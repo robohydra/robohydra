@@ -556,12 +556,45 @@ describe("Proxying Hydra heads", function() {
         var head = new HydraHeadProxy({basePath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
+        var head2 = new HydraHeadProxy({basePath: '/foobar',
+                                        proxyTo: 'http://example.com/mounted/',
+                                        httpCreateClientFunction: fakeHttpCC});
 
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /mounted/'],
             ['/foobar/blah/', 'Proxied GET response for /mounted/blah/'],
             ['/blah/',        {status: 404}]
-        ], done);
+        ], function() {
+               checkRouting(head2, [
+                   ['/foobar/',      'Proxied GET response for /mounted/'],
+                   ['/foobar/blah/', 'Proxied GET response for /mounted/blah/'],
+                   ['/blah/',        {status: 404}]
+               ], done);
+           });
+    });
+
+    it("can proxy simple GET requests to a site's root path", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+            return "Proxied " + m + " response for " + p;
+        });
+        var head = new HydraHeadProxy({basePath: '/foobar',
+                                       proxyTo: 'http://example.com',
+                                       httpCreateClientFunction: fakeHttpCC});
+        var head2 = new HydraHeadProxy({basePath: '/foobar',
+                                        proxyTo: 'http://example.com/',
+                                        httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            ['/foobar/',      'Proxied GET response for /'],
+            ['/foobar/blah/', 'Proxied GET response for /blah/'],
+            ['/blah/',        {status: 404}]
+        ], function() {
+               checkRouting(head2, [
+                   ['/foobar/',      'Proxied GET response for /'],
+                   ['/foobar/blah/', 'Proxied GET response for /blah/'],
+                   ['/blah/',        {status: 404}]
+               ], done);
+           });
     });
 
     it("can proxy simple POST requests", function(done) {
