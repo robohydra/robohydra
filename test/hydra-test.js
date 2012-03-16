@@ -1,6 +1,7 @@
 var buster = require("buster");
 var sinon = require("sinon");
 var Hydra = require("../lib/hydra").Hydra;
+var summonHydraBodyParts = require("../lib/hydra").summonHydraBodyParts;
 var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
 
 buster.spec.expose();
@@ -18,6 +19,15 @@ buster.assertions.add("hasHeadAttached", {
     assertMessage: "Expected ${0} to have a head '${1}/${2}' attached!",
     refuteMessage: "Expected ${0} to have a head '${1}/${2}' detached!",
     expectation: "toHaveHeadAttached"
+});
+
+buster.assertions.add("isAHydraHead", {
+    assert: function (actual) {
+        return typeof(actual.attach) === 'function';
+    },
+    assertMessage: "Expected ${0} to be a hydra head!",
+    refuteMessage: "Expected ${0} to not be a hydra head!",
+    expectation: "toBeAHydraHead"
 });
 
 function simpleHydraHead(path, content, name) {
@@ -250,5 +260,44 @@ describe("Hydras", function() {
                 });
             });
         });
+    });
+});
+
+describe("Hydra Head summoner", function() {
+    it("fails with an empty definition", function() {
+        expect(function() {
+            new summonHydraBodyParts({})
+        }).toThrow("InvalidHydraPluginException");
+    });
+
+    it("can summon an empty definition", function() {
+        expect(new summonHydraBodyParts({heads: []})).toEqual({heads: []});
+    });
+
+    it("can summon a single Hydra Head", function() {
+        var bodyPartDef = {heads: [{type: 'static',
+                                    content: 'foo'}]};
+        var bodyParts = new summonHydraBodyParts(bodyPartDef);
+        expect(bodyParts.heads.length).toEqual(1);
+        expect(bodyParts.heads[0]).toBeAHydraHead();
+    });
+
+    it("can summon multiple Hydra Heads", function() {
+        var bodyPartDef = {heads: [{type: 'static',
+                                    content: 'foo'},
+                                   {type: 'generic',
+                                    path: '/',
+                                    handler: function() {}},
+                                   {type: 'filesystem',
+                                    basePath: '/',
+                                    documentRoot: '/var/www/foo'},
+                                   {type: 'proxy',
+                                    basePath: '/',
+                                    proxyTo: "http://example.com"}]};
+        var bodyParts = new summonHydraBodyParts(bodyPartDef);
+        expect(bodyParts.heads.length).toEqual(4);
+        for (var i = 0, len = bodyParts.heads.lenght; i < len; i++) {
+            expect(bodyParts.heads[i]).toBeAHydraHead();
+        }
     });
 });
