@@ -9,7 +9,7 @@ var express              = require('express'),
     summonHydraBodyParts = require('./lib/hydra').summonHydraBodyParts;
 
 function showHelpAndDie(message) {
-    console.log("SYNTAX: app.js <plugin1> <plugin2> ...");
+    console.log("SYNTAX: app.js mysetup.conf");
     console.log("Each plugin is a Node package returning an object with the property 'heads'");
 
     if (message) {
@@ -31,8 +31,6 @@ var configPath = process.argv[2];
 if (configPath === '-h' || configPath === '-?' || configPath === '--help')
     showHelpAndDie();
 var hydraConfigString = fs.readFileSync(configPath, 'utf-8');
-console.log(configPath);
-console.log(hydraConfigString);
 var hydraConfig = JSON.parse(hydraConfigString);
 if (! hydraConfig.plugins)
     showHelpAndDie(configPath + " doesn't seem like a valid Hydra plugin (missing 'plugins' property in the top-level object)");
@@ -40,16 +38,14 @@ if (! hydraConfig.plugins)
 
 var hydra = new Hydra();
 hydraConfig.plugins.forEach(function(pluginDef) {
-    var pluginModule = require("./" + pluginDef.path);
-    var pluginConf = pluginDef.config;
-    pluginConf.path = pluginDef.path;
-    var plugin = summonHydraBodyParts(pluginModule.getBodyParts(pluginConf));
-    var pluginName = poorMansBasename(pluginDef.path);
+    var plugin = hydra.loadPlugin(pluginDef.name);
+
+    var pluginObject = summonHydraBodyParts(plugin.module.getBodyParts(plugin.config));
+    pluginObject.name = pluginDef.name;
     console.log("Registering hydra plugin " +
-                pluginName + " with heads: " +
-                plugin.heads.map(function(i) { return pluginName + "." + i.name(); }).join(", "));
-    plugin.name = pluginName;
-    hydra.registerPlugin(plugin);
+                pluginObject.name + " with heads: " +
+                pluginObject.heads.map(function(i) { return pluginObject.name + "." + i.name(); }).join(", "));
+    hydra.registerPluginObject(pluginObject);
 });
 
 var app = module.exports = express.createServer(express.logger());
