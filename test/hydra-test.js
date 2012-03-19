@@ -1,5 +1,6 @@
 var buster = require("buster");
 var sinon = require("sinon");
+var fs = require("fs");
 var Hydra = require("../lib/hydra").Hydra;
 var summonHydraBodyParts = require("../lib/hydra").summonHydraBodyParts;
 var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
@@ -98,6 +99,79 @@ describe("Hydras", function() {
         expect(hydra.pluginNames()).toEqual(['plugin1']);
         hydra.registerPluginObject(plugin2);
         expect(hydra.pluginNames()).toEqual(['plugin1', 'plugin2']);
+    });
+
+    it("fail when loading non-existent plugins", function() {
+        var hydra = new Hydra();
+        expect(function() {
+            hydra.loadPlugin('i-dont-exist',
+                             {},
+                             {rootDir: './plugin-fs'});
+        }).toThrow('HydraPluginNotFoundException');
+    });
+
+    it("can load a simple plugin", function() {
+        var configKeyValue = 'config value';
+        var hydra = new Hydra();
+        var rootDir = fs.realpathSync('./plugin-fs');
+        var plugin = hydra.loadPlugin('simple',
+                                      {configKey: configKeyValue},
+                                      {rootDir: rootDir});
+        expect(plugin.module.testProperty).toEqual('testValue');
+        expect(plugin.module.getBodyParts).toBeFunction();
+        expect(plugin.config).toEqual({path: rootDir + '/usr/share/hydra/plugins/simple',
+                                       hydra: hydra,
+                                       configKey: configKeyValue});
+    });
+
+    it("loads plugins in the right order of preference", function() {
+        var hydra = new Hydra();
+        var rootDir = fs.realpathSync('./plugin-fs');
+        var plugin = hydra.loadPlugin('definedtwice',
+                                      {},
+                                      {rootDir: rootDir});
+        expect(plugin.module.testProperty).toEqual('/usr/local version');
+        expect(plugin.config).toEqual({path: rootDir + '/usr/local/share/hydra/plugins/definedtwice',
+                                       hydra: hydra});
+    });
+
+    it("can define own load path, and takes precedence", function() {
+        var hydra = new Hydra();
+        hydra.addPluginLoadPath('/opt/hydra/plugins');
+        var rootDir = fs.realpathSync('./plugin-fs');
+        var plugin = hydra.loadPlugin('definedtwice',
+                                      {},
+                                      {rootDir: rootDir});
+        expect(plugin.module.testProperty).toEqual('/opt version');
+        expect(plugin.config).toEqual({path: rootDir + '/opt/hydra/plugins/definedtwice',
+                                       hydra: hydra});
+    });
+
+    it("can define more than one load path, latest has precedence", function() {
+        var hydra = new Hydra();
+        hydra.addPluginLoadPath('/opt/hydra/plugins');
+        hydra.addPluginLoadPath('/opt/project/hydra-plugins');
+
+        var rootDir = fs.realpathSync('./plugin-fs');
+        var plugin = hydra.loadPlugin('definedtwice',
+                                      {},
+                                      {rootDir: rootDir});
+        expect(plugin.module.testProperty).toEqual('/opt/project version');
+        expect(plugin.config).toEqual({path: rootDir + '/opt/project/hydra-plugins/definedtwice',
+                                       hydra: hydra});
+    });
+
+    it("can define more than one load path, first is still valid", function() {
+        var hydra = new Hydra();
+        hydra.addPluginLoadPath('/opt/hydra/plugins');
+        hydra.addPluginLoadPath('/opt/project/hydra-plugins');
+        var rootDir = fs.realpathSync('./plugin-fs');
+        var plugin = hydra.loadPlugin('customloadpath',
+                                      {},
+                                      {rootDir: rootDir});
+        expect(plugin.module.testProperty).toEqual('custom plugin in /opt');
+        expect(plugin.config).toEqual({path: rootDir + '/opt/hydra/plugins/customloadpath',
+                                       hydra: hydra});
     });
 
     it("consider all paths 404 when there are no plugins", function() {
