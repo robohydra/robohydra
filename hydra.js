@@ -42,10 +42,11 @@ hydraConfig.plugins.forEach(function(pluginDef) {
 
     var pluginObject = summonHydraBodyParts(plugin.module.getBodyParts(plugin.config));
     pluginObject.name = pluginDef.name;
-    console.log("Registering hydra plugin " +
-                pluginObject.name + " with heads: " +
-                pluginObject.heads.map(function(i) { return pluginObject.name + "." + i.name(); }).join(", "));
     hydra.registerPluginObject(pluginObject);
+
+    console.log("Registering hydra plugin " +
+                pluginObject.name + " (" + pluginObject.heads.length +
+                " heads)");
 });
 
 var app = module.exports = express.createServer(express.logger());
