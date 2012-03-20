@@ -29,13 +29,13 @@ buster.assertions.add("responseMatches", {
     expectation: "toMatchResponse"
 });
 
-buster.assertions.add("dispatches", {
+buster.assertions.add("handles", {
     assert: function(actual, urlPath) {
-        return actual.canDispatch(urlPath);
+        return actual.canHandle(urlPath);
     },
-    assertMessage: "Expected ${0} to consider path '${1}' dispatchable!",
-    refuteMessage: "Expected ${0} to not consider path '${1}' dispatchable!",
-    expectation: "toDispatch"
+    assertMessage: "Expected ${0} to be able to handle path '${1}'!",
+    refuteMessage: "Expected ${0} to not be able to handle path '${1}'!",
+    expectation: "toHandle"
 });
 
 function withResponse(head, pathOrObject, cb) {
@@ -238,14 +238,14 @@ describe("Generic Hydra heads", function() {
 
         var paths = ['/foo', '/foo/bar'];
         [headStatic, headDynamic].forEach(function(head) {
-            expect(head).not().toDispatch('/');
+            expect(head).not().toHandle('/');
             paths.forEach(function(path) {
-                expect(head).not().toDispatch(path);
+                expect(head).not().toHandle(path);
             });
             head.attach();
-            expect(head).not().toDispatch('/');
+            expect(head).not().toHandle('/');
             paths.forEach(function(path) {
-                expect(head).toDispatch(path);
+                expect(head).toHandle(path);
             });
         });
     });
@@ -257,10 +257,10 @@ describe("Generic Hydra heads", function() {
 
         var head = new HydraHead({path: '/foo/ba*', handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toDispatch(path);
+            expect(head).toHandle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not().toDispatch(path);
+            expect(head).not().toHandle(path);
         });
     });
 
@@ -273,10 +273,10 @@ describe("Generic Hydra heads", function() {
         var head = new HydraHead({path: '/:controller/:action/:id',
                                   handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toDispatch(path);
+            expect(head).toHandle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not().toDispatch(path);
+            expect(head).not().toHandle(path);
         });
     });
 
@@ -363,10 +363,10 @@ describe("Static content Hydra heads", function() {
             var head = new HydraHeadStatic({path: dispatchPath,
                                             content: "Some test content"});
             validPaths.forEach(function(path) {
-                expect(head).toDispatch(path);
+                expect(head).toHandle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not().toDispatch(path);
+                expect(head).not().toHandle(path);
             });
         });
     });
@@ -378,17 +378,17 @@ describe("Static content Hydra heads", function() {
         var head = new HydraHeadStatic({path: '/foo/[^/]+',
                                         content: "Some test content"});
         validPaths.forEach(function(path) {
-            expect(head).toDispatch(path);
+            expect(head).toHandle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not().toDispatch(path);
+            expect(head).not().toHandle(path);
         });
     });
 
     it("know which paths they can dispatch by default", function() {
         var head = new HydraHeadStatic({content: "Some test content"});
         ['/', '/foobar', '/foo/bar'].forEach(function(path) {
-            expect(head).toDispatch(path);
+            expect(head).toHandle(path);
         });
     });
 
@@ -507,10 +507,10 @@ describe("Filesystem Hydra heads", function() {
             var head = new HydraHeadFilesystem({basePath: dispatchPath,
                                                 documentRoot: '/var/www'});
             validPaths.forEach(function(path) {
-                expect(head).toDispatch(path);
+                expect(head).toHandle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not().toDispatch(path);
+                expect(head).not().toHandle(path);
             });
         });
     });
@@ -633,10 +633,10 @@ describe("Proxying Hydra heads", function() {
             var head = new HydraHeadProxy({basePath: dispatchPath,
                                            proxyTo: 'http://www.example.com'});
             validPaths.forEach(function(path) {
-                expect(head).toDispatch(path);
+                expect(head).toHandle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not().toDispatch(path);
+                expect(head).not().toHandle(path);
             });
         });
     });
