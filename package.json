@@ -8,4 +8,10 @@
     , "mime": ">= 1.0.0"
     , "ejs":  ">= 0.6.1"
   }
+  , "devDependencies": {
+      "buster": ""
+  }
+  , "scripts": {
+      "test": "node_modules/.bin/buster-test"
+  }
 }
