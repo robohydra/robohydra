@@ -5,8 +5,8 @@
 
 var express              = require('express'),
     fs                   = require('fs'),
-    Hydra                = require('./lib/hydra').Hydra,
-    summonHydraBodyParts = require('./lib/hydra').summonHydraBodyParts;
+    Hydra                = require('../lib/hydra').Hydra,
+    summonHydraBodyParts = require('../lib/hydra').summonHydraBodyParts;
 
 function showHelpAndDie(message) {
     console.log("SYNTAX: app.js mysetup.conf");
