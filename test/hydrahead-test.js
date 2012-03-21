@@ -67,7 +67,7 @@ function withResponse(head, pathOrObject, cb) {
                     toString: function() {
                         return 'Fake response for ' + path;
                     },
-                    contentType: sinon.spy(),
+                    header: sinon.spy(),
                     writeHead: function(status, headers) {
                         this.statusCode = status;
                     } };
@@ -519,9 +519,9 @@ describe("Filesystem Hydra heads", function() {
         var head = new HydraHeadFilesystem({documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/json.txt':
                                                             'foobar'}),
-                                            mime: {lookup: function(path) { return "text/plain"; }}});
+                                            mime: {lookup: function(path) { return "text/x-fake"; }}});
         withResponse(head, '/json.txt', function(res) {
-            expect(res.contentType).toBeCalledWith("text/plain");
+            expect(res.header).toBeCalledWith("Content-Type", "text/x-fake");
             done();
         });
     });
