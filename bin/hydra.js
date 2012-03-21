@@ -39,7 +39,7 @@ if (! hydraConfig.plugins)
 
 var hydra = new Hydra();
 hydraConfig.plugins.forEach(function(pluginDef) {
-    var plugin = hydra.loadPlugin(pluginDef.name);
+    var plugin = hydra.loadPlugin(pluginDef.name, pluginDef.config);
 
     var pluginObject = summonHydraBodyParts(plugin.module.getBodyParts(plugin.config));
     pluginObject.name = pluginDef.name;
