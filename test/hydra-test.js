@@ -34,10 +34,14 @@ buster.assertions.add("isAHydraHead", {
 buster.assertions.add("hasPluginList", {
     assert: function (actual, expectedPluginList) {
         var list = this.actualPluginList = actual.getPluginNames();
+        this.countHydraAdmin = !!arguments[2];
+        if (! this.countHydraAdmin) {
+            list = list.slice(1);
+        }
         return buster.assertions.deepEqual(list, expectedPluginList);
     },
-    assertMessage: "Expected plugin list to be ${1} (was ${actualPluginList})!",
-    refuteMessage: "Expected plugin list not be ${1}!",
+    assertMessage: "Expected plugin list (counting hydra-admin: ${countHydraAdmin}) to be ${1} (was ${actualPluginList})!",
+    refuteMessage: "Expected plugin list (counting hydra-admin: ${countHydraAdmin}) to not be ${1}!",
     expectation: "toHavePluginList"
 });
 

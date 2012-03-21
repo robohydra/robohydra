@@ -1,9 +1,10 @@
 var buster = require("buster");
 var sinon = require("sinon");
-var HydraHead = require("../lib/hydraHead").HydraHead;
-var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
-var HydraHeadFilesystem = require("../lib/hydraHead").HydraHeadFilesystem;
-var HydraHeadProxy = require("../lib/hydraHead").HydraHeadProxy;
+var HydraHead           = require("../lib/hydraHead").HydraHead,
+    HydraHeadStatic     = require("../lib/hydraHead").HydraHeadStatic,
+    HydraHeadFilesystem = require("../lib/hydraHead").HydraHeadFilesystem,
+    HydraHeadProxy      = require("../lib/hydraHead").HydraHeadProxy,
+    HydraHeadAdmin      = require("../lib/hydraHead").HydraHeadAdmin;
 
 buster.spec.expose();
 
@@ -693,6 +694,46 @@ describe("Proxying Hydra heads", function() {
             invalidPaths.forEach(function(path) {
                 expect(head).not().toHandle(path);
             });
+        });
+    });
+});
+
+
+describe("Admin Hydra heads", function() {
+    it("can't be created without necessary properties", function() {
+        expect(function() {
+            var head = new HydraHeadAdmin({basePath: '/hydra/admin'});
+        }).toThrow("InvalidHydraHeadException");
+    });
+
+    it("show the admin interface by default on /hydra-admin{,/}", function(done) {
+        var hydra = {getPlugins: function() { return []; },
+                     getPluginNames: function() { return ['test-plugin'] }};
+        var head = new HydraHeadAdmin({hydra: hydra});
+
+        checkRouting(head, [
+            ['/hydra-admin',  {status: 200}],
+            ['/hydra-admin/', {status: 200}],
+            ['/blah/',        {status: 404}]
+        ], done);
+    });
+
+    it("show the names of the plugins on the admin index page", function(done) {
+        var head;
+        function getPlugins() {
+            return [{name: 'admin-plugin',
+                     heads: [head]}];
+        }
+        var hydra = { getPlugins: getPlugins,
+                      getPluginNames: function() { return ['admin-plugin']; }
+                    };
+        head = new HydraHeadAdmin({name: 'Hydra Admin UI', hydra: hydra});
+
+        withResponse(head, '/hydra-admin', function(res) {
+            var responseText = res.send.getCall(0).args[0];
+            expect(responseText).toMatch(/admin-plugin/);
+            expect(responseText).toMatch(/Hydra Admin UI/);
+            done();
         });
     });
 });
