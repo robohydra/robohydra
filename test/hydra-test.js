@@ -106,14 +106,14 @@ describe("Hydras", function() {
         expect(function() {
             hydra.loadPlugin('i-dont-exist',
                              {},
-                             {rootDir: './plugin-fs'});
+                             {rootDir: __dirname + '/plugin-fs'});
         }).toThrow('HydraPluginNotFoundException');
     });
 
     it("can load a simple plugin", function() {
         var configKeyValue = 'config value';
         var hydra = new Hydra();
-        var rootDir = fs.realpathSync('./plugin-fs');
+        var rootDir = __dirname + '/plugin-fs';
         var plugin = hydra.loadPlugin('simple',
                                       {configKey: configKeyValue},
                                       {rootDir: rootDir});
@@ -126,7 +126,7 @@ describe("Hydras", function() {
 
     it("loads plugins in the right order of preference", function() {
         var hydra = new Hydra();
-        var rootDir = fs.realpathSync('./plugin-fs');
+        var rootDir = __dirname + '/plugin-fs';
         var plugin = hydra.loadPlugin('definedtwice',
                                       {},
                                       {rootDir: rootDir});
@@ -138,7 +138,7 @@ describe("Hydras", function() {
     it("can define own load path, and takes precedence", function() {
         var hydra = new Hydra();
         hydra.addPluginLoadPath('/opt/hydra/plugins');
-        var rootDir = fs.realpathSync('./plugin-fs');
+        var rootDir = __dirname + '/plugin-fs';
         var plugin = hydra.loadPlugin('definedtwice',
                                       {},
                                       {rootDir: rootDir});
@@ -152,7 +152,7 @@ describe("Hydras", function() {
         hydra.addPluginLoadPath('/opt/hydra/plugins');
         hydra.addPluginLoadPath('/opt/project/hydra-plugins');
 
-        var rootDir = fs.realpathSync('./plugin-fs');
+        var rootDir = __dirname + '/plugin-fs';
         var plugin = hydra.loadPlugin('definedtwice',
                                       {},
                                       {rootDir: rootDir});
@@ -165,7 +165,7 @@ describe("Hydras", function() {
         var hydra = new Hydra();
         hydra.addPluginLoadPath('/opt/hydra/plugins');
         hydra.addPluginLoadPath('/opt/project/hydra-plugins');
-        var rootDir = fs.realpathSync('./plugin-fs');
+        var rootDir = __dirname + '/plugin-fs';
         var plugin = hydra.loadPlugin('customloadpath',
                                       {},
                                       {rootDir: rootDir});
