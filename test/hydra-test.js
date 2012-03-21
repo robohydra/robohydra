@@ -31,6 +31,25 @@ buster.assertions.add("isAHydraHead", {
     expectation: "toBeAHydraHead"
 });
 
+buster.assertions.add("hasPluginList", {
+    assert: function (actual, expectedPluginList) {
+        var list = this.actualPluginList = actual.getPluginNames();
+        return buster.assertions.deepEqual(list, expectedPluginList);
+    },
+    assertMessage: "Expected plugin list to be ${1} (was ${actualPluginList})!",
+    refuteMessage: "Expected plugin list not be ${1}!",
+    expectation: "toHavePluginList"
+});
+
+buster.assertions.add("hasPluginWithHeadcount", {
+    assert: function (actual, pluginName, expectedHeadcount) {
+        return actual.getPlugin(pluginName).heads.length === expectedHeadcount;
+    },
+    assertMessage: "Expected hydra to have headcount ${2} in plugin ${1}!",
+    refuteMessage: "Expected hydra to not have headcount ${2} in plugin ${1}!",
+    expectation: "toHavePluginWithHeadcount"
+});
+
 function simpleHydraHead(path, content, name) {
     path    = path    || '/.*';
     content = content || 'foo';
@@ -72,7 +91,8 @@ describe("Hydras", function() {
         var hydra = new Hydra();
         hydra.registerPluginObject({name: 'simple_plugin',
                                     heads: [simpleHydraHead()]});
-        expect(hydra.pluginNames()).toEqual(['simple_plugin']);
+        expect(hydra).toHavePluginList(['simple_plugin']);
+        expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
     });
 
     it("can't register two plugins with the same name", function() {
@@ -82,7 +102,8 @@ describe("Hydras", function() {
         var plugin2 = {name: 'simple_plugin',
                        heads: [simpleHydraHead('/.*', 'bar')]};
         hydra.registerPluginObject(plugin1);
-        expect(hydra.pluginNames()).toEqual(['simple_plugin']);
+        expect(hydra).toHavePluginList(['simple_plugin']);
+        expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
         expect(function() {
             hydra.registerPluginObject(plugin2);
         }).toThrow("DuplicateHydraPluginException");
@@ -96,9 +117,31 @@ describe("Hydras", function() {
         var plugin2 = {name: 'plugin2',
                        heads: [simpleHydraHead('/.*', 'Not Found')]};
         hydra.registerPluginObject(plugin1);
-        expect(hydra.pluginNames()).toEqual(['plugin1']);
+        expect(hydra).toHavePluginList(['plugin1']);
+        expect(hydra).toHavePluginWithHeadcount('plugin1', 1);
         hydra.registerPluginObject(plugin2);
-        expect(hydra.pluginNames()).toEqual(['plugin1', 'plugin2']);
+        expect(hydra).toHavePluginList(['plugin1', 'plugin2']);
+        expect(hydra).toHavePluginWithHeadcount('plugin1', 1);
+        expect(hydra).toHavePluginWithHeadcount('plugin2', 1);
+    });
+
+    it("can get a plugin by name", function() {
+        var hydra = new Hydra();
+        var plugin1 = {name: 'plugin1',
+                       heads: [simpleHydraHead('/.*', 'Not Found')]};
+        hydra.registerPluginObject(plugin1);
+        var p = hydra.getPlugin('plugin1');
+        expect(p.name).toEqual('plugin1');
+    });
+
+    it("throw an exception when getting a non-existent plugin by name", function() {
+        var hydra = new Hydra();
+        var plugin1 = {name: 'plugin1',
+                       heads: [simpleHydraHead('/.*', 'Not Found')]};
+        hydra.registerPluginObject(plugin1);
+        expect(function() {
+            hydra.getPlugin("plugin11");
+        }).toThrow("HydraPluginNotFoundException");
     });
 
     it("fail when loading non-existent plugins", function() {
@@ -223,7 +266,7 @@ describe("Hydras", function() {
         expect(function() {
             hydra.registerPluginObject({name: 'plugin1', heads: heads});
         }).toThrow("DuplicateHydraHeadNameException");
-        expect(hydra.pluginNames()).toEqual([]);
+        expect(hydra).toHavePluginList([]);
     });
 
     it("allow registering different plugins with common head names", function() {
@@ -234,7 +277,9 @@ describe("Hydras", function() {
                             simpleHydraHead('/bar', 'content', 'head2')];
         hydra.registerPluginObject({name: 'plugin1', heads: headsPlugin1});
         hydra.registerPluginObject({name: 'plugin2', heads: headsPlugin2});
-        expect(hydra.pluginNames()).toEqual(['plugin1', 'plugin2']);
+        expect(hydra).toHavePluginList(['plugin1', 'plugin2']);
+        expect(hydra).toHavePluginWithHeadcount('plugin1', 2);
+        expect(hydra).toHavePluginWithHeadcount('plugin2', 2);
     });
 
     it("find existing heads", function() {
