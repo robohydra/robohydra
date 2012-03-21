@@ -243,8 +243,8 @@ describe("Hydras", function() {
                      simpleHydraHead('/.*',  'catch-all', 'head2')];
         hydra.registerPluginObject({name: 'plugin', heads: heads});
 
-        expect(hydra.findHead('plugin', 'head1').name()).toEqual('head1');
-        expect(hydra.findHead('plugin', 'head2').name()).toEqual('head2');
+        expect(hydra.findHead('plugin', 'head1').name).toEqual('head1');
+        expect(hydra.findHead('plugin', 'head2').name).toEqual('head2');
     });
 
     it("throw an error when finding non-existing heads", function() {

@@ -178,10 +178,10 @@ describe("Generic Hydra heads", function() {
     it("can have a name", function() {
         var head = new HydraHead({name: 'foo',
                                   path: '/', handler: function() {}});
-        expect(head.name()).toEqual('foo');
+        expect(head.name).toEqual('foo');
 
         var namelessHead = new HydraHead({path: '/', handler: function() {}});
-        expect(namelessHead.name()).not().toBeDefined();
+        expect(namelessHead.name).not().toBeDefined();
     });
 
     it("can serve simple content", function(done) {
