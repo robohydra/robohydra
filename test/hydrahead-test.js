@@ -39,17 +39,19 @@ buster.assertions.add("handles", {
 });
 
 function withResponse(head, pathOrObject, cb) {
-    var path, method = 'GET', postData;
+    var path, method = 'GET', postData, headers;
     if (typeof(pathOrObject) === 'string') {
         path = pathOrObject;
     } else {
         path     = pathOrObject.path;
         method   = pathOrObject.method || 'GET';
         postData = pathOrObject.postData;
+        headers  = pathOrObject.headers;
     }
     var fakeReq = { url: path,
                     handlers: {},
                     method: method,
+                    headers: headers || {},
                     addListener: function(event, handler) {
                         this.handlers[event] = handler;
                         if (event === 'data') {
@@ -61,13 +63,16 @@ function withResponse(head, pathOrObject, cb) {
                             this.handlers.end();
                         }
                     } };
-    var fakeRes = { send: sinon.spy(),
+    var fakeRes = { send: sinon.spy(function () { this.statusCode = (this.statusCode || 200); }),
                     write: function(data) { this.send(data); },
                     end: function() {},
                     toString: function() {
                         return 'Fake response for ' + path;
                     },
-                    header: sinon.spy(),
+                    headers: {},
+                    header: function(name, value) {
+                        this.headers[name] = value;
+                    },
                     writeHead: function(status, headers) {
                         this.statusCode = status;
                     } };
@@ -89,10 +94,24 @@ function checkRouting(head, list, cb) {
 }
 
 function fakeFs(fileMap) {
+    for (p in fileMap) {
+        if (typeof fileMap[p] === 'string') {
+            fileMap[p] = { content: fileMap[p] };
+        }
+    }
     return {
         readFile: function(path, cb) {
             if (fileMap.hasOwnProperty(path))
-                cb("", fileMap[path]);
+                cb("", fileMap[path].content);
+            else
+                cb("File not found");
+        },
+        stat: function(path, cb) {
+            if (fileMap.hasOwnProperty(path))
+                cb("", {
+                    isFile: function () { return true; },
+                    mtime:  fileMap[path].mtime || new Date()
+                });
             else
                 cb("File not found");
         }
@@ -515,13 +534,49 @@ describe("Filesystem Hydra heads", function() {
         });
     });
 
-    it("set the correct Content-Type for the served files", function(done) {
+    it("sets the correct Content-Type for the served files", function(done) {
         var head = new HydraHeadFilesystem({documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/json.txt':
                                                             'foobar'}),
                                             mime: {lookup: function(path) { return "text/x-fake"; }}});
         withResponse(head, '/json.txt', function(res) {
-            expect(res.header).toBeCalledWith("Content-Type", "text/x-fake");
+            expect(res.headers['Content-Type']).toEqual("text/x-fake");
+            done();
+        });
+    });
+
+    it("sets the correct Last-Modified for the served files", function(done) {
+        var mtime = new Date();
+        var head = new HydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({
+                '/var/www/json.txt': {
+                    content: 'foobar',
+                    mtime: mtime
+                }
+            })
+        });
+        withResponse(head, '/json.txt', function(res) {
+            expect(res.headers['Last-Modified']).toEqual(mtime.toUTCString());
+            done();
+        });
+    });
+
+    it("serves 304 for not modified files", function(done) {
+        var headers = {
+            'if-modified-since': new Date(1337)
+        };
+        var head = new HydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({
+                '/var/www/json.txt': {
+                    content: 'foobar',
+                    mtime: new Date(42)
+                }
+            })
+        });
+        withResponse(head, { path: '/json.txt', headers: headers }, function(res) {
+            expect(res.statusCode).toEqual(304);
             done();
         });
     });
