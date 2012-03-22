@@ -8,6 +8,7 @@
     , "jade": ">= 0.0.1"
     , "mime": ">= 1.0.0"
     , "ejs":  ">= 0.6.1"
+    , "qs":   ">= 0.4.2"
   }
   , "devDependencies": {
       "buster": ""

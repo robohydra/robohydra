@@ -6,6 +6,7 @@
 
 var express              = require('express'),
     fs                   = require('fs'),
+    qs                   = require('qs'),
     Hydra                = require('../lib/hydra').Hydra,
     summonHydraBodyParts = require('../lib/hydra').summonHydraBodyParts;
 
@@ -64,7 +65,16 @@ app.configure('production', function(){
 
 // Routes are all dynamic, so we only need a catch-all here
 app.all('/*', function(req, res) {
-    hydra.handle(req, res, function() { res.end() });
+    // Fetch POST data if available
+    req.rawBody = "";
+    req.addListener("data", function (chunk) {
+        req.rawBody += chunk;
+    });
+    req.addListener("end", function () {
+        // When we have a complete request, dispatch it through Hydra
+        req.body = qs.parse(req.rawBody);
+        hydra.handle(req, res, function() { res.end() });
+    });
 });
 
 app.listen(3000);
