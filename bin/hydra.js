@@ -19,11 +19,6 @@ function showHelpAndDie(message) {
     process.exit(1);
 }
 
-function poorMansBasename(path) {
-    return path.replace(new RegExp('/$'), '').
-        replace(new RegExp('.*/'), '');
-}
-
 
 // Check parameters and load Hydra configuration
 if (process.argv.length !== 3)
