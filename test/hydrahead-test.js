@@ -118,7 +118,7 @@ function fakeFs(fileMap) {
 }
 
 function fakeHttpCreateClient(responseFunction) {
-    return function(h, p) {
+    return function(p, h) {
         return {
             request: function(method, path, headers) {
                 return {
@@ -138,7 +138,7 @@ function fakeHttpCreateClient(responseFunction) {
                             addListener: function(event, handler) {
                                 self.handlers[event] = handler;
                                 if (event === 'data') {
-                                    self.handlers[event](responseFunction(method, path, headers, self.data));
+                                    self.handlers[event](responseFunction(method, path, headers, self.data, h, p));
                                 }
                                 if (event === 'end') {
                                     self.handlers[event]();
@@ -705,6 +705,22 @@ describe("Proxying Hydra heads", function() {
               method: 'POST',
               postData: 'some data'},
              'Proxied POST response for /mounted/?getparam=value with data "some data"']
+        ], done);
+    });
+
+    it("can proxy requests to non-standard ports", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, d, host, port) {
+            var res = "Proxied " + m + " response for " + host + ":" + port +
+                                 " -> " + p;
+            return res + (typeof(d) === 'undefined' ? '' :
+                          " with data \"" + d + "\"");
+        });
+        var head = new HydraHeadProxy({basePath: '/foobar',
+                                       proxyTo: 'http://example.com:3000/',
+                                       httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            ['/foobar/', 'Proxied GET response for example.com:3000 -> /']
         ], done);
     });
 
