@@ -75,7 +75,7 @@ app.all('/*', function(req, res) {
     });
     req.addListener("end", function () {
         // When we have a complete request, dispatch it through Hydra
-        req.body = qs.parse(req.rawBody);
+        req.body = qs.parse(req.rawBody.toString());
         hydra.handle(req, res, function() { res.end() });
     });
 });
