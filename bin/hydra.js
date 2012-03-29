@@ -66,9 +66,12 @@ app.configure('production', function(){
 // Routes are all dynamic, so we only need a catch-all here
 app.all('/*', function(req, res) {
     // Fetch POST data if available
-    req.rawBody = "";
+    req.rawBody = new Buffer("");
     req.addListener("data", function (chunk) {
-        req.rawBody += chunk;
+        var tmp = new Buffer(req.rawBody.length + chunk.length);
+        req.rawBody.copy(tmp);
+        chunk.copy(tmp, req.rawBody.length);
+        req.rawBody = tmp;
     });
     req.addListener("end", function () {
         // When we have a complete request, dispatch it through Hydra
