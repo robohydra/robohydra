@@ -53,11 +53,9 @@ function withResponse(head, pathOrObject, cb) {
                     handlers: {},
                     method: method,
                     headers: headers || {},
+                    rawBody: postData,
                     addListener: function(event, handler) {
                         this.handlers[event] = handler;
-                        if (event === 'data') {
-                            handler(postData);
-                        }
                     },
                     end: function() {
                         if (typeof(this.handlers.end) === 'function') {
