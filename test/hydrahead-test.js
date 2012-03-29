@@ -627,6 +627,19 @@ describe("Proxying Hydra heads", function() {
            });
     });
 
+    it("can proxy GET requests with parameters", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+            return "Proxied " + m + " response for " + p;
+        });
+        var head = new HydraHeadProxy({basePath: '/foobar',
+                                       proxyTo: 'http://example.com/mounted',
+                                       httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            ['/foobar/?var=val&lang=scala', 'Proxied GET response for /mounted/?var=val&lang=scala']
+        ], done);
+    });
+
     it("can proxy simple GET requests to a site's root path", function(done) {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
@@ -674,6 +687,24 @@ describe("Proxying Hydra heads", function() {
               method: 'POST',
               postData: 'will not be found'},
              {status: 404}]
+        ], done);
+    });
+
+    it("can proxy POST requests with GET parameters", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, data) {
+            var res = "Proxied " + m + " response for " + p;
+            return res + (typeof(data) === 'undefined' ? '' :
+                          " with data \"" + data + "\"");
+        });
+        var head = new HydraHeadProxy({basePath: '/foobar',
+                                       proxyTo: 'http://example.com/mounted',
+                                       httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            [{path: '/foobar/?getparam=value',
+              method: 'POST',
+              postData: 'some data'},
+             'Proxied POST response for /mounted/?getparam=value with data "some data"']
         ], done);
     });
 
