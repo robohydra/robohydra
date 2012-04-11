@@ -74,8 +74,13 @@ app.all('/*', function(req, res) {
         req.rawBody = tmp;
     });
     req.addListener("end", function () {
+        // Try to parse the body...
+        try {
+            req.body = qs.parse(req.rawBody.toString());
+        } catch(e) {
+            // but it's ok if qs can't handle it
+        }
         // When we have a complete request, dispatch it through Hydra
-        req.body = qs.parse(req.rawBody.toString());
         hydra.handle(req, res, function() { res.end() });
     });
 });
