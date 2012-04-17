@@ -151,9 +151,9 @@ describe("Hydras", function() {
     it("fail when loading non-existent plugins", function() {
         var hydra = new Hydra();
         expect(function() {
-            hydra.loadPlugin('i-dont-exist',
-                             {},
-                             {rootDir: __dirname + '/plugin-fs'});
+            hydra.requirePlugin('i-dont-exist',
+                                {},
+                                {rootDir: __dirname + '/plugin-fs'});
         }).toThrow('HydraPluginNotFoundException');
     });
 
@@ -161,9 +161,9 @@ describe("Hydras", function() {
         var configKeyValue = 'config value';
         var hydra = new Hydra();
         var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.loadPlugin('simple',
-                                      {configKey: configKeyValue},
-                                      {rootDir: rootDir});
+        var plugin = hydra.requirePlugin('simple',
+                                         {configKey: configKeyValue},
+                                         {rootDir: rootDir});
         expect(plugin.module.testProperty).toEqual('testValue');
         expect(plugin.module.getBodyParts).toBeFunction();
         expect(plugin.config).toEqual({path: rootDir + '/usr/share/hydra/plugins/simple',
@@ -174,9 +174,9 @@ describe("Hydras", function() {
     it("loads plugins in the right order of preference", function() {
         var hydra = new Hydra();
         var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.loadPlugin('definedtwice',
-                                      {},
-                                      {rootDir: rootDir});
+        var plugin = hydra.requirePlugin('definedtwice',
+                                         {},
+                                         {rootDir: rootDir});
         expect(plugin.module.testProperty).toEqual('/usr/local version');
         expect(plugin.config).toEqual({path: rootDir + '/usr/local/share/hydra/plugins/definedtwice',
                                        hydra: hydra});
@@ -186,9 +186,9 @@ describe("Hydras", function() {
         var hydra = new Hydra();
         hydra.addPluginLoadPath('/opt/hydra/plugins');
         var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.loadPlugin('definedtwice',
-                                      {},
-                                      {rootDir: rootDir});
+        var plugin = hydra.requirePlugin('definedtwice',
+                                         {},
+                                         {rootDir: rootDir});
         expect(plugin.module.testProperty).toEqual('/opt version');
         expect(plugin.config).toEqual({path: rootDir + '/opt/hydra/plugins/definedtwice',
                                        hydra: hydra});
@@ -200,9 +200,9 @@ describe("Hydras", function() {
         hydra.addPluginLoadPath('/opt/project/hydra-plugins');
 
         var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.loadPlugin('definedtwice',
-                                      {},
-                                      {rootDir: rootDir});
+        var plugin = hydra.requirePlugin('definedtwice',
+                                         {},
+                                         {rootDir: rootDir});
         expect(plugin.module.testProperty).toEqual('/opt/project version');
         expect(plugin.config).toEqual({path: rootDir + '/opt/project/hydra-plugins/definedtwice',
                                        hydra: hydra});
@@ -213,9 +213,9 @@ describe("Hydras", function() {
         hydra.addPluginLoadPath('/opt/hydra/plugins');
         hydra.addPluginLoadPath('/opt/project/hydra-plugins');
         var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.loadPlugin('customloadpath',
-                                      {},
-                                      {rootDir: rootDir});
+        var plugin = hydra.requirePlugin('customloadpath',
+                                         {},
+                                         {rootDir: rootDir});
         expect(plugin.module.testProperty).toEqual('custom plugin in /opt');
         expect(plugin.config).toEqual({path: rootDir + '/opt/hydra/plugins/customloadpath',
                                        hydra: hydra});
