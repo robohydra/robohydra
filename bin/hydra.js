@@ -11,8 +11,7 @@ var express              = require('express'),
     summonHydraBodyParts = require('../lib/hydra').summonHydraBodyParts;
 
 function showHelpAndDie(message) {
-    console.log("SYNTAX: app.js mysetup.conf");
-    console.log("Each plugin is a Node package returning an object with the property 'heads'");
+    console.log("SYNTAX: app.js mysetup.conf [confvar=value confvar2=value2 ...]");
 
     if (message) {
         console.log(message);
@@ -22,7 +21,7 @@ function showHelpAndDie(message) {
 
 
 // Check parameters and load Hydra configuration
-if (process.argv.length !== 3)
+if (process.argv.length < 3)
     showHelpAndDie();
 var configPath = process.argv[2];
 if (configPath === '-h' || configPath === '-?' || configPath === '--help')
@@ -31,13 +30,27 @@ var hydraConfigString = fs.readFileSync(configPath, 'utf-8');
 var hydraConfig = JSON.parse(hydraConfigString);
 if (! hydraConfig.plugins)
     showHelpAndDie(configPath + " doesn't seem like a valid Hydra plugin (missing 'plugins' property in the top-level object)");
+// After the second parameter, the rest is extra configuration variables
+var extraVars = {};
+for (var i = 3, len = process.argv.length; i < len; i++) {
+    var varAndValue  = process.argv[i].split('=', 2);
+    if (varAndValue.length < 2) {
+        showHelpAndDie();
+    } else {
+        extraVars[varAndValue[0]] = varAndValue[1];
+    }
+}
 
 
 var hydra = new Hydra();
 hydraConfig.plugins.forEach(function(pluginDef) {
-    var plugin = hydra.requirePlugin(pluginDef.name, pluginDef.config);
+    var config = {}, p;
+    for (p in pluginDef.config) config[p] = pluginDef.config[p];
+    for (p in extraVars) config[p] = extraVars[p];
+    var plugin = hydra.requirePlugin(pluginDef.name, config);
 
-    var pluginObject = summonHydraBodyParts(plugin.module.getBodyParts(plugin.config));
+    var pluginObject =
+        summonHydraBodyParts(plugin.module.getBodyParts(plugin.config));
     pluginObject.name = pluginDef.name;
     hydra.registerPluginObject(pluginObject);
 
