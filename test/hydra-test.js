@@ -263,6 +263,17 @@ describe("Hydras", function() {
         });
     });
 
+    it("respond correctly with a 404 when no routes match", function(done) {
+        var hydra = new Hydra();
+        var heads = [simpleHydraHead('/foo')];
+        hydra.registerPluginObject({name: 'plugin1', heads: heads});
+        var res = {send: function() {}};
+        hydra.handle({url: '/'}, res, function() {
+            expect(res.statusCode).toEqual(404);
+            done();
+        });
+    });
+
     it("don't allow registering a plugin with duplicate head names", function() {
         var hydra = new Hydra();
         var heads = [simpleHydraHead('/foo', 'dummy name', 'name'),
