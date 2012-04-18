@@ -1,7 +1,7 @@
 var buster = require("buster");
 var sinon = require("sinon");
-var adminPlugin    = require("../lib/plugins/admin"),
-    HydraHeadAdmin = adminPlugin.HydraHeadAdmin;
+var Hydra = require("../lib/hydra").Hydra;
+var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
 var helpers              = require("./helpers"),
     checkRouting         = helpers.checkRouting,
     withResponse         = helpers.withResponse,
@@ -10,39 +10,36 @@ var helpers              = require("./helpers"),
 
 buster.spec.expose();
 
-describe("Admin Hydra heads", function() {
-    it("can't be created without necessary properties", function() {
-        expect(function() {
-            var head = new HydraHeadAdmin({basePath: '/hydra/admin'});
-        }).toThrow("InvalidHydraHeadException");
+describe("Admin Hydra UI", function() {
+    it("shows up by default on /hydra-admin", function(done) {
+        var hydra = new Hydra();
+
+        var req = {url: '/hydra-admin', param: function() {}};
+        var res = {send: function() {}};
+        hydra.handle(req, res, function() {
+            expect(res.statusCode).toEqual(200);
+            var res2 = {send: function() {}};
+            hydra.handle({url: '/blah'}, res2, function() {
+                expect(res2.statusCode).toEqual(404);
+                done();
+            });
+        });
     });
 
-    it("show the admin interface by default on /hydra-admin{,/}", function(done) {
-        var hydra = {getPlugins: function() { return []; },
-                     getPluginNames: function() { return ['test-plugin'] }};
-        var head = new HydraHeadAdmin({hydra: hydra});
+    it("shows the plugin & head names on the front page", function(done) {
+        var hydra = new Hydra();
+        var pluginName = 'plugin1', headName = 'some-head-name';
+        hydra.registerPluginObject({
+            name: pluginName,
+            heads: [new HydraHeadStatic({name: headName, content: 'foo'})]
+        });
 
-        checkRouting(head, [
-            ['/hydra-admin',  {status: 200}],
-            ['/hydra-admin/', {status: 200}],
-            ['/blah/',        {status: 404}]
-        ], done);
-    });
-
-    it("show the names of the plugins on the admin index page", function(done) {
-        var head;
-        function getPlugins() {
-            return [{name: 'admin-plugin',
-                     heads: [head]}];
-        }
-        var hydra = { getPlugins: getPlugins,
-                      getPluginNames: function() { return ['admin-plugin']; }
-                    };
-        head = new HydraHeadAdmin({name: 'Hydra Admin UI', hydra: hydra});
-
-        withResponse(head, '/hydra-admin', function(res) {
+        var req = {url: '/hydra-admin', param: function() {}};
+        var res = {send: sinon.spy()};
+        hydra.handle(req, res, function() {
             var responseText = res.send.getCall(0).args[0];
-            expect(responseText).toMatch(/admin-plugin/);
+            expect(responseText).toMatch(pluginName);
+            expect(responseText).toMatch(headName);
             expect(responseText).toMatch(/Hydra Admin UI/);
             done();
         });
