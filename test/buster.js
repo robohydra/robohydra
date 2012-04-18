@@ -4,7 +4,7 @@ config["Main"] = {
     rootPath: "../",
     environment: "node",
     sources: [
-        "lib/**/*.js"
+        "lib/*/*.js"
     ],
     tests: [
         "test/*-test.js"
