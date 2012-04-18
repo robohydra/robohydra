@@ -34,9 +34,9 @@ buster.assertions.add("isAHydraHead", {
 buster.assertions.add("hasPluginList", {
     assert: function (actual, expectedPluginList) {
         var list = this.actualPluginList = actual.getPluginNames();
-        this.countHydraAdmin = !!arguments[2];
-        if (! this.countHydraAdmin) {
-            list = list.slice(1);
+        this.countSpecialPlugins = !!arguments[2];
+        if (! this.countSpecialPlugins) {
+            list = list.filter(function(p) { return p.indexOf("*") === -1 });
         }
         return buster.assertions.deepEqual(list, expectedPluginList);
     },
@@ -55,9 +55,10 @@ buster.assertions.add("hasPluginWithHeadcount", {
 });
 
 function simpleHydraHead(path, content, name) {
-    path    = path    || '/.*';
-    content = content || 'foo';
-    return new HydraHeadStatic({name: name, path: path, content: content})
+    var props = {path:    path    || '/.*',
+                 content: content || 'foo'};
+    if (name) props.name = name;
+    return new HydraHeadStatic(props);
 }
 
 describe("Hydras", function() {
