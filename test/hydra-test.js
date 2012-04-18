@@ -396,6 +396,92 @@ describe("Hydras", function() {
             });
         });
     });
+
+    it("can create additional heads dynamically", function(done) {
+        var hydra = new Hydra();
+        var path = '/foo';
+
+        hydra.registerDynamicHead(simpleHydraHead(path, 'some content'));
+        expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
+
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.send).toBeCalledWith('some content');
+            done();
+        });
+    });
+
+    it("can register several dynamic heads", function(done) {
+        var hydra = new Hydra();
+        var path1    = '/foo',         path2    = '/bar';
+        var content1 = 'some content', content2 = 'another content';
+
+        hydra.registerDynamicHead(simpleHydraHead(path1, content1));
+        hydra.registerDynamicHead(simpleHydraHead(path2, content2));
+
+        var res1 = {send: sinon.spy()};
+        hydra.handle({url: path1}, res1, function() {
+            expect(res1.send).toBeCalledWith(content1);
+            var res2 = {send: sinon.spy()};
+            hydra.handle({url: path2}, res2, function() {
+                expect(res2.send).toBeCalledWith(content2);
+                done();
+            });
+        });
+    });
+
+    it("can find dynamic heads", function() {
+        var hydra = new Hydra();
+        var path = '/foo', content = 'some content', name = 'head1';
+
+        hydra.registerDynamicHead(simpleHydraHead(path, content, name));
+        var dynamicHead = hydra.findHead('*dynamic*', name);
+        expect(dynamicHead).toBeDefined();
+    });
+
+    it("can detach dynamic heads", function(done) {
+        var hydra = new Hydra();
+        var path = '/foo', content = 'some content', name = 'head1';
+
+        hydra.registerDynamicHead(simpleHydraHead(path, content, name));
+
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.send).toBeCalledWith(content);
+
+            hydra.detachHead('*dynamic*', name);
+            var res2 = {send: sinon.spy()};
+            hydra.handle({url: path}, res2, function() {
+                expect(res2.statusCode).toEqual(404);
+                done();
+            });
+        });
+    });
+
+    it("can detach one dynamic head and leave the rest working", function(done) {
+        var hydra = new Hydra();
+        var path1 = '/foo', content1 = 'some content',  name1 = 'head1';
+        var path2 = '/bar', name2 = 'head2';
+
+        hydra.registerDynamicHead(simpleHydraHead(path1, content1,   name1));
+        hydra.registerDynamicHead(simpleHydraHead(path2, 'whatever', name2));
+        hydra.detachHead('*dynamic*', name2);
+
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path1}, res, function() {
+            expect(res.send).toBeCalledWith(content1);
+            done();
+        });
+    });
+
+    it("assigns different names to unnamed dynamic heads", function() {
+        var hydra = new Hydra();
+        hydra.registerDynamicHead(simpleHydraHead());
+        hydra.registerDynamicHead(simpleHydraHead());
+
+        var dynamicHeads = hydra.getPlugin('*dynamic*').heads;
+        expect(dynamicHeads[0].name).not().toEqual(dynamicHeads[1].name);
+    });
 });
 
 describe("Hydra Head summoner", function() {
