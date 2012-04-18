@@ -276,6 +276,34 @@ describe("Static content Hydra heads", function() {
             done();
         });
     });
+
+    it("can return a given Content-Type", function(done) {
+        var contentType = "application/xml";
+        var head = new HydraHeadStatic({content: "<xml/>",
+                                        contentType: contentType});
+        withResponse(head, '/', function(res) {
+            expect(res.headers['Content-Type']).toEqual(contentType);
+            done();
+        });
+    });
+
+    it("return 'application/json' type by default when content is an object", function(done) {
+        var head = new HydraHeadStatic({content: {some: 'object'}});
+        withResponse(head, '/', function(res) {
+            expect(res.headers['Content-Type']).toEqual("application/json");
+            done();
+        });
+    });
+
+    it("can use a specific Content Type when content is an object", function(done) {
+        var contentType = "application/x-made-up";
+        var head = new HydraHeadStatic({content: {some: 'object'},
+                                        contentType: contentType});
+        withResponse(head, '/', function(res) {
+            expect(res.headers['Content-Type']).toEqual(contentType);
+            done();
+        });
+    });
 });
 
 describe("Filesystem Hydra heads", function() {
