@@ -55,7 +55,10 @@ function withResponse(head, pathOrObject, cb) {
                             this.handlers.end();
                         }
                     } };
-    var fakeRes = { send: sinon.spy(function () { this.statusCode = (this.statusCode || 200); }),
+    var fakeRes = { send: sinon.spy(function () {
+                              this.contentSent = true;
+                              this.statusCode = (this.statusCode || 200);
+                          }),
                     write: function(data) { this.send(data); },
                     end: function() {},
                     toString: function() {
@@ -63,6 +66,9 @@ function withResponse(head, pathOrObject, cb) {
                     },
                     headers: {},
                     header: function(name, value) {
+                        if (this.contentSent) {
+                            throw "Can't set headers after sending content!";
+                        }
                         this.headers[name] = value;
                     },
                     writeHead: function(status, headers) {
