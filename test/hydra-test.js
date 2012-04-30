@@ -474,13 +474,153 @@ describe("Hydras", function() {
         });
     });
 
-    it("assigns different names to unnamed dynamic heads", function() {
+    it("assign different names to unnamed dynamic heads", function() {
         var hydra = new Hydra();
         hydra.registerDynamicHead(simpleHydraHead());
         hydra.registerDynamicHead(simpleHydraHead());
 
         var dynamicHeads = hydra.getPlugin('*dynamic*').heads;
         expect(dynamicHeads[0].name).not().toEqual(dynamicHeads[1].name);
+    });
+});
+
+describe("Hydra test system", function() {
+    it("has '*default*' as the default test", function() {
+        var hydra = new Hydra();
+        expect(hydra.currentTest).toEqual({plugin: '*default*',
+                                           test:   '*default*'});
+    });
+
+    it("can start tests", function() {
+        var hydra = new Hydra();
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        simpleTest: {
+                                            heads: [simpleHydraHead()]
+                                        }
+                                    }});
+        hydra.startTest('plugin', 'simpleTest');
+        expect(hydra.currentTest).toEqual({plugin: 'plugin',
+                                           test: 'simpleTest'});
+    });
+
+    it("throws an exception when starting non-existent tests", function() {
+        var hydra = new Hydra();
+        expect(function() {
+            hydra.startTest('plugin', 'simpleTest');
+        }).toThrow("InvalidHydraTestException");
+    });
+
+    it("can stop tests", function() {
+        var hydra = new Hydra();
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        simpleTest: {
+                                            heads: [simpleHydraHead()]
+                                        }
+                                    }});
+        hydra.startTest('plugin', 'simpleTest');
+        hydra.stopTest();
+        expect(hydra.currentTest).toEqual({plugin: '*default*',
+                                           test:   '*default*'});
+    });
+
+    it("stops the previous test when starting a new one", function() {
+        var hydra = new Hydra();
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        simpleTest: {
+                                            heads: [simpleHydraHead()]
+                                        }
+                                    }});
+        hydra.registerPluginObject({name: 'plugin2',
+                                    tests: {
+                                        anotherSimpleTest: {
+                                            heads: [simpleHydraHead()]
+                                        }
+                                    }});
+        hydra.startTest('plugin', 'simpleTest');
+        hydra.startTest('plugin2', 'anotherSimpleTest');
+        expect(hydra.currentTest).toEqual({plugin: 'plugin2',
+                                           test:   'anotherSimpleTest'});
+    });
+
+    it("doesn't activate test heads if no test is active", function(done) {
+        var hydra = new Hydra();
+        var path  = '/foo';
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        simpleTest: {
+                                            heads: [simpleHydraHead(path)]
+                                        }
+                                    }});
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.statusCode).toEqual(404);
+            done();
+        });
+    });
+
+    it("activates test heads when test is active", function(done) {
+        var hydra = new Hydra();
+        var path = '/foo';
+        var testHeads = [simpleHydraHead(path)];
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        someTest: {
+                                            heads: testHeads
+                                        }
+                                    }});
+        hydra.startTest('plugin', 'someTest');
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.statusCode).toEqual(200);
+            done();
+        });
+    });
+
+    it("deactivates test heads when a test is stopped", function(done) {
+        var hydra = new Hydra();
+        var path = '/foo';
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        someTest: {
+                                            heads: [simpleHydraHead(path)]
+                                        }
+                                    }});
+        hydra.startTest('plugin', 'someTest');
+        hydra.stopTest();
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.statusCode).toEqual(404);
+            done();
+        });
+    });
+
+    it("deactivates test heads when a new test is started", function(done) {
+        var hydra = new Hydra();
+        var path = '/foo', path2 = '/bar';
+        hydra.registerPluginObject({name: 'plugin',
+                                    tests: {
+                                        someTest: {
+                                            heads: [simpleHydraHead(path)]
+                                        },
+                                        anotherTest: {
+                                            heads: [simpleHydraHead(path2)]
+                                        }
+                                    }});
+        hydra.startTest('plugin', 'someTest');
+        hydra.startTest('plugin', 'anotherTest');
+        var res = {send: sinon.spy()};
+        hydra.handle({url: path}, res, function() {
+            expect(res.statusCode).toEqual(404);
+
+            var res2 = {send: sinon.spy()};
+            hydra.handle({url: path2}, res2, function() {
+                expect(res2.statusCode).toEqual(200);
+                done();
+            });
+        });
     });
 });
 
