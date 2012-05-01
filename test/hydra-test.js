@@ -66,7 +66,7 @@ describe("Hydras", function() {
         expect(new Hydra()).toBeDefined();
     });
 
-    it("can't register plugins without heads", function() {
+    it("can't register plugins without heads or tests", function() {
         var hydra = new Hydra();
         expect(function() {
             hydra.registerPluginObject({heads: []});
@@ -98,6 +98,13 @@ describe("Hydras", function() {
                                     heads: [simpleHydraHead()]});
         expect(hydra).toHavePluginList(['simple_plugin']);
         expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
+    });
+
+    it("can register plugins with one test", function() {
+        var hydra = new Hydra();
+        hydra.registerPluginObject({name: 'simple_plugin',
+                                    tests: {simpleTest:{}}});
+        expect(hydra).toHavePluginList(['simple_plugin']);
     });
 
     it("can't register two plugins with the same name", function() {
