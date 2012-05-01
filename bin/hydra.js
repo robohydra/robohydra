@@ -52,9 +52,21 @@ hydraConfig.plugins.forEach(function(pluginDef) {
     pluginObject.name = pluginDef.name;
     hydra.registerPluginObject(pluginObject);
 
-    console.log("Registering hydra plugin " +
-                pluginObject.name + " (" + pluginObject.heads.length +
-                " heads)");
+    var featureMessages = [];
+    if (typeof pluginObject.heads === 'object') {
+        featureMessages.push(pluginObject.heads.length + " head(s)");
+    }
+    if (typeof pluginObject.tests === 'object') {
+        var testCount = 0;
+        for (var test in pluginObject.tests) {
+            if (pluginObject.tests.hasOwnProperty(test)) {
+                testCount++;
+            }
+        }
+        featureMessages.push(testCount + " test(s)");
+    }
+    console.log("Registering hydra plugin " + pluginObject.name + " (" +
+                featureMessages.join(", ") + ")");
 });
 
 var app = module.exports = express.createServer(express.logger());
