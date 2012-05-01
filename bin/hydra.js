@@ -4,11 +4,10 @@
  * Module dependencies.
  */
 
-var express              = require('express'),
-    fs                   = require('fs'),
-    qs                   = require('qs'),
-    Hydra                = require('../lib/hydra').Hydra,
-    summonHydraBodyParts = require('../lib/hydra').summonHydraBodyParts;
+var express = require('express'),
+    fs      = require('fs'),
+    qs      = require('qs'),
+    Hydra   = require('../lib/hydra').Hydra;
 
 function showHelpAndDie(message) {
     console.log("SYNTAX: app.js mysetup.conf [confvar=value confvar2=value2 ...]");
@@ -49,8 +48,7 @@ hydraConfig.plugins.forEach(function(pluginDef) {
     for (p in extraVars) config[p] = extraVars[p];
     var plugin = hydra.requirePlugin(pluginDef.name, config);
 
-    var pluginObject =
-        summonHydraBodyParts(plugin.module.getBodyParts(plugin.config));
+    var pluginObject = plugin.module.getBodyParts(plugin.config);
     pluginObject.name = pluginDef.name;
     hydra.registerPluginObject(pluginObject);
 
