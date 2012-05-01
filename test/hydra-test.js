@@ -3,7 +3,8 @@ var sinon = require("sinon");
 var fs = require("fs");
 var Hydra = require("../lib/hydra").Hydra;
 var summonHydraBodyParts = require("../lib/hydra").summonHydraBodyParts;
-var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
+var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic,
+    HydraHead       = require("../lib/hydraHead").HydraHead;
 
 buster.spec.expose();
 
@@ -481,6 +482,68 @@ describe("Hydras", function() {
 
         var dynamicHeads = hydra.getPlugin('*dynamic*').heads;
         expect(dynamicHeads[0].name).not().toEqual(dynamicHeads[1].name);
+    });
+
+    it("can chain a request with two heads", function(done) {
+        var hydra = new Hydra();
+        var resultList = [];
+        var headCallingNext = new HydraHead({
+            path: '/foo',
+            handler: function(req, res, cb, next) {
+                resultList.push('headCallingNext');
+                next(req, res, cb);
+            }});
+        var headBeingCalled = new HydraHead({
+            path: '/.*',
+            handler: function(req, res, cb, next) {
+                resultList.push('headBeingCalled');
+                cb();
+            }});
+        hydra.registerPluginObject({name: 'plugin',
+                                    heads: [headCallingNext,
+                                            headBeingCalled]});
+        var res = {send: sinon.spy()};
+        hydra.handle({url: '/foo'}, res, function() {
+            expect(resultList).toEqual(['headCallingNext', 'headBeingCalled']);
+            done();
+        });
+    });
+
+    it("can chain a request with more than two heads", function(done) {
+        var hydra = new Hydra();
+        var resultList = [];
+        var headCallingNext = new HydraHead({
+            name: 'callingNext',
+            path: '/foo',
+            handler: function(req, res, cb, next) {
+                resultList.push('headCallingNext');
+                next(req, res, cb);
+            }});
+        var headBeingCalled = new HydraHead({
+            name: 'beingCalled',
+            path: '/.*',
+            handler: function(req, res, cb, next) {
+                resultList.push('headBeingCalled');
+                next(req, res, cb);
+            }});
+        var headBeingCalledLast = new HydraHead({
+            name: 'beingCalledLast',
+            path: '/f.*',
+            handler: function(req, res, cb, next) {
+                resultList.push('headBeingCalledLast');
+                cb();
+            }});
+        hydra.registerPluginObject({name: 'plugin',
+                                    heads: [headCallingNext,
+                                            headBeingCalled,
+                                            headBeingCalledLast]});
+        var res = {send: sinon.spy()};
+        hydra.handle({url: '/foo'}, res, function() {
+            expect(resultList).toEqual(['headCallingNext',
+                                        'headBeingCalled',
+                                        'headBeingCalledLast']);
+            done();
+        });
     });
 });
 
