@@ -1,0 +1,13 @@
+These are some examples of configuration files and plugins.
+
+* empty.conf is a configuration file that doesn't load any plugins whatsoever.
+  Thus, the only available path is /hydra-admin (you can create dynamic heads
+  from that web UI)
+
+* just-tests.conf loads a single plugin with only tests (no default heads). Go
+  to /hydra-admin to see the tests, start them, and see the list of available
+  heads depending on the current running test
+
+To use these examples, call Hydra like so:
+
+    $ hydra -I examples/plugins examples/just-tests.conf
