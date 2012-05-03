@@ -1,39 +1,53 @@
 #!/usr/bin/env node
+/*global require, process, console, JSON, module, Buffer, __dirname*/
 
 /**
  * Module dependencies.
  */
 
-var express = require('express'),
-    fs      = require('fs'),
-    qs      = require('qs'),
-    Hydra   = require('../lib/hydra').Hydra;
+var express   = require('express'),
+    fs        = require('fs'),
+    qs        = require('qs'),
+    commander = require('commander'),
+    Hydra     = require('../lib/hydra').Hydra;
 
+commander.version('0.0.1').
+    usage("mysetup.conf [confvar=value confvar2=value2 ...]").
+    option('-I <path>', 'Adds a new path in the plugin search path list').
+    option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
+    parse(process.argv);
+
+
+// This is a bit crappy, as it uses the global commander variable. But whaeva.
 function showHelpAndDie(message) {
-    console.log("SYNTAX: app.js mysetup.conf [confvar=value confvar2=value2 ...]");
-
     if (message) {
         console.log(message);
     }
+    console.log(commander.helpInformation());
     process.exit(1);
 }
 
 
+var hydra = new Hydra();
+
 // Check parameters and load Hydra configuration
-if (process.argv.length < 3)
+if (commander.args.length < 1)
     showHelpAndDie();
-var configPath = process.argv[2];
-if (configPath === '-h' || configPath === '-?' || configPath === '--help')
-    showHelpAndDie();
+var configPath = commander.args[0];
 var hydraConfigString = fs.readFileSync(configPath, 'utf-8');
 var hydraConfig = JSON.parse(hydraConfigString);
-if (! hydraConfig.plugins)
+if (! hydraConfig.plugins) {
     showHelpAndDie(configPath + " doesn't seem like a valid Hydra plugin (missing 'plugins' property in the top-level object)");
+}
+// Process the options
+if (commander.I) {
+    hydra.addPluginLoadPath(commander.I);
+}
 // After the second parameter, the rest is extra configuration variables
 var extraVars = {};
-for (var i = 3, len = process.argv.length; i < len; i++) {
-    var varAndValue  = process.argv[i].split('=', 2);
-    if (varAndValue.length < 2) {
+for (var i = 1, len = commander.args.length; i < len; i++) {
+    var varAndValue  = commander.args[i].split('=', 2);
+    if (varAndValue.length !== 2) {
         showHelpAndDie();
     } else {
         extraVars[varAndValue[0]] = varAndValue[1];
@@ -41,7 +55,6 @@ for (var i = 3, len = process.argv.length; i < len; i++) {
 }
 
 
-var hydra = new Hydra();
 hydraConfig.plugins.forEach(function(pluginDef) {
     var config = {}, p;
     for (p in pluginDef.config) config[p] = pluginDef.config[p];
@@ -108,5 +121,11 @@ app.all('/*', function(req, res) {
     });
 });
 
-app.listen(3000);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+app.listen(commander.port);
+if (app.address()) {
+    console.log("Express server listening on port %d in %s mode",
+                app.address().port,
+                app.settings.env);
+} else {
+    console.log("Couldn't listen in port %s", commander.port);
+}
