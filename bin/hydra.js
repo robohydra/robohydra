@@ -100,24 +100,40 @@ app.configure('production', function(){
 
 
 // Routes are all dynamic, so we only need a catch-all here
-app.all('/*', function(req, res) {
+app.all('/*', function(expressReq, expressRes) {
+    var req = {
+        url: expressReq.url,
+        getParams: expressReq.query,
+        method: expressReq.method,
+        headers: expressReq.headers,
+        rawBody: new Buffer("")
+    };
+    var res = {
+        write: function(data) { this.body = data; },
+        statusCode: 200,
+        headers: {}
+    };
+
     // Fetch POST data if available
-    req.rawBody = new Buffer("");
-    req.addListener("data", function (chunk) {
+    expressReq.addListener("data", function (chunk) {
         var tmp = new Buffer(req.rawBody.length + chunk.length);
         req.rawBody.copy(tmp);
         chunk.copy(tmp, req.rawBody.length);
         req.rawBody = tmp;
     });
-    req.addListener("end", function () {
+    expressReq.addListener("end", function () {
         // Try to parse the body...
         try {
-            req.body = qs.parse(req.rawBody.toString());
+            req.bodyParams = qs.parse(req.rawBody.toString());
         } catch(e) {
             // but it's ok if qs can't handle it
         }
         // When we have a complete request, dispatch it through Hydra
-        hydra.handle(req, res, function() { res.end() });
+        hydra.handle(req, res, function() {
+            expressRes.writeHead(res.statusCode, res.headers);
+            if (res.body !== undefined) expressRes.write(res.body);
+            expressRes.end()
+        });
     });
 });
 
