@@ -111,6 +111,9 @@ app.all('/*', function(expressReq, expressRes) {
     var res = {
         body: new Buffer(0),
         write: function(chunk) {
+            if (typeof chunk === 'string') {
+                chunk = new Buffer(chunk);
+            }
             var tmp = new Buffer(this.body.length + chunk.length);
             this.body.copy(tmp);
             chunk.copy(tmp, this.body.length);
