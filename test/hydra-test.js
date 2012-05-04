@@ -565,6 +565,22 @@ describe("Hydras", function() {
             done();
         }));
     });
+
+    it("throw an exception if the 'next' function is called without parameters", function() {
+        var hydra = new Hydra();
+        var finalRes;
+        var headCallingNext = new HydraHead({
+            path: '/foo',
+            handler: function(req, res, next) {
+                // http://bit.ly/KkdH81
+                next();
+            }});
+        hydra.registerDynamicHead(headCallingNext);
+        expect(function() {
+            hydra.handle(fakeReq('/foo'),
+                         fakeRes(function() {}));
+        }).toThrow("InvalidHydraNextParameters");
+    });
 });
 
 describe("Hydra test system", function() {
