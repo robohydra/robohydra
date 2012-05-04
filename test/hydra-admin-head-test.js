@@ -6,7 +6,9 @@ var helpers              = require("./helpers"),
     checkRouting         = helpers.checkRouting,
     withResponse         = helpers.withResponse,
     fakeFs               = helpers.fakeFs,
-    fakeHttpCreateClient = helpers.fakeHttpCreateClient;
+    fakeHttpCreateClient = helpers.fakeHttpCreateClient,
+    fakeReq              = helpers.fakeReq,
+    fakeRes              = helpers.fakeRes;
 
 buster.spec.expose();
 
@@ -14,16 +16,16 @@ describe("Admin Hydra UI", function() {
     it("shows up by default on /hydra-admin", function(done) {
         var hydra = new Hydra();
 
-        var req = {url: '/hydra-admin', param: function() {}};
-        var res = {send: function() {}};
-        hydra.handle(req, res, function() {
-            expect(res.statusCode).toEqual(200);
-            var res2 = {send: function() {}};
-            hydra.handle({url: '/blah'}, res2, function() {
-                expect(res2.statusCode).toEqual(404);
-                done();
-            });
-        });
+        var req = {url: '/hydra-admin', getParams: {}};
+        var res = fakeRes(function() {
+                       expect(res.statusCode).toEqual(200);
+                       var res2 = fakeRes(function() {
+                                      expect(res2.statusCode).toEqual(404);
+                                      done();
+                                  })
+                       hydra.handle({url: '/blah'}, res2);
+                   });
+        hydra.handle(req, res);
     });
 
     it("shows the plugin & head names on the front page", function(done) {
@@ -34,14 +36,13 @@ describe("Admin Hydra UI", function() {
             heads: [new HydraHeadStatic({name: headName, content: 'foo'})]
         });
 
-        var req = {url: '/hydra-admin', param: function() {}};
-        var res = {send: sinon.spy()};
-        hydra.handle(req, res, function() {
-            var responseText = res.send.getCall(0).args[0];
-            expect(responseText).toMatch(pluginName);
-            expect(responseText).toMatch(headName);
-            expect(responseText).toMatch(/Hydra Admin UI/);
-            done();
-        });
+        var req = {url: '/hydra-admin', getParams: {}};
+        var res = fakeRes(function() {
+                      expect(this.body).toMatch(pluginName);
+                      expect(this.body).toMatch(headName);
+                      expect(this.body).toMatch(/Hydra Admin/);
+                      done();
+                  });
+        hydra.handle(req, res);
     });
 });

@@ -1,3 +1,4 @@
+/*global require, describe, it, expect*/
 var buster = require("buster");
 var helpers              = require("./helpers"),
     checkRouting         = helpers.checkRouting,
@@ -39,9 +40,8 @@ describe("Generic Hydra heads", function() {
 
     it("can serve simple content", function(done) {
         var head = new HydraHead({path: '/foobar',
-                                  handler: function(req, res, cb) {
+                                  handler: function(req, res) {
                                       res.send('Response for ' + req.url);
-                                      cb();
                                   }});
 
         checkRouting(head, [
@@ -51,9 +51,8 @@ describe("Generic Hydra heads", function() {
 
     it("can serve content from path matching a regular expression", function(done) {
         var head = new HydraHead({path: '/foobar(/[a-z]*)?',
-                                  handler: function(req, res, cb) {
+                                  handler: function(req, res) {
                                       res.send('Response for ' + req.url);
-                                      cb();
                                   }});
 
         checkRouting(head, [
@@ -155,12 +154,11 @@ describe("Generic Hydra heads", function() {
     it("set the appropriate request params with the request variables", function(done) {
         var controller, action, id;
         var head = new HydraHead({path: '/:controller/:action/:id',
-                                  handler: function(req, res, cb) {
+                                  handler: function(req, res) {
                                       controller = req.params.controller;
                                       action     = req.params.action;
                                       id         = req.params.id;
                                       res.send("Response for " + req.url);
-                                      cb();
                                   }});
 
         withResponse(head, '/article/show/123', function(res) {
@@ -267,8 +265,7 @@ describe("Static content Hydra heads", function() {
     it("can automatically stringify a Javascript object", function(done) {
         var head = new HydraHeadStatic({content: ['one', 'two', {three: 3}]});
         withResponse(head, '/json', function(res) {
-            var jsonText = res.send.getCall(0).args[0];
-            var resultObject = JSON.parse(jsonText);
+            var resultObject = JSON.parse(res.body);
             expect(resultObject.length).toEqual(3);
             expect(resultObject[0]).toEqual('one');
             expect(resultObject[1]).toEqual('two');
@@ -550,7 +547,7 @@ describe("Proxying Hydra heads", function() {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, data) {
             var res = "Proxied " + m + " response for " + p;
             return res + (typeof(data) === 'undefined' ? '' :
-                          " with data \"" + data + "\"");
+                          ' with data "' + data + '"');
         });
         var head = new HydraHeadProxy({basePath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',

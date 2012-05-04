@@ -110,6 +110,12 @@ app.all('/*', function(expressReq, expressRes) {
     };
     var res = {
         write: function(data) { this.body = data; },
+        send: function(data) { this.write(data); this.end(); },
+        end: function() {
+            expressRes.writeHead(res.statusCode, res.headers);
+            if (res.body !== undefined) expressRes.write(res.body);
+            expressRes.end()
+        },
         statusCode: 200,
         headers: {}
     };
@@ -129,11 +135,7 @@ app.all('/*', function(expressReq, expressRes) {
             // but it's ok if qs can't handle it
         }
         // When we have a complete request, dispatch it through Hydra
-        hydra.handle(req, res, function() {
-            expressRes.writeHead(res.statusCode, res.headers);
-            if (res.body !== undefined) expressRes.write(res.body);
-            expressRes.end()
-        });
+        hydra.handle(req, res);
     });
 });
 

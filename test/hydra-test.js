@@ -1,9 +1,13 @@
+/*global require, describe, it, expect*/
 var buster = require("buster");
 var sinon = require("sinon");
 var fs = require("fs");
 var Hydra = require("../lib/hydra").Hydra;
 var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic,
     HydraHead       = require("../lib/hydraHead").HydraHead;
+var helpers              = require("./helpers"),
+    fakeReq              = helpers.fakeReq,
+    fakeRes              = helpers.fakeRes;
 
 buster.spec.expose();
 
@@ -231,10 +235,11 @@ describe("Hydras", function() {
 
     it("consider all paths 404 when there are no plugins", function() {
         var hydra = new Hydra();
-        var res = {write: sinon.spy()};
-        hydra.handle({url: '/'}, res, function() {});
-        expect(res.statusCode).toEqual(404);
-        expect(res.write).toBeCalledWith('Not Found');
+        hydra.handle(fakeReq('/'),
+                     fakeRes(function() {
+                         expect(this.statusCode).toEqual(404);
+                         expect(this.body).toEqual('Not Found');
+                     }));
     });
 
     it("can dispatch a single, catch-all path", function() {
@@ -242,10 +247,11 @@ describe("Hydras", function() {
         var content = 'It works!';
         var heads = [simpleHydraHead('/.*', content)];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: '/'}, res, function() {});
-        expect(res.statusCode).toEqual(200);
-        expect(res.write).toBeCalledWith(content);
+        hydra.handle(fakeReq('/'),
+                     fakeRes(function() {
+                         expect(this.statusCode).toEqual(200);
+                         expect(this.body).toEqual(content);
+                     }));
     });
 
     it("traverse heads in order when dispatching", function() {
@@ -254,10 +260,11 @@ describe("Hydras", function() {
         var heads = [simpleHydraHead('/', content),
                      simpleHydraHead('/.*', 'Fail!')];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: '/'}, res, function() {});
-        expect(res.statusCode).toEqual(200);
-        expect(res.write).toBeCalledWith(content);
+        hydra.handle(fakeReq('/'),
+                     fakeRes(function() {
+                         expect(this.statusCode).toEqual(200);
+                         expect(this.body).toEqual(content);
+                     }));
     });
 
     it("deliver 404 when there are routes, but none match", function() {
@@ -265,9 +272,10 @@ describe("Hydras", function() {
         var heads = [simpleHydraHead('/foo'), simpleHydraHead('/bar')];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
         ['/', '/qux', '/foobar', '/foo/bar'].forEach(function(path) {
-            var res = {write: function() {}};
-            hydra.handle({url: path}, res, function() {});
-            expect(res.statusCode).toEqual(404);
+            hydra.handle(fakeReq(path),
+                         fakeRes(function() {
+                             expect(this.statusCode).toEqual(404);
+                         }));
         });
     });
 
@@ -275,11 +283,10 @@ describe("Hydras", function() {
         var hydra = new Hydra();
         var heads = [simpleHydraHead('/foo')];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
-        var res = {write: function() {}};
-        hydra.handle({url: '/'}, res, function() {
-            expect(res.statusCode).toEqual(404);
-            done();
-        });
+        hydra.handle(fakeReq('/'), fakeRes(function() {
+                                       expect(this.statusCode).toEqual(404);
+                                       done();
+                                   }));
     });
 
     it("don't allow registering a plugin with duplicate head names", function() {
@@ -382,26 +389,23 @@ describe("Hydras", function() {
         var heads = [simpleHydraHead(path,   'foo path', 'head1'),
                      simpleHydraHead('/.*',  'catch-all', 'head2')];
         hydra.registerPluginObject({name: 'plugin', heads: heads});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.statusCode).toEqual(200);
-            expect(res.write).toBeCalledWith('foo path');
+        hydra.handle(fakeReq(path), fakeRes(function() {
+            expect(this.statusCode).toEqual(200);
+            expect(this.body).toEqual('foo path');
 
             hydra.detachHead('plugin', 'head1');
-            var res2 = {write: sinon.spy()};
-            hydra.handle({url: path}, res2, function() {
-                expect(res2.statusCode).toEqual(200);
-                expect(res2.write).toBeCalledWith('catch-all');
+            hydra.handle(fakeReq(path), fakeRes(function() {
+                expect(this.statusCode).toEqual(200);
+                expect(this.body).toEqual('catch-all');
 
                 hydra.attachHead('plugin', 'head1');
-                var res3 = {write: sinon.spy()};
-                hydra.handle({url: path}, res3, function() {
-                    expect(res3.statusCode).toEqual(200);
-                    expect(res3.write).toBeCalledWith('foo path');
+                hydra.handle(fakeReq(path), fakeRes(function() {
+                    expect(this.statusCode).toEqual(200);
+                    expect(this.body).toEqual('foo path');
                     done();
-                });
-            });
-        });
+                }));
+            }));
+        }));
     });
 
     it("can create additional heads dynamically", function(done) {
@@ -411,11 +415,10 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead(path, 'some content'));
         expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
 
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.write).toBeCalledWith('some content');
+        hydra.handle(fakeReq(path), fakeRes(function() {
+            expect(this.body).toEqual('some content');
             done();
-        });
+        }));
     });
 
     it("can register several dynamic heads", function(done) {
@@ -426,15 +429,13 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead(path1, content1));
         hydra.registerDynamicHead(simpleHydraHead(path2, content2));
 
-        var res1 = {write: sinon.spy()};
-        hydra.handle({url: path1}, res1, function() {
-            expect(res1.write).toBeCalledWith(content1);
-            var res2 = {write: sinon.spy()};
-            hydra.handle({url: path2}, res2, function() {
-                expect(res2.write).toBeCalledWith(content2);
+        hydra.handle(fakeReq(path1), fakeRes(function() {
+            expect(this.body).toEqual(content1);
+            hydra.handle(fakeReq(path2), fakeRes(function() {
+                expect(this.body).toEqual(content2);
                 done();
-            });
-        });
+            }));
+        }));
     });
 
     it("can find dynamic heads", function() {
@@ -452,17 +453,15 @@ describe("Hydras", function() {
 
         hydra.registerDynamicHead(simpleHydraHead(path, content, name));
 
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.write).toBeCalledWith(content);
+        hydra.handle(fakeReq(path), fakeRes(function() {
+            expect(this.body).toEqual(content);
 
             hydra.detachHead('*dynamic*', name);
-            var res2 = {write: sinon.spy()};
-            hydra.handle({url: path}, res2, function() {
-                expect(res2.statusCode).toEqual(404);
+            hydra.handle(fakeReq(path), fakeRes(function() {
+                expect(this.statusCode).toEqual(404);
                 done();
-            });
-        });
+            }));
+        }));
     });
 
     it("can detach one dynamic head and leave the rest working", function(done) {
@@ -474,11 +473,10 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead(path2, 'whatever', name2));
         hydra.detachHead('*dynamic*', name2);
 
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path1}, res, function() {
-            expect(res.write).toBeCalledWith(content1);
+        hydra.handle(fakeReq(path1), fakeRes(function() {
+            expect(this.body).toEqual(content1);
             done();
-        });
+        }));
     });
 
     it("assign different names to unnamed dynamic heads", function() {
@@ -495,24 +493,23 @@ describe("Hydras", function() {
         var resultList = [];
         var headCallingNext = new HydraHead({
             path: '/foo',
-            handler: function(req, res, cb, next) {
+            handler: function(req, res, next) {
                 resultList.push('headCallingNext');
-                next(req, res, cb);
+                next(req, res);
             }});
         var headBeingCalled = new HydraHead({
             path: '/.*',
-            handler: function(req, res, cb, next) {
+            handler: function(req, res) {
                 resultList.push('headBeingCalled');
-                cb();
+                res.end();
             }});
         hydra.registerPluginObject({name: 'plugin',
                                     heads: [headCallingNext,
                                             headBeingCalled]});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: '/foo'}, res, function() {
+        hydra.handle(fakeReq('/foo'), fakeRes(function() {
             expect(resultList).toEqual(['headCallingNext', 'headBeingCalled']);
             done();
-        });
+        }));
     });
 
     it("can chain a request with more than two heads", function(done) {
@@ -521,35 +518,34 @@ describe("Hydras", function() {
         var headCallingNext = new HydraHead({
             name: 'callingNext',
             path: '/foo',
-            handler: function(req, res, cb, next) {
+            handler: function(req, res, next) {
                 resultList.push('headCallingNext');
-                next(req, res, cb);
+                next(req, res);
             }});
         var headBeingCalled = new HydraHead({
             name: 'beingCalled',
             path: '/.*',
-            handler: function(req, res, cb, next) {
+            handler: function(req, res, next) {
                 resultList.push('headBeingCalled');
-                next(req, res, cb);
+                next(req, res);
             }});
         var headBeingCalledLast = new HydraHead({
             name: 'beingCalledLast',
             path: '/f.*',
-            handler: function(req, res, cb, next) {
+            handler: function(req, res) {
                 resultList.push('headBeingCalledLast');
-                cb();
+                res.end();
             }});
         hydra.registerPluginObject({name: 'plugin',
                                     heads: [headCallingNext,
                                             headBeingCalled,
                                             headBeingCalledLast]});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: '/foo'}, res, function() {
+        hydra.handle(fakeReq('/foo'), fakeRes(function() {
             expect(resultList).toEqual(['headCallingNext',
                                         'headBeingCalled',
                                         'headBeingCalledLast']);
             done();
-        });
+        }));
     });
 
     it("can chain a request that doesn't match any more heads", function(done) {
@@ -557,18 +553,17 @@ describe("Hydras", function() {
         var finalRes;
         var headCallingNext = new HydraHead({
             path: '/foo',
-            handler: function(req, res, cb, next) {
-                next(req, res, function() {
-                    finalRes = res;
-                    cb();
-                });
+            handler: function(req, res, next) {
+                next(req, fakeRes(function() {
+                              finalRes = this;
+                              res.end();
+                          }));
             }});
         hydra.registerPluginObject({name: 'plugin', heads: [headCallingNext]});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: '/foo'}, res, function() {
+        hydra.handle(fakeReq('/foo'), fakeRes(function() {
             expect(finalRes.statusCode).toEqual(404);
             done();
-        });
+        }));
     });
 });
 
@@ -642,11 +637,10 @@ describe("Hydra test system", function() {
                                             heads: [simpleHydraHead(path)]
                                         }
                                     }});
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.statusCode).toEqual(404);
+        hydra.handle(fakeReq(path), fakeRes(function() {
+            expect(this.statusCode).toEqual(404);
             done();
-        });
+        }));
     });
 
     it("activates test heads when test is active", function(done) {
@@ -660,11 +654,10 @@ describe("Hydra test system", function() {
                                         }
                                     }});
         hydra.startTest('plugin', 'someTest');
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.statusCode).toEqual(200);
+        hydra.handle(fakeReq(path), fakeRes(function() {
+            expect(this.statusCode).toEqual(200);
             done();
-        });
+        }));
     });
 
     it("deactivates test heads when a test is stopped", function(done) {
@@ -678,11 +671,10 @@ describe("Hydra test system", function() {
                                     }});
         hydra.startTest('plugin', 'someTest');
         hydra.stopTest();
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.statusCode).toEqual(404);
+        hydra.handle(fakeReq(path), fakeRes(function() {
+            expect(this.statusCode).toEqual(404);
             done();
-        });
+        }));
     });
 
     it("deactivates test heads when a new test is started", function(done) {
@@ -699,15 +691,15 @@ describe("Hydra test system", function() {
                                     }});
         hydra.startTest('plugin', 'someTest');
         hydra.startTest('plugin', 'anotherTest');
-        var res = {write: sinon.spy()};
-        hydra.handle({url: path}, res, function() {
-            expect(res.statusCode).toEqual(404);
+        var res = fakeRes(function() {
+                      expect(res.statusCode).toEqual(404);
 
-            var res2 = {write: sinon.spy()};
-            hydra.handle({url: path2}, res2, function() {
-                expect(res2.statusCode).toEqual(200);
-                done();
-            });
-        });
+                      var res2 = fakeRes(function() {
+                                     expect(res2.statusCode).toEqual(200);
+                                     done();
+                                 });
+                      hydra.handle({url: path2}, res2);
+                  });
+        hydra.handle({url: path}, res);
     });
 });

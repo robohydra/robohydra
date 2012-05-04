@@ -9,7 +9,7 @@ buster.assertions.add("responseMatches", {
             expectedResponse = {content: expectedResponse};
         }
         if (expectedResponse.hasOwnProperty('content')) {
-            this.actualProps.content = actual.send.getCall(0).args[0];
+            this.actualProps.content = actual.body;
             r = r && (this.actualProps.content === expectedResponse.content);
         }
         if (expectedResponse.hasOwnProperty('status')) {
@@ -33,51 +33,15 @@ buster.assertions.add("handles", {
 });
 
 function withResponse(head, pathOrObject, cb) {
-    var path, method = 'GET', postData, headers;
+    var method = 'GET', postData, headers;
     if (typeof(pathOrObject) === 'string') {
-        path = pathOrObject;
-    } else {
-        path     = pathOrObject.path;
-        method   = pathOrObject.method || 'GET';
-        postData = pathOrObject.postData;
-        headers  = pathOrObject.headers;
+        pathOrObject = {path: pathOrObject};
     }
-    var fakeReq = { url: path,
-                    handlers: {},
-                    method: method,
-                    headers: headers || {},
-                    rawBody: postData,
-                    addListener: function(event, handler) {
-                        this.handlers[event] = handler;
-                    },
-                    end: function() {
-                        if (typeof(this.handlers.end) === 'function') {
-                            this.handlers.end();
-                        }
-                    } };
-    var fakeRes = { send: sinon.spy(function () {
-                              this.contentSent = true;
-                              this.statusCode = (this.statusCode || 200);
-                          }),
-                    write: function(data) { this.send(data); },
-                    end: function() {},
-                    toString: function() {
-                        return 'Fake response for ' + path;
-                    },
-                    headers: {},
-                    header: function(name, value) {
-                        if (this.contentSent) {
-                            throw "Can't set headers after sending content!";
-                        }
-                        this.headers[name] = value;
-                    },
-                    writeHead: function(status, headers) {
-                        this.statusCode = status;
-                    } };
-    head.handle(fakeReq, fakeRes, function() {
-        cb(fakeRes);
-    });
-    fakeReq.end();
+    head.handle(fakeReq(pathOrObject.path,
+                        {method:  pathOrObject.method || 'GET',
+                         headers: pathOrObject.headers,
+                         body: pathOrObject.postData}),
+                fakeRes(function() { cb(this); }));
 }
 
 function checkRouting(head, list, cb) {
@@ -92,7 +56,7 @@ function checkRouting(head, list, cb) {
 }
 
 function fakeFs(fileMap) {
-    for (p in fileMap) {
+    for (var p in fileMap) {
         if (typeof fileMap[p] === 'string') {
             fileMap[p] = { content: fileMap[p] };
         }
@@ -154,7 +118,31 @@ function fakeHttpCreateClient(responseFunction) {
     };
 }
 
+function fakeReq(url, options) {
+    options = options || {};
+    return {url: url,
+            method: options.method || 'get',
+            getParams: options.get,
+            bodyParams: options.post,
+            rawBody: options.body,
+            headers: options.headers};
+}
+
+function fakeRes(endCallback) {
+    return {headers: {},
+            write: function(data) {
+                this.body = data;
+            },
+            send: function(data) {
+                this.write(data);
+                this.end();
+            },
+            end: endCallback};
+}
+
 exports.withResponse         = withResponse;
 exports.checkRouting         = checkRouting;
 exports.fakeFs               = fakeFs;
 exports.fakeHttpCreateClient = fakeHttpCreateClient;
+exports.fakeReq              = fakeReq;
+exports.fakeRes              = fakeRes;
