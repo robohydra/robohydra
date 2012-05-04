@@ -109,7 +109,13 @@ app.all('/*', function(expressReq, expressRes) {
         rawBody: new Buffer("")
     };
     var res = {
-        write: function(data) { this.body = data; },
+        body: new Buffer(0),
+        write: function(chunk) {
+            var tmp = new Buffer(this.body.length + chunk.length);
+            this.body.copy(tmp);
+            chunk.copy(tmp, this.body.length);
+            this.body = tmp;
+        },
         send: function(data) { this.write(data); this.end(); },
         end: function() {
             expressRes.writeHead(res.statusCode, res.headers);
