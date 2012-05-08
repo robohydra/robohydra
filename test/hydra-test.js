@@ -717,6 +717,6 @@ describe("Hydra test system", function() {
                                  });
                       hydra.handle({url: path2}, res2);
                   });
-        hydra.handle({url: path}, res);
+        hydra.handle(fakeReq(path), res);
     });
 });
