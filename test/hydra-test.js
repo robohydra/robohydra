@@ -2,12 +2,13 @@
 var buster = require("buster");
 var sinon = require("sinon");
 var fs = require("fs");
-var Hydra = require("../lib/hydra").Hydra;
+var hydra    = require("../lib/hydra"),
+    Hydra    = hydra.Hydra,
+    Response = hydra.Response;
 var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic,
     HydraHead       = require("../lib/hydraHead").HydraHead;
 var helpers              = require("./helpers"),
-    fakeReq              = helpers.fakeReq,
-    fakeRes              = helpers.fakeRes;
+    fakeReq              = helpers.fakeReq;
 
 buster.spec.expose();
 
@@ -236,7 +237,7 @@ describe("Hydras", function() {
     it("consider all paths 404 when there are no plugins", function() {
         var hydra = new Hydra();
         hydra.handle(fakeReq('/'),
-                     fakeRes(function() {
+                     new Response(function() {
                          expect(this.statusCode).toEqual(404);
                          expect(this.body).toEqual('Not Found');
                      }));
@@ -248,7 +249,7 @@ describe("Hydras", function() {
         var heads = [simpleHydraHead('/.*', content)];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
         hydra.handle(fakeReq('/'),
-                     fakeRes(function() {
+                     new Response(function() {
                          expect(this.statusCode).toEqual(200);
                          expect(this.body).toEqual(content);
                      }));
@@ -261,7 +262,7 @@ describe("Hydras", function() {
                      simpleHydraHead('/.*', 'Fail!')];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
         hydra.handle(fakeReq('/'),
-                     fakeRes(function() {
+                     new Response(function() {
                          expect(this.statusCode).toEqual(200);
                          expect(this.body).toEqual(content);
                      }));
@@ -273,7 +274,7 @@ describe("Hydras", function() {
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
         ['/', '/qux', '/foobar', '/foo/bar'].forEach(function(path) {
             hydra.handle(fakeReq(path),
-                         fakeRes(function() {
+                         new Response(function() {
                              expect(this.statusCode).toEqual(404);
                          }));
         });
@@ -283,7 +284,7 @@ describe("Hydras", function() {
         var hydra = new Hydra();
         var heads = [simpleHydraHead('/foo')];
         hydra.registerPluginObject({name: 'plugin1', heads: heads});
-        hydra.handle(fakeReq('/'), fakeRes(function() {
+        hydra.handle(fakeReq('/'), new Response(function() {
                                        expect(this.statusCode).toEqual(404);
                                        done();
                                    }));
@@ -389,17 +390,17 @@ describe("Hydras", function() {
         var heads = [simpleHydraHead(path,   'foo path', 'head1'),
                      simpleHydraHead('/.*',  'catch-all', 'head2')];
         hydra.registerPluginObject({name: 'plugin', heads: heads});
-        hydra.handle(fakeReq(path), fakeRes(function() {
+        hydra.handle(fakeReq(path), new Response(function() {
             expect(this.statusCode).toEqual(200);
             expect(this.body).toEqual('foo path');
 
             hydra.detachHead('plugin', 'head1');
-            hydra.handle(fakeReq(path), fakeRes(function() {
+            hydra.handle(fakeReq(path), new Response(function() {
                 expect(this.statusCode).toEqual(200);
                 expect(this.body).toEqual('catch-all');
 
                 hydra.attachHead('plugin', 'head1');
-                hydra.handle(fakeReq(path), fakeRes(function() {
+                hydra.handle(fakeReq(path), new Response(function() {
                     expect(this.statusCode).toEqual(200);
                     expect(this.body).toEqual('foo path');
                     done();
@@ -415,7 +416,7 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead(path, 'some content'));
         expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
 
-        hydra.handle(fakeReq(path), fakeRes(function() {
+        hydra.handle(fakeReq(path), new Response(function() {
             expect(this.body).toEqual('some content');
             done();
         }));
@@ -429,9 +430,9 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead(path1, content1));
         hydra.registerDynamicHead(simpleHydraHead(path2, content2));
 
-        hydra.handle(fakeReq(path1), fakeRes(function() {
+        hydra.handle(fakeReq(path1), new Response(function() {
             expect(this.body).toEqual(content1);
-            hydra.handle(fakeReq(path2), fakeRes(function() {
+            hydra.handle(fakeReq(path2), new Response(function() {
                 expect(this.body).toEqual(content2);
                 done();
             }));
@@ -453,11 +454,11 @@ describe("Hydras", function() {
 
         hydra.registerDynamicHead(simpleHydraHead(path, content, name));
 
-        hydra.handle(fakeReq(path), fakeRes(function() {
+        hydra.handle(fakeReq(path), new Response(function() {
             expect(this.body).toEqual(content);
 
             hydra.detachHead('*dynamic*', name);
-            hydra.handle(fakeReq(path), fakeRes(function() {
+            hydra.handle(fakeReq(path), new Response(function() {
                 expect(this.statusCode).toEqual(404);
                 done();
             }));
@@ -473,7 +474,7 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead(path2, 'whatever', name2));
         hydra.detachHead('*dynamic*', name2);
 
-        hydra.handle(fakeReq(path1), fakeRes(function() {
+        hydra.handle(fakeReq(path1), new Response(function() {
             expect(this.body).toEqual(content1);
             done();
         }));
@@ -506,7 +507,7 @@ describe("Hydras", function() {
         hydra.registerPluginObject({name: 'plugin',
                                     heads: [headCallingNext,
                                             headBeingCalled]});
-        hydra.handle(fakeReq('/foo'), fakeRes(function() {
+        hydra.handle(fakeReq('/foo'), new Response(function() {
             expect(resultList).toEqual(['headCallingNext', 'headBeingCalled']);
             done();
         }));
@@ -540,7 +541,7 @@ describe("Hydras", function() {
                                     heads: [headCallingNext,
                                             headBeingCalled,
                                             headBeingCalledLast]});
-        hydra.handle(fakeReq('/foo'), fakeRes(function() {
+        hydra.handle(fakeReq('/foo'), new Response(function() {
             expect(resultList).toEqual(['headCallingNext',
                                         'headBeingCalled',
                                         'headBeingCalledLast']);
@@ -554,13 +555,13 @@ describe("Hydras", function() {
         var headCallingNext = new HydraHead({
             path: '/foo',
             handler: function(req, res, next) {
-                next(req, fakeRes(function() {
+                next(req, new Response(function() {
                               finalRes = this;
                               res.end();
                           }));
             }});
         hydra.registerPluginObject({name: 'plugin', heads: [headCallingNext]});
-        hydra.handle(fakeReq('/foo'), fakeRes(function() {
+        hydra.handle(fakeReq('/foo'), new Response(function() {
             expect(finalRes.statusCode).toEqual(404);
             done();
         }));
@@ -578,7 +579,7 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(headCallingNext);
         expect(function() {
             hydra.handle(fakeReq('/foo'),
-                         fakeRes(function() {}));
+                         new Response(function() {}));
         }).toThrow("InvalidHydraNextParameters");
     });
 });
@@ -653,7 +654,7 @@ describe("Hydra test system", function() {
                                             heads: [simpleHydraHead(path)]
                                         }
                                     }});
-        hydra.handle(fakeReq(path), fakeRes(function() {
+        hydra.handle(fakeReq(path), new Response(function() {
             expect(this.statusCode).toEqual(404);
             done();
         }));
@@ -670,7 +671,7 @@ describe("Hydra test system", function() {
                                         }
                                     }});
         hydra.startTest('plugin', 'someTest');
-        hydra.handle(fakeReq(path), fakeRes(function() {
+        hydra.handle(fakeReq(path), new Response(function() {
             expect(this.statusCode).toEqual(200);
             done();
         }));
@@ -687,7 +688,7 @@ describe("Hydra test system", function() {
                                     }});
         hydra.startTest('plugin', 'someTest');
         hydra.stopTest();
-        hydra.handle(fakeReq(path), fakeRes(function() {
+        hydra.handle(fakeReq(path), new Response(function() {
             expect(this.statusCode).toEqual(404);
             done();
         }));
@@ -707,10 +708,10 @@ describe("Hydra test system", function() {
                                     }});
         hydra.startTest('plugin', 'someTest');
         hydra.startTest('plugin', 'anotherTest');
-        var res = fakeRes(function() {
+        var res = new Response(function() {
                       expect(res.statusCode).toEqual(404);
 
-                      var res2 = fakeRes(function() {
+                      var res2 = new Response(function() {
                                      expect(res2.statusCode).toEqual(200);
                                      done();
                                  });

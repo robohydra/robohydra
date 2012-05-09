@@ -9,7 +9,9 @@ var express   = require('express'),
     fs        = require('fs'),
     qs        = require('qs'),
     commander = require('commander'),
-    Hydra     = require('../lib/hydra').Hydra;
+    hydra     = require('../lib/hydra'),
+    Hydra     = hydra.Hydra,
+    Response  = hydra.Response;
 
 commander.version('0.0.1').
     usage("mysetup.conf [confvar=value confvar2=value2 ...]").
@@ -108,26 +110,14 @@ app.all('/*', function(expressReq, expressRes) {
         headers: expressReq.headers,
         rawBody: new Buffer("")
     };
-    var res = {
-        body: new Buffer(0),
-        write: function(chunk) {
-            if (typeof chunk === 'string') {
-                chunk = new Buffer(chunk);
-            }
-            var tmp = new Buffer(this.body.length + chunk.length);
-            this.body.copy(tmp);
-            chunk.copy(tmp, this.body.length);
-            this.body = tmp;
-        },
-        send: function(data) { this.write(data); this.end(); },
-        end: function() {
-            expressRes.writeHead(res.statusCode, res.headers);
-            if (res.body !== undefined) expressRes.write(res.body);
-            expressRes.end()
-        },
-        statusCode: 200,
-        headers: {}
-    };
+    var res = new Response(function() {
+                               expressRes.writeHead(res.statusCode,
+                                                    res.headers);
+                               if (res.body !== undefined) {
+                                   expressRes.write(res.body);
+                               }
+                               expressRes.end()
+                           });
 
     // Fetch POST data if available
     expressReq.addListener("data", function (chunk) {

@@ -128,21 +128,8 @@ function fakeReq(url, options) {
             headers: options.headers};
 }
 
-function fakeRes(endCallback) {
-    return {headers: {},
-            write: function(data) {
-                this.body = data;
-            },
-            send: function(data) {
-                this.write(data);
-                this.end();
-            },
-            end: endCallback};
-}
-
 exports.withResponse         = withResponse;
 exports.checkRouting         = checkRouting;
 exports.fakeFs               = fakeFs;
 exports.fakeHttpCreateClient = fakeHttpCreateClient;
 exports.fakeReq              = fakeReq;
-exports.fakeRes              = fakeRes;
