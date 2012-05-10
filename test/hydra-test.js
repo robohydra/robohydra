@@ -349,7 +349,7 @@ describe("Hydras", function() {
         hydra.registerPluginObject({name: 'plugin', heads: heads});
 
         hydra.detachHead('plugin', 'head1');
-        expect(hydra).not().toHaveHeadAttached('plugin', 'head1');
+        expect(hydra).not.toHaveHeadAttached('plugin', 'head1');
         hydra.attachHead('plugin', 'head1');
         expect(hydra).toHaveHeadAttached('plugin', 'head1');
     });
@@ -486,7 +486,7 @@ describe("Hydras", function() {
         hydra.registerDynamicHead(simpleHydraHead());
 
         var dynamicHeads = hydra.getPlugin('*dynamic*').heads;
-        expect(dynamicHeads[0].name).not().toEqual(dynamicHeads[1].name);
+        expect(dynamicHeads[0].name).not.toEqual(dynamicHeads[1].name);
     });
 
     it("can chain a request with two heads", function(done) {
