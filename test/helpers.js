@@ -1,5 +1,8 @@
 var buster = require("buster");
 var sinon = require("sinon");
+var hydra      = require("../lib/hydra"),
+    hydraHeads = hydra.heads,
+    assert     = hydra.assert;
 
 buster.assertions.add("responseMatches", {
     assert: function (actual, expectedResponse) {
@@ -30,6 +33,17 @@ buster.assertions.add("handles", {
     assertMessage: "Expected ${0} to be able to handle path '${1}'!",
     refuteMessage: "Expected ${0} to not be able to handle path '${1}'!",
     expectation: "toHandle"
+});
+
+buster.assertions.add("hasTestResult", {
+    assert: function(actual, plugin, test, expectedResult) {
+        this.testResults = actual.testResults;
+        return buster.assertions.deepEqual(this.testResults[plugin][test],
+                                           expectedResult);
+    },
+    assertMessage: "Expected Hydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
+    refuteMessage: "Expected Hydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
+    expectation: "toHaveTestResult"
 });
 
 function withResponse(head, pathOrObject, cb) {
@@ -128,8 +142,30 @@ function fakeReq(url, options) {
             headers: options.headers};
 }
 
+function headWithPass(path, hydraUtils, assertionMessage) {
+    return new hydraHeads.HydraHead({
+        path: path,
+        handler: function(req, res) {
+            hydraUtils.assert.equal(1, 1, assertionMessage);
+            res.end();
+        }
+    });
+}
+
+function headWithFail(path, hydraUtils, assertionMessage) {
+    return new hydraHeads.HydraHead({
+        path: path,
+        handler: function(req, res) {
+            hydraUtils.assert.equal(1, 0, assertionMessage);
+            res.end();
+        }
+    });
+}
+
 exports.withResponse         = withResponse;
 exports.checkRouting         = checkRouting;
 exports.fakeFs               = fakeFs;
 exports.fakeHttpCreateClient = fakeHttpCreateClient;
 exports.fakeReq              = fakeReq;
+exports.headWithFail         = headWithFail;
+exports.headWithPass         = headWithPass;

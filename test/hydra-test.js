@@ -1,4 +1,4 @@
-/*global require, describe, it, expect*/
+/*global require, describe, it, expect, JSON*/
 var buster = require("buster");
 var sinon = require("sinon");
 var fs = require("fs");
@@ -8,7 +8,9 @@ var hydra    = require("../lib/hydra"),
 var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic,
     HydraHead       = require("../lib/hydraHead").HydraHead;
 var helpers              = require("./helpers"),
-    fakeReq              = helpers.fakeReq;
+    fakeReq              = helpers.fakeReq,
+    headWithFail = helpers.headWithFail,
+    headWithPass = helpers.headWithPass;
 
 buster.spec.expose();
 
@@ -718,5 +720,326 @@ describe("Hydra test system", function() {
                       hydra.handle({url: path2}, res2);
                   });
         hydra.handle(fakeReq(path), res);
+    });
+
+    it("has an empty result when starting a test", function() {
+        var hydra = new Hydra();
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: { testWithAssertion: {heads: [
+                headWithFail('/f', hydra.getUtilsObject(), "some message")
+            ]}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        expect(hydra).toHaveTestResult('plugin',
+                                       'testWithAssertion',
+                                       {result: undefined,
+                                        passes: [],
+                                        failures: []});
+    });
+
+    it("can execute and count a passing assertion", function(done) {
+        var assertionMessage = "should do something simple but useful";
+        var hydra = new Hydra();
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: {
+                testWithAssertion: {
+                    heads: [headWithPass('/', hydra.getUtilsObject(),
+                                         assertionMessage)]
+                }
+            }});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin', 'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [assertionMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("can execute and count a failing assertion", function(done) {
+        var hydra = new Hydra();
+        var assertionMessage = "should have this and that";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: { testWithAssertion: {
+                heads: [headWithFail('/', hydra.getUtilsObject(),
+                                     assertionMessage)]
+            }}
+        });
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'fail',
+                                                passes: [],
+                                                failures: [assertionMessage]});
+                done();
+            })
+        );
+    });
+
+    it("can save more than one test result", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        var failMessage = "should have this and that (and didn't)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: { testWithAssertion: {heads: [
+                headWithFail('/f', hydra.getUtilsObject(), failMessage),
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ]}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/f'),
+            new Response(function() {
+                hydra.handle(
+                    fakeReq('/p'),
+                    new Response(function() {
+                        expect(hydra).toHaveTestResult(
+                            'plugin',
+                            'testWithAssertion',
+                            {result: 'fail',
+                             passes: [passMessage],
+                             failures: [failMessage]}
+                        );
+                        done();
+                    })
+                );
+            })
+        );
+    });
+
+    it("resets results after re-starting a test", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        var failMessage = "should have this and that (and didn't)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: { testWithAssertion: {heads: [
+                headWithFail('/f', hydra.getUtilsObject(), failMessage),
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ]}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/f'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'fail',
+                                                passes: [],
+                                                failures: [failMessage]});
+                hydra.startTest('plugin', 'testWithAssertion');
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: undefined,
+                                                passes: [],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("counts assertions without having run tests as *default*", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ]});
+        hydra.handle(
+            fakeReq('/p'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('*default*',
+                                               '*default*',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("counts assertions after stopping tests as *default*", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ],
+            tests: {testWithAssertion: {heads: []}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.stopTest();
+        hydra.handle(
+            fakeReq('/p'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('*default*',
+                                               '*default*',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("counts assertions in non-test heads as in the current test", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ],
+            tests: {testWithAssertion: {heads: []}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/p'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("stopping a test doesn't erase previous results", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ],
+            tests: {testWithAssertion: {heads: []}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/p'),
+            new Response(function() {
+                hydra.stopTest();
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("doesn't erase the previous test's results when starting a new one", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+            ],
+            tests: {testWithAssertion: {heads: []},
+                    anotherTest:       {heads: []}}});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/p'),
+            new Response(function() {
+                hydra.startTest('plugin', 'anotherTest');
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("doesn't run the code after an assertion failure", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did NOT)";
+        var executesAfterAssertion = false;
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                new HydraHead({
+                    path: '/',
+                    handler: function(req, res) {
+                        hydra.getUtilsObject().assert.equal(0, 1);
+                        executesAfterAssertion = true;
+                        res.end();
+                    }
+                })
+            ]});
+        hydra.handle(
+            fakeReq('/'),
+            new Response(function() {
+                expect(executesAfterAssertion).toBeFalsy();
+                done();
+            })
+        );
+    });
+
+    it("does run code after an assertion pass", function(done) {
+        var hydra = new Hydra();
+        var passMessage = "should have this and that (and did)";
+        var executesAfterAssertion = false;
+        hydra.registerPluginObject({
+            name: 'plugin',
+            heads: [
+                new HydraHead({
+                    path: '/',
+                    handler: function(req, res) {
+                        hydra.getUtilsObject().assert.equal(1, 1);
+                        executesAfterAssertion = true;
+                        res.end();
+                    }
+                })
+            ]});
+        hydra.handle(
+            fakeReq('/'),
+            new Response(function() {
+                expect(executesAfterAssertion).toBeTruthy();
+                done();
+            })
+        );
+    });
+
+    it("gives a default assertion message to those that don't have one", function(done) {
+        var hydra = new Hydra();
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: {
+                testWithAssertion: {heads: [
+                    new HydraHead({
+                        path: '/',
+                        handler: function(req, res) {
+                            hydra.getUtilsObject().assert.equal("foo", "bar");
+                            res.end();
+                        }
+                    })
+                ]}
+            }});
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            fakeReq('/'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult(
+                    'plugin',
+                    'testWithAssertion',
+                    {result: 'fail',
+                     passes: [],
+                     failures: ["*unnamed-assertion*"]});
+                done();
+            })
+        );
     });
 });
