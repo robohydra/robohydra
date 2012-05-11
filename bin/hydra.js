@@ -113,7 +113,7 @@ app.all('/*', function(expressReq, expressRes) {
     var res = new Response(function() {
                                expressRes.writeHead(res.statusCode,
                                                     res.headers);
-                               if (res.body !== undefined) {
+                               if (res.body.length) {
                                    expressRes.write(res.body);
                                }
                                expressRes.end()
