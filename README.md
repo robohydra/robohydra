@@ -1,11 +1,29 @@
-Hydra mock server
-=================
+Hydra server
+============
 
-Hydra is a programmable server written in Node. It's designed to make
-mock servers easy to write, so you can test any client applications
-that communicate with a server using some kind of HTTP interface.
+Hydra is a testing tool for HTTP-based clients. You connect your
+clients to it and it responds with whatever you need for each request.
+It can also check the requests received from the clients to help you
+build test suites. As its behaviour is easy to change dynamically,
+Hydra is ideal for HTTP-based client testing, exploration and general
+poking.
 
-When you load Hydra, you load certain plugins, and each plugin
-describes Hydra heads. Each head has a name, and defines a path and a
-handler function that will be executed when a request to the given
-path arrives.
+It can be used in any HTTP-based client-server architecture, like
+Javascript-heavy web application front-ends, clients of HTTP-based
+APIs, etc. It helps answering questions like "how would the client
+behave when it receives a certain response from the server?", "does
+the client send the correct request to the server when certain action
+is performed?", "what would happen if this request takes more than
+normal to process, or "what would happen if this request gets its
+response before this other request?".
+
+A Hydra is composed of "heads", pieces of code that listen in a given
+path and trigger a certain behaviour when a request for that path is
+received. The behaviour can be checking the incoming request,
+returning a static response, serving a file from the file system,
+proxy the request to another server, store certain data and return
+with a canned response, etc. All these different behaviours can be
+combined in powerful ways to achieve the results you need.
+
+Hydra is written in Javascript, runs under Node and is distributed
+under the simplified BSD license.
