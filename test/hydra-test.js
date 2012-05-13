@@ -1042,4 +1042,18 @@ describe("Hydra test system", function() {
             })
         );
     });
+
+    it("can access a test instructions", function() {
+        var hydra = new Hydra();
+        var instructions = "Click here, then there";
+        hydra.registerPluginObject({
+            name: 'plugin',
+            tests: {
+                testWithInstructions: {
+                    heads: [],
+                    instructions: instructions
+                }
+            }});
+       expect(hydra.getPlugin('plugin').tests.testWithInstructions.instructions).toEqual(instructions);
+    });
 });
