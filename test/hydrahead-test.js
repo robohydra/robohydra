@@ -305,10 +305,8 @@ describe("Static content Hydra heads", function() {
 
 describe("Filesystem Hydra heads", function() {
     it("can't be created without necessary properties", function() {
-        var head;
-
         expect(function() {
-            head = new HydraHeadFilesystem({basePath: '/'});
+            var head = new HydraHeadFilesystem({basePath: '/'});
         }).toThrow("InvalidHydraHeadException");
     });
 
@@ -462,10 +460,8 @@ describe("Filesystem Hydra heads", function() {
 
 describe("Proxying Hydra heads", function() {
     it("can't be created without necessary properties", function() {
-        var head;
-
         expect(function() {
-            head = new HydraHeadProxy({basePath: '/'});
+            var head = new HydraHeadProxy({basePath: '/'});
         }).toThrow("InvalidHydraHeadException");
     });
 
@@ -474,6 +470,20 @@ describe("Proxying Hydra heads", function() {
             return "Proxied " + m + " response for " + p;
         });
         var head = new HydraHeadProxy({proxyTo: 'http://example.com/mounted',
+                                       httpCreateClientFunction: fakeHttpCC});
+
+        checkRouting(head, [
+            ['/',      'Proxied GET response for /mounted/'],
+            ['/blah/', 'Proxied GET response for /mounted/blah/']
+        ], done);
+    });
+
+    it("ignore the path property (hint: it's basePath)", function(done) {
+        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+            return "Proxied " + m + " response for " + p;
+        });
+        var head = new HydraHeadProxy({path: '/foo',
+                                       proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
         checkRouting(head, [
