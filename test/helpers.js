@@ -3,6 +3,17 @@ var sinon = require("sinon");
 var hydra      = require("../lib/hydra"),
     hydraHeads = hydra.heads,
     assert     = hydra.assert;
+var Response = require("../lib/hydra").Response;
+
+function areBuffersEqual(buffer1, buffer2) {
+    if (buffer1.length !== buffer2.length) return false;
+
+    for (var i = 0, len = buffer1.length; i < len; i++) {
+        if (buffer1[i] !== buffer2[i]) return false;
+    }
+
+    return true;
+}
 
 buster.assertions.add("responseMatches", {
     assert: function (actual, expectedResponse) {
@@ -13,7 +24,7 @@ buster.assertions.add("responseMatches", {
         }
         if (expectedResponse.hasOwnProperty('content')) {
             this.actualProps.content = actual.body;
-            r = r && (this.actualProps.content === expectedResponse.content);
+            r = r && (areBuffersEqual(this.actualProps.content, new Buffer(expectedResponse.content)));
         }
         if (expectedResponse.hasOwnProperty('status')) {
             this.actualProps.status = actual.statusCode;
@@ -55,7 +66,7 @@ function withResponse(head, pathOrObject, cb) {
                         {method:  pathOrObject.method || 'GET',
                          headers: pathOrObject.headers,
                          body: pathOrObject.postData}),
-                fakeRes(function() { cb(this); }));
+                new Response(function() { cb(this); }));
 }
 
 function checkRouting(head, list, cb) {

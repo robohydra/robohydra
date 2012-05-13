@@ -35,7 +35,7 @@ describe("Generic Hydra heads", function() {
         expect(head.name).toEqual('foo');
 
         var namelessHead = new HydraHead({path: '/', handler: function() {}});
-        expect(namelessHead.name).not().toBeDefined();
+        expect(namelessHead.name).not.toBeDefined();
     });
 
     it("can serve simple content", function(done) {
@@ -109,12 +109,12 @@ describe("Generic Hydra heads", function() {
 
         var paths = ['/foo', '/foo/bar'];
         [headStatic, headDynamic].forEach(function(head) {
-            expect(head).not().toHandle('/');
+            expect(head).not.toHandle('/');
             paths.forEach(function(path) {
-                expect(head).not().toHandle(path);
+                expect(head).not.toHandle(path);
             });
             head.attach();
-            expect(head).not().toHandle('/');
+            expect(head).not.toHandle('/');
             paths.forEach(function(path) {
                 expect(head).toHandle(path);
             });
@@ -131,7 +131,7 @@ describe("Generic Hydra heads", function() {
             expect(head).toHandle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not().toHandle(path);
+            expect(head).not.toHandle(path);
         });
     });
 
@@ -147,7 +147,7 @@ describe("Generic Hydra heads", function() {
             expect(head).toHandle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not().toHandle(path);
+            expect(head).not.toHandle(path);
         });
     });
 
@@ -236,7 +236,7 @@ describe("Static content Hydra heads", function() {
                 expect(head).toHandle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not().toHandle(path);
+                expect(head).not.toHandle(path);
             });
         });
     });
@@ -251,7 +251,7 @@ describe("Static content Hydra heads", function() {
             expect(head).toHandle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not().toHandle(path);
+            expect(head).not.toHandle(path);
         });
     });
 
@@ -407,7 +407,7 @@ describe("Filesystem Hydra heads", function() {
                 expect(head).toHandle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not().toHandle(path);
+                expect(head).not.toHandle(path);
             });
         });
     });
@@ -418,7 +418,7 @@ describe("Filesystem Hydra heads", function() {
                                                             'foobar'}),
                                             mime: {lookup: function(path) { return "text/x-fake"; }}});
         withResponse(head, '/json.txt', function(res) {
-            expect(res.headers['Content-Type']).toEqual("text/x-fake");
+            expect(res.headers['content-type']).toEqual("text/x-fake");
             done();
         });
     });
@@ -435,7 +435,7 @@ describe("Filesystem Hydra heads", function() {
             })
         });
         withResponse(head, '/json.txt', function(res) {
-            expect(res.headers['Last-Modified']).toEqual(mtime.toUTCString());
+            expect(res.headers['last-modified']).toEqual(mtime.toUTCString());
             done();
         });
     });
@@ -616,7 +616,7 @@ describe("Proxying Hydra heads", function() {
                 expect(head).toHandle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not().toHandle(path);
+                expect(head).not.toHandle(path);
             });
         });
     });

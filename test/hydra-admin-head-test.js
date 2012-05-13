@@ -1,14 +1,15 @@
 var buster = require("buster");
 var sinon = require("sinon");
-var Hydra = require("../lib/hydra").Hydra;
+var hydra    = require("../lib/hydra"),
+    Hydra    = hydra.Hydra,
+    Response = hydra.Response;
 var HydraHeadStatic = require("../lib/hydraHead").HydraHeadStatic;
 var helpers              = require("./helpers"),
     checkRouting         = helpers.checkRouting,
     withResponse         = helpers.withResponse,
     fakeFs               = helpers.fakeFs,
     fakeHttpCreateClient = helpers.fakeHttpCreateClient,
-    fakeReq              = helpers.fakeReq,
-    fakeRes              = helpers.fakeRes;
+    fakeReq              = helpers.fakeReq;
 
 buster.spec.expose();
 
@@ -17,12 +18,12 @@ describe("Admin Hydra UI", function() {
         var hydra = new Hydra();
 
         var req = {url: '/hydra-admin', getParams: {}};
-        var res = fakeRes(function() {
+        var res = new Response(function() {
                        expect(res.statusCode).toEqual(200);
-                       var res2 = fakeRes(function() {
+                       var res2 = new Response(function() {
                                       expect(res2.statusCode).toEqual(404);
                                       done();
-                                  })
+                                  });
                        hydra.handle({url: '/blah'}, res2);
                    });
         hydra.handle(req, res);
@@ -37,7 +38,7 @@ describe("Admin Hydra UI", function() {
         });
 
         var req = {url: '/hydra-admin', getParams: {}};
-        var res = fakeRes(function() {
+        var res = new Response(function() {
                       expect(this.body).toMatch(pluginName);
                       expect(this.body).toMatch(headName);
                       expect(this.body).toMatch(/Hydra Admin/);
