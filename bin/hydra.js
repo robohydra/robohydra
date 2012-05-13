@@ -140,9 +140,9 @@ app.all('/*', function(expressReq, expressRes) {
 
 app.listen(commander.port);
 if (app.address()) {
-    console.log("Express server listening on port %d in %s mode",
-                app.address().port,
-                app.settings.env);
+    var adminUrl = "http://localhost:" + app.address().port + "/hydra-admin";
+    console.log("Hydra ready on port %d - Admin URL: %s",
+                app.address().port, adminUrl);
 } else {
     console.log("Couldn't listen in port %s", commander.port);
 }
