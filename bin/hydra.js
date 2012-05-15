@@ -63,7 +63,8 @@ hydraConfig.plugins.forEach(function(pluginDef) {
     for (p in extraVars) config[p] = extraVars[p];
     var plugin = hydra.requirePlugin(pluginDef.name, config);
 
-    var pluginObject = plugin.module.getBodyParts(plugin.config);
+    var pluginObject = plugin.module.getBodyParts(plugin.config,
+                                                  hydra.getUtilsObject());
     pluginObject.name = pluginDef.name;
     hydra.registerPluginObject(pluginObject);
 
