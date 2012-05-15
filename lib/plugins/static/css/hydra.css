@@ -1,0 +1,8 @@
+.table td {
+    vertical-align: middle;
+}
+
+.navbar-brand img {
+    vertical-align: text-top;
+    margin-right: 5px;
+}
