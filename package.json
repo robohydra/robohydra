@@ -4,9 +4,7 @@
   , "bin": "./bin/hydra.js"
   , "main": "./lib/hydra.js"
   , "dependencies": {
-      "express":   "2.5.8"
-    , "jade":      ">= 0.0.1"
-    , "mime":      ">= 1.0.0"
+      "mime":      ">= 1.0.0"
     , "ejs":       ">= 0.6.1"
     , "qs":        ">= 0.4.2"
     , "commander": ">= 0.6.0"

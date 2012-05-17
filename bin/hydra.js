@@ -5,13 +5,14 @@
  * Module dependencies.
  */
 
-var express   = require('express'),
+var http      = require("http"),
+    url       = require("url"),
     fs        = require('fs'),
     qs        = require('qs'),
-    commander = require('commander'),
-    hydra     = require('../lib/hydra'),
-    Hydra     = hydra.Hydra,
-    Response  = hydra.Response;
+    commander = require('commander');
+var hydra    = require('../lib/hydra'),
+    Hydra    = hydra.Hydra,
+    Response = hydra.Response;
 
 commander.version('0.0.1').
     usage("mysetup.conf [confvar=value confvar2=value2 ...]").
@@ -20,7 +21,7 @@ commander.version('0.0.1').
     parse(process.argv);
 
 
-// This is a bit crappy, as it uses the global commander variable. But whaeva.
+// This is a bit crappy as it uses the global commander variable. But whaeva.
 function showHelpAndDie(message) {
     if (message) {
         console.log(message);
@@ -85,49 +86,50 @@ hydraConfig.plugins.forEach(function(pluginDef) {
                 featureMessages.join(", ") + ")");
 });
 
-var app = module.exports = express.createServer(express.logger());
+function stringForLog(req, res) {
+    var remoteAddr = req.socket && req.socket.remoteAddress || "-";
+    var date = new Date().toUTCString();
+    var method = req.method;
+    var url = req.url;
+    var httpVersion = req.httpVersionMajor + '.' + req.httpVersionMinor;
+    var status = res.statusCode;
+    var resContentLength = res.headers['content-length'] || "-";
+    var referrer = req.headers['referer'] || req.headers['referrer'] || "-";
+    var userAgent = req.headers['user-agent'] || "-";
 
-// Configuration
-app.configure(function(){
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    app.use(app.router);
-    app.use(express.static(__dirname + '/public'));
-});
-app.configure('development', function(){
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-app.configure('production', function(){
-    app.use(express.errorHandler());
-});
-
+    return remoteAddr + " - - [" + date + "] \"" + method + " " +
+        url + " HTTP/" + httpVersion + "\" " + status + " " +
+        resContentLength + " \"" + referrer + "\" \"" + userAgent + "\"";
+}
 
 // Routes are all dynamic, so we only need a catch-all here
-app.all('/*', function(expressReq, expressRes) {
+var server = http.createServer(function(nodeReq, nodeRes) {
     var req = {
-        url: expressReq.url,
-        getParams: expressReq.query,
-        method: expressReq.method,
-        headers: expressReq.headers,
+        url: nodeReq.url,
+        getParams: url.parse(nodeReq.url),
+        method: nodeReq.method,
+        headers: nodeReq.headers,
         rawBody: new Buffer("")
     };
     var res = new Response(function() {
-                               expressRes.writeHead(res.statusCode,
-                                                    res.headers);
+                               console.log(stringForLog(nodeReq, this));
+
+                               nodeRes.writeHead(res.statusCode,
+                                                 res.headers);
                                if (res.body.length) {
-                                   expressRes.write(res.body);
+                                   nodeRes.write(res.body);
                                }
-                               expressRes.end()
+                               nodeRes.end();
                            });
 
     // Fetch POST data if available
-    expressReq.addListener("data", function (chunk) {
+    nodeReq.addListener("data", function (chunk) {
         var tmp = new Buffer(req.rawBody.length + chunk.length);
         req.rawBody.copy(tmp);
         chunk.copy(tmp, req.rawBody.length);
         req.rawBody = tmp;
     });
-    expressReq.addListener("end", function () {
+    nodeReq.addListener("end", function () {
         // Try to parse the body...
         try {
             req.bodyParams = qs.parse(req.rawBody.toString());
@@ -139,11 +141,14 @@ app.all('/*', function(expressReq, expressRes) {
     });
 });
 
-app.listen(commander.port);
-if (app.address()) {
-    var adminUrl = "http://localhost:" + app.address().port + "/hydra-admin";
+server.on('error', function (e) {
+    if (e.code === 'EADDRINUSE') {
+        console.log("Couldn't listen in port " + commander.port +
+                        ", aborting.");
+    }
+});
+server.listen(commander.port, function() {
+    var adminUrl = "http://localhost:" + commander.port + "/hydra-admin";
     console.log("Hydra ready on port %d - Admin URL: %s",
-                app.address().port, adminUrl);
-} else {
-    console.log("Couldn't listen in port %s", commander.port);
-}
+                commander.port, adminUrl);
+});
