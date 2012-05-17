@@ -45,3 +45,6 @@ GitHub](https://github.com/operasoftware/hydra), or install Hydra via
 NPM with the following command:
 
     npm install hydra
+
+All this code is released under the 3-clause BSD license, and it's
+copyright [Opera Software ASA](http://opera.com).

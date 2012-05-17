@@ -144,8 +144,8 @@ But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
 `req.getParams`. Similarly, the POST parameters and the raw body of
 the request are available as the `req.bodyParams` object and the
-`req.rawBody` object (of type `Buffer`) respectively. This head would
-match the GET-parameter-style URLs:
+`req.rawBody` (`Buffer` type; see Node documentation) object
+respectively. This head would match the GET-parameter-style URLs:
 
        new HydraHead({
            path: '/slow',
@@ -164,7 +164,7 @@ Apart from `HydraHeadStatic` and the generic `HydraHead`, there are
 two other interesting heads you might want to use. They are
 `HydraHeadFilesystem` and `HydraHeadProxy`. As you can guess, the
 former serves static files from the filesystem, while the latter
-proxies the requests to another URL.
+proxies requests to another URL.
 
 One of the many ways in which you can combine these two heads is
 having a Hydra that proxies everything to another server, except
@@ -213,5 +213,6 @@ below, and start Hydra as `hydra ddg.conf`:
 You should see the DuckDuckGo page completely functional, but with the
 Adam Yauch logo.
 
-That's it for now. If you want more information, you can read and
-follow the <a href="advanced/">advanced tutorial</a>.
+Now you know all the basic functionality Hydra offers. If you want
+more information, you can read and follow the <a
+href="advanced/">advanced tutorial</a>.

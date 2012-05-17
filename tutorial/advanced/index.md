@@ -8,19 +8,20 @@ Chaining
 --------
 
 If you look at the filenames for the static files we have copied into
-our `fake-assets` folder, you'll notice that they contain a version
-number. Now say that, for whatever reason, we don't want those version
-numbers in our files (eg. because we want our local files to work even
-if DuckDuckGo decides to change their version number). For these
-situations, Hydra has a simple solution: chaining. The idea behind
-chaining is that each request handler can accept an extra parameter, a
-function that allows the head to call any heads below it. As that
-function can be called with any request and response objects, you can
-do interesting things like tweaking the request being processed
-(eg. change the URL, add or remove headers, etc) or tweaking the
-response being returned (eg. change the body or the headers). You
-could even call the function several times, to retry a request,
-combine the responses of several requests, etc.
+our `fake-assets` folder (see the DuckDuckGo example in the basic
+tutorial), you'll notice that they contain a version number. Now say
+that, for whatever reason, we don't want those version numbers in our
+files (eg. because we want our local files to work even if DuckDuckGo
+decides to change their version number). For these situations, Hydra
+has a simple solution: chaining. The idea behind chaining is that each
+request handler can accept an extra parameter, a function that allows
+the head to call any heads below it. As that function can be called
+with any request and response objects, you can do interesting things
+like tweaking the request being processed (eg. change the URL, add or
+remove headers, etc) or tweaking the response being returned
+(eg. change the body or the headers). You could even call the function
+several times, to retry a request, combine the responses of several
+requests, etc.
 
 In this example, we're simply going to strip the `.vXXX` part of the
 filenames inside `assets`, where `XXX` are numbers. To do so, simply
@@ -80,8 +81,7 @@ response. It sounds complicated, but the code is simple enough:
                           new RegExp("DuckDuckGo", "g"),
                           "Duck… Duck… Go!"
                       );
-                      res.copyFrom(this);
-                      res.end();
+                      res.forward(this);
                   }
               );
       
@@ -90,7 +90,7 @@ response. It sounds complicated, but the code is simple enough:
           }
       }),
 
-The `Response` constructor receives an argument, a function to get
+The `Response` constructor receives an argument, a function to be
 executed when the response ends. We use this function to inspect the
 response we got from the other head, tweak it and send our own
 response. Also, note how we remove the "Accept-Encoding" header from
