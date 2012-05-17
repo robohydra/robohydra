@@ -26,4 +26,4 @@ with a canned response, etc. All these different behaviours can be
 combined in powerful ways to achieve the results you need.
 
 Hydra is written in Javascript, runs under Node and is distributed
-under the simplified BSD license.
+under the 3-clause BSD license. See LICENSE.md for details.
