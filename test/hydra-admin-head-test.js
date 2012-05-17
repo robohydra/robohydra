@@ -1,5 +1,4 @@
 var buster = require("buster");
-var sinon = require("sinon");
 var hydra    = require("../lib/hydra"),
     Hydra    = hydra.Hydra,
     Response = hydra.Response;

@@ -1,5 +1,4 @@
 var buster = require("buster");
-var sinon = require("sinon");
 var hydra      = require("../lib/hydra"),
     hydraHeads = hydra.heads,
     assert     = hydra.assert;
