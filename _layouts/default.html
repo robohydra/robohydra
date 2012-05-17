@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Hydra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="{{ site.url }}/static/css/lipstick.min.css" rel="stylesheet">
+    <link href="{{ site.url }}/static/css/hydra.css" rel="stylesheet">
+
+    <!-- HTML5 shiv -->
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="container">
+        <span class="navbar-brand"><img src="{{ site.url }}/static/img/hydra.png" /><a href="{{ site.url }}">Hydra</a></span>
+        <ul class="navbar-menu">
+          <li><a href="{{ site.url }}">Home</a></span>
+          <li><a href="{{ site.url }}/tutorial">Tutorial</a></span>
+        </ul>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="span12 pod">
+          <div class="pod-body">
+{{content}}
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/container-->
+  </body>
+</html>
