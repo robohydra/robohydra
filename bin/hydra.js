@@ -106,7 +106,7 @@ function stringForLog(req, res) {
 var server = http.createServer(function(nodeReq, nodeRes) {
     var req = {
         url: nodeReq.url,
-        getParams: url.parse(nodeReq.url),
+        getParams: url.parse(nodeReq.url, true).query,
         method: nodeReq.method,
         headers: nodeReq.headers,
         rawBody: new Buffer("")
