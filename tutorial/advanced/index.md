@@ -174,6 +174,7 @@ the following contents:
                       ]
                   },
                   serverProblems: {
+                      description: "Make a search with any non-empty search term. The client should show some error messaging stating the server couldn't fulfill the request or wasn't available",
                       heads: [
                           new HydraHead({
                               path: '/.*',
@@ -201,7 +202,76 @@ and start any of the tests, we'll have the desired behaviour in
 `/foo`. Go now to the test interface and experiment a bit with the
 results you get when starting the different tests.
 
-If you want to automate the testing of the client, you probably also
-want to automate the starting of tests in Hydra. In that case you can
+Note how when you start the last test, Hydra will show some
+instructions and some expected behaviour (interpreted as
+Markdown). This can be very handy if you want to build some kind of
+acceptance test suite of your client.  And in case you want to
+automate the testing of the client, you will also want to automate the
+starting/switching of tests in Hydra. In that case, remember you can
 start and stop them by making POST requests to
 http://localhost:3000/hydra-admin/tests/PLUGIN-NAME/TEST-NAME.
+
+
+Assertions
+----------
+
+If you're preparing a more formal test suite for your project, you may
+want to not only check how the client behaves with different responses
+from the server, but also check if the requests from the client are
+well-formed and correct. Hydra heads can contain assertions that will
+be counted as part of the current running test.
+
+Let's say we are still testing the client of that search engine in the
+previous section, and we want to make sure we don't have UTF-8
+problems. Thus, we'll add a test that checks that the client sent a
+correctly formed, UTF-8 search string. We can start by adding a new
+test, `utf8SearchTerm`, with the following definition:
+
+      exports.getBodyParts = function(conf, modules) {
+          var assert = modules.assert;
+
+          return {
+              heads: [
+                  // ...
+              ],
+              tests: {
+                  // ...
+
+                  utf8SearchTerm: {
+                      instructions: "Search for the string 'blåbærsyltetøy'.\n\nYou should _get one search result_.",
+                      heads: [
+                          new HydraHead({
+                              path: '/foo',
+                              handler: function(req, res) {
+                                  assert.equal(req.getParams.q,
+                                               "blåbærsyltetøy",
+                                               "UTF-8 encoding should be ok");
+
+                                  res.headers['content-type'] =
+                                      'application/json; charset=utf-8';
+                                  res.send(JSON.stringify({
+                                      "success": true,
+                                      "results": [{"url":   "http://example.com",
+                                                   "title": "Blåbærsyltetøy'r us"}]
+                                  }));
+                              }
+                          })
+                      ]
+                  }
+
+In this case, the `getBodyParts` function accepts a second parameter,
+`modules`. This second parameter is an object with available modules
+as its properties. The only module available as of today is `assert`:
+an object with all the functions in the standard, [Node `assert`
+module](http://nodejs.org/docs/latest/api/assert.html). This version,
+though, is special for Hydra and allows Hydra to fetch the results.
+
+Now, if you start the `utf8SearchTerm` test and make a request with
+the wrong string, you'll get an empty response and see the test
+failure in the [test index
+page](http://localhost:3000/hydra-admin/tests). If you send the
+correct string, you'll see the one-result response and the test pass
+in the test index page. In case you want to access this information in
+an automated fashion, you can get the results in JSON format at the
+URL
+[http://localhost:3000/hydra-admin/tests/results.json](http://localhost:3000/hydra-admin/tests/results.json).
