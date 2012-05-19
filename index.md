@@ -37,8 +37,8 @@ The documentation is a work in progress. To get started, go read the
 [basic tutorial](tutorial) and the more [advanced
 tutorial](tutorial/advanced).
 
-Get the code
-============
+Download
+========
 
 You can get the [code on
 GitHub](https://github.com/operasoftware/hydra), or install Hydra via
