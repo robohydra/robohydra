@@ -197,12 +197,12 @@ save them in a folder `fake-assets` and write this simple plugin:
           return {
               heads: [
                   new HydraHeadFilesystem({
-                      basePath: '/assets',
+                      mountPath: '/assets',
                       documentRoot: 'fake-assets'
                   }),
 
                   new HydraHeadProxy({
-                      basePath: '/',
+                      mountPath: '/',
                       proxyTo: 'http://duckduckgo.com'
                   })
               ]

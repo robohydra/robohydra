@@ -20,9 +20,10 @@ return the responses you want, mimicking any server behaviour needed
 to test your clients. Examples of this might be:
 
 * Testing how the client behaves when it receives a certain
-combination of valid (but possibly uncommon or hard to reproduce) data.
+combination of valid (but possibly uncommon or cumbersome to
+reproduce) data.
 
-* Being able to easily reproduce certain race conditions.
+* Being able to easily reproduce race conditions.
 
 * Checking how the client behaves when the server returns Internal
 Server Error or invalid data.

@@ -44,12 +44,12 @@ head:
                   }),
 
                   new HydraHeadFilesystem({
-                      basePath: '/assets',
+                      mountPath: '/assets',
                       documentRoot: 'fake-assets-unversioned'
                   }),
 
                   new HydraHeadProxy({
-                      basePath: '/',
+                      mountPath: '/',
                       proxyTo: 'http://duckduckgo.com'
                   })
               ]
