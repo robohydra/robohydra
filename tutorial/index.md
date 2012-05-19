@@ -4,19 +4,20 @@ layout: default
 Hydra server tutorial
 =====================
 
-Hydra is an HTTP server. To start it you specify a configuration file
-with zero or more plugins:
+Hydra is an HTTP server designed to help you develop and test clients
+of client-server applications. You start Hydra by specifying a
+configuration file, such as the provided example `empty.conf`:
 
      hydra examples/empty.conf
 
-The file `empty.conf` is one of the Hydra distribution examples. It
-looks like this (as you can see, it's in
-[JSON](http://en.wikipedia.org/wiki/Json) format):
+The ([JSON](http://en.wikipedia.org/wiki/Json) format) configuration
+file specifies zero or more plugins for Hydra to load. In particular,
+`empty.conf` doesn't load any plugins, and looks like this:
 
       {"plugins": []}
 
-If you start it with such a configuration, it won't load any plugins
-so it won't know what to do. Thus, all requests will return
+Plugins tell Hydra how to behave when it receives requests for given
+paths. Without any plugins, all requests will initially return
 404... except [the Hydra admin
 interface](http://localhost:3000/hydra-admin).  You can go to that
 interface now and have a look. There's not a lot going on because,
@@ -35,18 +36,18 @@ following JSON data:
                    {"url": "http://en.wikipedia.org/wiki/Hydra",
                     "title": "Hydra - Wikipedia"}]
 
-You can do that very easily: simply go to the
-[admin interface](http://localhost:3000/hydra-admin) find the "Create a
-new head" section at the bottom and type the path and the content in
-the appropriate fields, and click on "Create". Don't worry about the
-Content-Type: by default, if the content can be parsed as JSON, it
-will be `application/json`.
+You can do that very easily: simply go to the [admin
+interface](http://localhost:3000/hydra-admin), find the "Create a new
+head" section at the bottom and type the path and the content in the
+appropriate fields, and click on "Create". Don't worry about the
+"Content-Type" field: by default, if the content can be parsed as
+JSON, it will be `application/json`.
 
 If you now visit [your new head](http://localhost:3000/foo), you
-should receive the above data in the response, with the correct
+should receive the above data in the response, and with the correct
 Content-Type. All other paths will still yield 404. However, if you
 kill this Hydra and start a new one, that head will be lost. Don't
-worry though, you can easily write plugins with the heads that you
+worry though, you can easily write plugins with whatever heads you
 want to have available over and over.
 
 
@@ -77,11 +78,16 @@ plugin like this:
            };
        };
 
-You can use the `HydraHeadStatic` class when you only want to return a
-certain static response regardless of the incoming request. Now, save
-the plugin text in a file `hydra/plugins/firstplugin/index.js` and
-create a new configuration file `first.conf` with the following
-content:
+A plugin is a collection of heads to be added to your Hydra on
+startup. A "head" is an object that monitors a given URL path pattern
+and defines how to process requests for those URLs.
+
+In this case, our first plugin has a single head of type
+`HydraHeadStatic`. You can use the `HydraHeadStatic` class when you
+only want to return a certain static response regardless of the
+incoming request. Now, save the above text in a file
+`hydra/plugins/firstplugin/index.js` and create a new file
+`first.conf` with the following content:
 
       {"plugins": [{"name": "firstplugin", "config": {}}]}
 
@@ -126,10 +132,10 @@ Accessing the request data
 
 Now let's say that we want to configure how slow the request is going
 to return, by specifying URLs like `/slow/1000`, `/slow/5000` and so
-on. In this case, Hydra allows you to specify URLs like
+on. In this case, Hydra allows you to specify URL paths like
 `/slow/:millis` which will match any URL path fragment after
-`slow`. The following handler function will allow you to configure the
-wait in this way:
+`/slow`. The following handler function will allow you to configure
+the wait in this way:
 
        new HydraHead({
            path: '/slow/:millis',
@@ -143,9 +149,10 @@ wait in this way:
 But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
 `req.getParams`. Similarly, the POST parameters and the raw body of
-the request are available as the `req.bodyParams` object and the
-`req.rawBody` (`Buffer` type; see Node documentation) object
-respectively. This head would match the GET-parameter-style URLs:
+the request are available as `req.bodyParams` and `req.rawBody`
+respectively. The latter object is of type `Buffer` (see the [Node
+documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
+head would match the GET-parameter-style URLs:
 
        new HydraHead({
            path: '/slow',
@@ -161,10 +168,9 @@ Other handy kinds of heads
 --------------------------
 
 Apart from `HydraHeadStatic` and the generic `HydraHead`, there are
-two other interesting heads you might want to use. They are
-`HydraHeadFilesystem` and `HydraHeadProxy`. As you can guess, the
-former serves static files from the filesystem, while the latter
-proxies requests to another URL.
+two other head classes: `HydraHeadFilesystem` and `HydraHeadProxy`. As
+you can guess, the former serves static files from the filesystem,
+while the latter proxies requests to another URL.
 
 One of the many ways in which you can combine these two heads is
 having a Hydra that proxies everything to another server, except
@@ -176,7 +182,7 @@ files they maintain, and use Hydra to serve their local files for
 requests to, say, `/css` and `/js` while it proxies all the rest to
 the common, development server.
 
-But let's demonstrate this with a simpler example. Let's say you use
+Let's demonstrate this with a simple example. Let's say you use
 DuckDuckGo as your search engine, but want to keep [Adam Yauch's
 tribute logo]({{ site.url }}/downloads/logo_homepage.normal.v101.png)
 as the homepage logo. One way to do this is to grab a copy of the logo

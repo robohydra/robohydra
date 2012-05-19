@@ -10,18 +10,18 @@ Chaining
 If you look at the filenames for the static files we have copied into
 our `fake-assets` folder (see the DuckDuckGo example in the basic
 tutorial), you'll notice that they contain a version number. Now say
-that, for whatever reason, we don't want those version numbers in our
-files (eg. because we want our local files to work even if DuckDuckGo
-decides to change their version number). For these situations, Hydra
-has a simple solution: chaining. The idea behind chaining is that each
-request handler can accept an extra parameter, a function that allows
-the head to call any heads below it. As that function can be called
-with any request and response objects, you can do interesting things
-like tweaking the request being processed (eg. change the URL, add or
-remove headers, etc) or tweaking the response being returned
+that we don't want those version numbers in our filenames (eg. because
+we want our local files to work even if DuckDuckGo decides to change
+their version number). For these situations, Hydra has a simple
+solution: chaining. The idea behind chaining is that each request
+handler can accept an extra parameter, a function that allows the head
+to call any heads below it. As that function can be called with any
+request and response objects, you can do interesting things like
+tweaking the request being processed (eg. change the URL, add or
+remove headers, etc.) or tweaking the response being returned
 (eg. change the body or the headers). You could even call the function
 several times, to retry a request, combine the responses of several
-requests, etc.
+requests, or whatever else you might need.
 
 In this example, we're simply going to strip the `.vXXX` part of the
 filenames inside `assets`, where `XXX` are numbers. To do so, simply
@@ -59,10 +59,10 @@ head:
 
 Now, create a new directory `fake-assets-unversioned` with the same
 files, but renaming them to `search_dropdown_homepage.png` and
-`logo_homepage.normal.png`. Now, start Hydra again with the new
-plugin, with `hydra ddg.conf`. Everything should keep working as
-before, and will keep working even if DuckDuckGo changes the version
-number in the URLs.
+`logo_homepage.normal.png`. Once you have the new files, start Hydra
+again with `hydra ddg.conf`. Everything should keep working as before,
+and will keep working even if DuckDuckGo changes the version number in
+the URLs.
 
 But what about tweaking the response we get from some other head?
 That's interesting, too. Let's turn "DuckDuckGo" into "Duck… Duck…
@@ -84,7 +84,9 @@ response. It sounds complicated, but the code is simple enough:
                       res.forward(this);
                   }
               );
-      
+
+              // Avoid compressed responses to avoid having to
+              // uncompress before processing
               delete req.headers["accept-encoding"];
               next(req, fakeRes);
           }
@@ -104,8 +106,8 @@ Test suites
 
 If you're serious about testing your client code, you're probably
 going to end up writing a test suite of some sort. Not necessarily
-completely automated, but at least you will want an easy way to make
-Hydra behave the way you want.
+completely automated, but at least you will want an easy way to change
+Hydra's behaviour to match each test scenario.
 
 Now, you could do that with everything we have learned up until now:
 you could define many heads for the same path and enable or disable
@@ -116,7 +118,7 @@ collection of heads. These heads are active only when the test they
 belong to is active (and only one test can be active at any given
 time).
 
-Thus, if you need a easily restore a certain behaviour in Hydra, you
+Thus, if you need to easily restore a certain behaviour in Hydra, you
 can define, in a named test, a collection of heads that define that
 behaviour. Then, every time you need to restore that behaviour, you
 start the corresponding test.
@@ -157,6 +159,7 @@ the following contents:
                           })
                       ]
                   },
+
                   twoResults: {
                       heads: [
                           new HydraHeadStatic({
@@ -173,6 +176,7 @@ the following contents:
                           })
                       ]
                   },
+
                   serverProblems: {
                       description: "Make a search with any non-empty search term. The client should show some error messaging stating the server couldn't fulfill the request or wasn't available",
                       heads: [
@@ -189,26 +193,28 @@ the following contents:
           };
       };
 
-Once saved, create a configuration file with these contents:
+Once saved, create a matching configuration file and start Hydra with
+it:
 
       {"plugins": [{"name": "search", "config": {}}]}
 
-Now, start Hydra. You can see the available tests, which one is active
-(if any) and start and stop them in the [test admin
+You can see the available tests, which one is active (if any) and
+start and stop them in the [test admin
 interface](http://localhost:3000/hydra-admin/tests). When starting
-Hydra there won't be any test active, so `/foo` will say "This is the
-default behaviour of /foo". However, if we go to the test interface
-and start any of the tests, we'll have the desired behaviour in
-`/foo`. Go now to the test interface and experiment a bit with the
-results you get when starting the different tests.
+Hydra there won't be any active test, so
+[`/foo`](http://localhost:3000/foo) will say "This is the default
+behaviour of /foo". However, if we go to the test interface and start
+any of the tests, we'll have the desired behaviour in `/foo`. Go now
+to the test interface and experiment a bit with the results you get
+when starting the different tests.
 
 Note how when you start the last test, Hydra will show some
-instructions and some expected behaviour (interpreted as
-Markdown). This can be very handy if you want to build some kind of
-acceptance test suite of your client.  And in case you want to
-automate the testing of the client, you will also want to automate the
-starting/switching of tests in Hydra. In that case, remember you can
-start and stop them by making POST requests to
+instructions and some expected behaviour (the `instructions` field is
+interpreted as Markdown). This can be very handy if you want to build
+some kind of acceptance test suite of your client.  And in case you
+want to automate the testing of the client, you will also want to
+automate the starting/switching of tests in Hydra. In that case,
+remember you can start and stop them by making POST requests to
 http://localhost:3000/hydra-admin/tests/PLUGIN-NAME/TEST-NAME.
 
 
@@ -217,15 +223,15 @@ Assertions
 
 If you're preparing a more formal test suite for your project, you may
 want to not only check how the client behaves with different responses
-from the server, but also check if the requests from the client are
-well-formed and correct. Hydra heads can contain assertions that will
-be counted as part of the current running test.
+from the server, but also if the client requests are well-formed and
+correct. Hydra heads can contain assertions that will be counted as
+part of the current active test.
 
 Let's say we are still testing the client of that search engine in the
-previous section, and we want to make sure we don't have UTF-8
-problems. Thus, we'll add a test that checks that the client sent a
-correctly formed, UTF-8 search string. We can start by adding a new
-test, `utf8SearchTerm`, with the following definition:
+previous section, and we want to make sure we don't have character
+encoding problems. Thus, we'll add a test that checks that the client
+sent a correctly formed, UTF-8 search string. We can start by adding a
+new test, `nonAsciiSearchTerm`, with the following definition:
 
       exports.getBodyParts = function(conf, modules) {
           var assert = modules.assert;
@@ -237,15 +243,15 @@ test, `utf8SearchTerm`, with the following definition:
               tests: {
                   // ...
 
-                  utf8SearchTerm: {
-                      instructions: "Search for the string 'blåbærsyltetøy'.\n\nYou should _get one search result_.",
+                  nonAsciiSearchTerm: {
+                      instructions: "Search for the string 'blåbærsyltetøy'.\n\nYou should _get one search result_ and it should be _displayed correctly_.",
                       heads: [
                           new HydraHead({
                               path: '/foo',
                               handler: function(req, res) {
                                   assert.equal(req.getParams.q,
                                                "blåbærsyltetøy",
-                                               "UTF-8 encoding should be ok");
+                                               Character encoding should be ok");
 
                                   res.headers['content-type'] =
                                       'application/json; charset=utf-8';
@@ -259,15 +265,16 @@ test, `utf8SearchTerm`, with the following definition:
                       ]
                   }
 
-In this case, the `getBodyParts` function accepts a second parameter,
+Note that now the `getBodyParts` function accepts a second parameter,
 `modules`. This second parameter is an object with available modules
 as its properties. The only module available as of today is `assert`:
-an object with all the functions in the standard, [Node `assert`
-module](http://nodejs.org/docs/latest/api/assert.html). This version,
-though, is special for Hydra and allows Hydra to fetch the results.
+an object with all the functions in the standard, [`assert`
+module](http://nodejs.org/docs/latest/api/assert.html) from Node. This
+version, though, is special for Hydra and allows Hydra to fetch the
+results.
 
-Now, if you start the `utf8SearchTerm` test and make a request with
-the wrong string, you'll get an empty response and see the test
+Now, if you start the `nonAsciiSearchTerm` test and make a request
+with the wrong string, you'll get an empty response and see the test
 failure in the [test index
 page](http://localhost:3000/hydra-admin/tests). If you send the
 correct string, you'll see the one-result response and the test pass
@@ -275,3 +282,7 @@ in the test index page. In case you want to access this information in
 an automated fashion, you can get the results in JSON format at the
 URL
 [http://localhost:3000/hydra-admin/tests/results.json](http://localhost:3000/hydra-admin/tests/results.json).
+
+And this is the end of the advanced Hydra tutorial. Now you have
+learned about all features and it's just a matter of experimenting and
+creating your own plugins.
