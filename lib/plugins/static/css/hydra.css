@@ -6,3 +6,8 @@
     vertical-align: text-top;
     margin-right: 5px;
 }
+
+.table tbody tr.is-highlighted th,
+.table tbody tr.is-highlighted td {
+    background-color: #cc0f16 !important;
+}
