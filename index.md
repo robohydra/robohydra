@@ -47,5 +47,16 @@ NPM with the following command:
 
     npm install hydra
 
-All this code is released under the 3-clause BSD license, and it's
-copyright [Opera Software ASA](http://opera.com).
+License and copyright
+=====================
+
+This code is Copyright 2012 Esteban Manchado Velázquez, and it's
+released under the [Apache 2.0
+license](http://www.apache.org/licenses/LICENSE-2.0.txt).
+
+This project started at [Opera Software ASA](http://opera.com) as an
+internal tool to test some of our projects. Large parts of this code
+were (and still are) developed there, but as it's pretty generic we
+decided to open source it. See [Opera's GitHub
+account](http://github.com/operasoftware) for more open source
+goodies.
