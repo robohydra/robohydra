@@ -15,7 +15,15 @@ exports.getBodyParts = function(config, modules) {
                     new HydraHeadStatic({content: "more fixed content"})
                 ]
             },
+
             secondTestBar: {
+                instructions: "Optional, Markdown format instructions.\n\n" +
+                                "You can go to [/bar](/bar) for a failure, " +
+                                "or to [/bar2](/bar2) for a pass. Then go " +
+                                "back to " +
+                                "[/hydra-admin/tests](/hydra-admin/tests) " +
+                                "to see the results.",
+
                 heads: [
                     new HydraHead({
                         path: '/bar',
@@ -26,6 +34,7 @@ exports.getBodyParts = function(config, modules) {
                             res.send("fixed content");
                         }
                     }),
+
                     new HydraHead({
                         path: '/bar2',
                         handler: function(req, res) {
