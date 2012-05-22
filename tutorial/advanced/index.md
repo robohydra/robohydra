@@ -1,6 +1,9 @@
 ---
 layout: default
 ---
+Hydra server advanced tutorial
+==============================
+
 If you haven't already, please read the [beginner's
 tutorial]({{ site.url }}/tutorial) first.
 
