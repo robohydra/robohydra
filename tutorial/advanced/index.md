@@ -68,13 +68,20 @@ working as before, and will keep working even if DuckDuckGo changes
 the version number in the URLs.
 
 But what about tweaking the response we get from some other head?
-That's interesting, too. Let's turn "DuckDuckGo" into "Duck… Duck…
-Go!". To do that, we have to create another head before the
-`RoboHydraHeadProxy`. This new head will call the proxying head with
-the `next` function, but passing a fake response object. Then it will
-tweak the body of that response, _then_ return that tweaked
-response. It sounds complicated, but the code is simple enough:
+That's interesting, too. Let's turn "DuckDuckGo" in the page title
+into "Duck… Duck… Go!". To do that, we have to create another head
+before the `RoboHydraHeadProxy`. This new head will call the proxying
+head with the `next` function, but passing a fake response
+object. Then it will tweak the body of that response, _then_ return
+that tweaked response. It sounds complicated, but the code is simple
+enough:
 
+      // This at the top of the file
+      var Response = require("robohydra").Response;
+
+      // ...
+
+      // Then, right before the proxy head...
       new RoboHydraHead({
           path: '/',
           handler: function(req, res, next) {
@@ -181,7 +188,7 @@ those three cases as tests. Create a new file
                   },
 
                   serverProblems: {
-                      description: "Make a search with any non-empty search term. The client should show some error messaging stating the server couldn't fulfill the request or wasn't available",
+                      instructions: "Make a search with any non-empty search term. The client should show some error messaging stating the server couldn't fulfill the request or wasn't available",
                       heads: [
                           new RoboHydraHead({
                               path: '/.*',
@@ -254,7 +261,7 @@ new test, `nonAsciiSearchTerm`, with the following definition:
                               handler: function(req, res) {
                                   assert.equal(req.getParams.q,
                                                "blåbærsyltetøy",
-                                               Character encoding should be ok");
+                                               "Character encoding should be ok");
 
                                   res.headers['content-type'] =
                                       'application/json; charset=utf-8';
@@ -277,13 +284,15 @@ version, though, is special for RoboHydra and allows RoboHydra to
 fetch the results.
 
 Now, if you start the `nonAsciiSearchTerm` test and make a request
-with the wrong string, you'll get an empty response and see the test
-failure in the [test index
-page](http://localhost:3000/robohydra-admin/tests). If you send the
-correct string, you'll see the one-result response and the test pass
-in the test index page. In case you want to access this information in
-an automated fashion, you can get the results in JSON format at the
-URL
+with the wrong string
+(eg. [http://localhost:3000/foo?q=blaabaersyltetoy](http://localhost:3000/foo?q=blaabaersyltetoy)),
+you'll get an empty response and see the test failure in the [test
+index page](http://localhost:3000/robohydra-admin/tests). If you send
+the correct string
+(eg. [http://localhost:3000/foo?q=blåbærsyltetøy](http://localhost:3000/foo?q=blåbærsyltetøy)),
+you'll see the one-result response and the test pass in the test index
+page. In case you want to access this information in an automated
+fashion, you can get the results in JSON format at the URL
 [http://localhost:3000/robohydra-admin/tests/results.json](http://localhost:3000/robohydra-admin/tests/results.json).
 
 And this is the end of the advanced RoboHydra tutorial. Now you have
