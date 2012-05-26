@@ -1,23 +1,23 @@
 ---
 layout: default
 ---
-Hydra HTTP client test tool
-===========================
+RoboHydra HTTP client test tool
+===============================
 
-Hydra is a tool to test any kind of HTTP-based client. It could be a
-GUI that uses a public API, a mobile application that communicates
-with some server in order to retrieve information, a complex
-Javascript front-end application that uses the server mostly as a data
-store, or many other things.
+RoboHydra is a web server designed to help you test any kind of
+HTTP-based client. It could be a GUI that uses a public API, a mobile
+application that communicates with some server in order to retrieve
+information, a complex Javascript front-end application that uses the
+server mostly as a data store, or many other things.
 
-In these situations, Hydra allows you to easily make custom "mock"
+In these situations, RoboHydra allows you to easily make custom "mock"
 servers with little effort, be it to build a test suite, easily
 reproduce problems while fixing bugs, or to help with exploratory
 testing.
 
-Hydra is a web server that is easy to configure (even dynamically!) to
-return the responses you want, mimicking any server behaviour needed
-to test your clients. Examples of this might be:
+RoboHydra is easy to configure to return the responses you want,
+mimicking any server behaviour needed to test your clients. Examples
+of this might be:
 
 * Testing how the client behaves when it receives a certain
 combination of valid (but possibly uncommon or cumbersome to
@@ -42,10 +42,10 @@ Download
 ========
 
 You can get the [code on
-GitHub](https://github.com/operasoftware/hydra), or install Hydra via
-NPM with the following command:
+GitHub](https://github.com/operasoftware/robohydra), or install
+RoboHydra via NPM with the following command:
 
-    npm install hydra
+    npm install robohydra
 
 License and copyright
 =====================
