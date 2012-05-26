@@ -1,8 +1,8 @@
 {
-    "name": "hydra"
+    "name": "robohydra"
   , "version": "0.1.0"
-  , "bin": "./bin/hydra.js"
-  , "main": "./lib/hydra.js"
+  , "bin": "./bin/robohydra.js"
+  , "main": "./lib/robohydra.js"
   , "dependencies": {
       "mime":      ">= 1.0.0"
     , "ejs":       ">= 0.6.1"

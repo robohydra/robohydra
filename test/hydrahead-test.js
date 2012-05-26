@@ -5,41 +5,42 @@ var helpers              = require("./helpers"),
     withResponse         = helpers.withResponse,
     fakeFs               = helpers.fakeFs,
     fakeHttpCreateClient = helpers.fakeHttpCreateClient;
-var HydraHead           = require("../lib/hydraHead").HydraHead,
-    HydraHeadStatic     = require("../lib/hydraHead").HydraHeadStatic,
-    HydraHeadFilesystem = require("../lib/hydraHead").HydraHeadFilesystem,
-    HydraHeadProxy      = require("../lib/hydraHead").HydraHeadProxy;
+var heads                   = require("../lib/heads"),
+    RoboHydraHead           = heads.RoboHydraHead,
+    RoboHydraHeadStatic     = heads.RoboHydraHeadStatic,
+    RoboHydraHeadFilesystem = heads.RoboHydraHeadFilesystem,
+    RoboHydraHeadProxy      = heads.RoboHydraHeadProxy;
 
 buster.spec.expose();
 
-describe("Generic Hydra heads", function() {
+describe("Generic RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
         var head;
 
         expect(function() {
-            head = new HydraHead();
-        }).toThrow("InvalidHydraHeadException");
+            head = new RoboHydraHead();
+        }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            head = new HydraHead({path: '/'});
-        }).toThrow("InvalidHydraHeadException");
+            head = new RoboHydraHead({path: '/'});
+        }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            head = new HydraHead({handler: function() {}});
-        }).toThrow("InvalidHydraHeadException");
+            head = new RoboHydraHead({handler: function() {}});
+        }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can have a name", function() {
-        var head = new HydraHead({name: 'foo',
+        var head = new RoboHydraHead({name: 'foo',
                                   path: '/', handler: function() {}});
         expect(head.name).toEqual('foo');
 
-        var namelessHead = new HydraHead({path: '/', handler: function() {}});
+        var namelessHead = new RoboHydraHead({path: '/', handler: function() {}});
         expect(namelessHead.name).not.toBeDefined();
     });
 
     it("can serve simple content", function(done) {
-        var head = new HydraHead({path: '/foobar',
+        var head = new RoboHydraHead({path: '/foobar',
                                   handler: function(req, res) {
                                       res.send('Response for ' + req.url);
                                   }});
@@ -50,7 +51,7 @@ describe("Generic Hydra heads", function() {
     });
 
     it("can serve content from path matching a regular expression", function(done) {
-        var head = new HydraHead({path: '/foobar(/[a-z]*)?',
+        var head = new RoboHydraHead({path: '/foobar(/[a-z]*)?',
                                   handler: function(req, res) {
                                       res.send('Response for ' + req.url);
                                   }});
@@ -65,20 +66,20 @@ describe("Generic Hydra heads", function() {
     });
 
     it("can be created attached/detached", function() {
-        var detachedHead = new HydraHead({detached: true,
+        var detachedHead = new RoboHydraHead({detached: true,
                                           path: '/',
                                           handler: function() {}});
         expect(detachedHead.attached()).toEqual(false);
 
-        var normalHead = new HydraHead({path: '/', handler: function() {}});
+        var normalHead = new RoboHydraHead({path: '/', handler: function() {}});
         expect(normalHead.attached()).toEqual(true);
 
-        var explicitHead = new HydraHead({path: '/', handler: function() {}});
+        var explicitHead = new RoboHydraHead({path: '/', handler: function() {}});
         expect(explicitHead.attached()).toEqual(true);
     });
 
     it("can be attached/detached dynamically", function() {
-        var head = new HydraHead({path: '/', handler: function() {}});
+        var head = new RoboHydraHead({path: '/', handler: function() {}});
         expect(head.attached()).toEqual(true);
         head.detach();
         expect(head.attached()).toEqual(false);
@@ -87,23 +88,23 @@ describe("Generic Hydra heads", function() {
     });
 
     it("can't be attached/detached when already in that state", function() {
-        var head = new HydraHead({path: '/', handler: function() {}});
+        var head = new RoboHydraHead({path: '/', handler: function() {}});
         expect(function() {
             head.attach();
-        }).toThrow("InvalidHydraHeadStateException");
+        }).toThrow("InvalidRoboHydraHeadStateException");
         expect(head.attached()).toEqual(true);
         head.detach();
         expect(head.attached()).toEqual(false);
         expect(function() {
             head.detach();
-        }).toThrow("InvalidHydraHeadStateException");
+        }).toThrow("InvalidRoboHydraHeadStateException");
         expect(head.attached()).toEqual(false);
     });
 
     it("never dispatch any paths when detached", function() {
-        var headStatic = new HydraHead({detached: true, path: '/foo.*',
+        var headStatic = new RoboHydraHead({detached: true, path: '/foo.*',
                                         handler: function() {}});
-        var headDynamic = new HydraHead({path: '/foo.*',
+        var headDynamic = new RoboHydraHead({path: '/foo.*',
                                          handler: function() {}});
         headDynamic.detach();
 
@@ -126,7 +127,7 @@ describe("Generic Hydra heads", function() {
                           '/foo/baaaa', '/foo/baa?param=value'];
         var invalidPaths = ['/foo/bar', '/foo/'];
 
-        var head = new HydraHead({path: '/foo/ba*', handler: function() {}});
+        var head = new RoboHydraHead({path: '/foo/ba*', handler: function() {}});
         validPaths.forEach(function(path) {
             expect(head).toHandle(path);
         });
@@ -141,7 +142,7 @@ describe("Generic Hydra heads", function() {
         var invalidPaths = ['/article/show/123/456', '/article/',
                             '/article/show'];
 
-        var head = new HydraHead({path: '/:controller/:action/:id',
+        var head = new RoboHydraHead({path: '/:controller/:action/:id',
                                   handler: function() {}});
         validPaths.forEach(function(path) {
             expect(head).toHandle(path);
@@ -153,7 +154,7 @@ describe("Generic Hydra heads", function() {
 
     it("set the appropriate request params with the request variables", function(done) {
         var controller, action, id;
-        var head = new HydraHead({path: '/:controller/:action/:id',
+        var head = new RoboHydraHead({path: '/:controller/:action/:id',
                                   handler: function(req, res) {
                                       controller = req.params.controller;
                                       action     = req.params.action;
@@ -183,22 +184,22 @@ describe("Generic Hydra heads", function() {
     });
 });
 
-describe("Static content Hydra heads", function() {
+describe("Static content RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
         var head;
 
         expect(function() {
-            head = new HydraHeadStatic();
-        }).toThrow("InvalidHydraHeadException");
+            head = new RoboHydraHeadStatic();
+        }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            head = new HydraHeadStatic({path: '/'});
-        }).toThrow("InvalidHydraHeadException");
+            head = new RoboHydraHeadStatic({path: '/'});
+        }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can be created with only static content", function(done) {
         var text = 'static content';
-        var head = new HydraHeadStatic({content: text});
+        var head = new RoboHydraHeadStatic({content: text});
 
         checkRouting(head, [
             ['/', text],
@@ -208,7 +209,7 @@ describe("Static content Hydra heads", function() {
 
     it("can be created with path and static content", function(done) {
         var text = 'static content';
-        var head = new HydraHeadStatic({path: '/', content: text});
+        var head = new RoboHydraHeadStatic({path: '/', content: text});
         checkRouting(head, [
             ['/', text],
             ['/foobarqux', {status: 404}] // only the given path is served
@@ -216,7 +217,7 @@ describe("Static content Hydra heads", function() {
     });
 
     it("return 404 when requesting unknown paths", function(done) {
-        var head = new HydraHeadStatic({path: '/foobar',
+        var head = new RoboHydraHeadStatic({path: '/foobar',
                                         content: 'static content'});
         checkRouting(head, [
             ['/', {status: 404}],
@@ -230,7 +231,7 @@ describe("Static content Hydra heads", function() {
         var invalidPaths = ['/', '/fooba', '/foobar/qux', '/qux/foobar'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadStatic({path: dispatchPath,
+            var head = new RoboHydraHeadStatic({path: dispatchPath,
                                             content: "Some test content"});
             validPaths.forEach(function(path) {
                 expect(head).toHandle(path);
@@ -245,7 +246,7 @@ describe("Static content Hydra heads", function() {
         var validPaths = ['/foo/a', '/foo/abcd', '/foo/abcd/'];
         var invalidPaths = ['/', '/foo/', '/foobar/', '/foo/qux/mux'];
 
-        var head = new HydraHeadStatic({path: '/foo/[^/]+',
+        var head = new RoboHydraHeadStatic({path: '/foo/[^/]+',
                                         content: "Some test content"});
         validPaths.forEach(function(path) {
             expect(head).toHandle(path);
@@ -256,14 +257,14 @@ describe("Static content Hydra heads", function() {
     });
 
     it("know which paths they can dispatch by default", function() {
-        var head = new HydraHeadStatic({content: "Some test content"});
+        var head = new RoboHydraHeadStatic({content: "Some test content"});
         ['/', '/foobar', '/foo/bar'].forEach(function(path) {
             expect(head).toHandle(path);
         });
     });
 
     it("can automatically stringify a Javascript object", function(done) {
-        var head = new HydraHeadStatic({content: ['one', 'two', {three: 3}]});
+        var head = new RoboHydraHeadStatic({content: ['one', 'two', {three: 3}]});
         withResponse(head, '/json', function(res) {
             var resultObject = JSON.parse(res.body);
             expect(resultObject.length).toEqual(3);
@@ -276,7 +277,7 @@ describe("Static content Hydra heads", function() {
 
     it("can return a given Content-Type", function(done) {
         var contentType = "application/xml";
-        var head = new HydraHeadStatic({content: "<xml/>",
+        var head = new RoboHydraHeadStatic({content: "<xml/>",
                                         contentType: contentType});
         withResponse(head, '/', function(res) {
             expect(res.headers['Content-Type']).toEqual(contentType);
@@ -285,7 +286,7 @@ describe("Static content Hydra heads", function() {
     });
 
     it("return 'application/json' type by default when content is an object", function(done) {
-        var head = new HydraHeadStatic({content: {some: 'object'}});
+        var head = new RoboHydraHeadStatic({content: {some: 'object'}});
         withResponse(head, '/', function(res) {
             expect(res.headers['Content-Type']).toEqual("application/json");
             done();
@@ -294,7 +295,7 @@ describe("Static content Hydra heads", function() {
 
     it("can use a specific Content Type when content is an object", function(done) {
         var contentType = "application/x-made-up";
-        var head = new HydraHeadStatic({content: {some: 'object'},
+        var head = new RoboHydraHeadStatic({content: {some: 'object'},
                                         contentType: contentType});
         withResponse(head, '/', function(res) {
             expect(res.headers['Content-Type']).toEqual(contentType);
@@ -303,17 +304,17 @@ describe("Static content Hydra heads", function() {
     });
 });
 
-describe("Filesystem Hydra heads", function() {
+describe("Filesystem RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new HydraHeadFilesystem({mountPath: '/'});
-        }).toThrow("InvalidHydraHeadException");
+            var head = new RoboHydraHeadFilesystem({mountPath: '/'});
+        }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("serve files from default mountPath = /", function(done) {
         var fileContents    = "file contents",
             dirFileContents = "dir file contents";
-        var head = new HydraHeadFilesystem({
+        var head = new RoboHydraHeadFilesystem({
             documentRoot: '/var/www',
             fs: fakeFs({'/var/www/file.txt':     fileContents,
                         '/var/www/dir/file.txt': dirFileContents})
@@ -328,7 +329,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({mountPath: '/foobar',
+        var head = new RoboHydraHeadFilesystem({mountPath: '/foobar',
                                             documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -341,7 +342,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("don't serve non-existent files from the file system", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({mountPath: '/foobar',
+        var head = new RoboHydraHeadFilesystem({mountPath: '/foobar',
                                             documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -355,7 +356,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system with a trailing slash in documentRoot", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({mountPath: '/foobar',
+        var head = new RoboHydraHeadFilesystem({mountPath: '/foobar',
                                             documentRoot: '/var/www/',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -368,7 +369,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system with a trailing slash in path", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({mountPath: '/foobar/',
+        var head = new RoboHydraHeadFilesystem({mountPath: '/foobar/',
                                             documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -381,7 +382,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("serve files from the file system with trailing slashes in path and documentRoot", function(done) {
         var fileContents = "file contents";
-        var head = new HydraHeadFilesystem({mountPath: '/foobar/',
+        var head = new RoboHydraHeadFilesystem({mountPath: '/foobar/',
                                             documentRoot: '/var/www/',
                                             fs: fakeFs({'/var/www/file.txt':
                                                         fileContents})});
@@ -399,7 +400,7 @@ describe("Filesystem Hydra heads", function() {
                             '/foobarqux'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadFilesystem({mountPath: dispatchPath,
+            var head = new RoboHydraHeadFilesystem({mountPath: dispatchPath,
                                                 documentRoot: '/var/www'});
             validPaths.forEach(function(path) {
                 expect(head).toHandle(path);
@@ -411,7 +412,7 @@ describe("Filesystem Hydra heads", function() {
     });
 
     it("sets the correct Content-Type for the served files", function(done) {
-        var head = new HydraHeadFilesystem({documentRoot: '/var/www',
+        var head = new RoboHydraHeadFilesystem({documentRoot: '/var/www',
                                             fs: fakeFs({'/var/www/json.txt':
                                                             'foobar'}),
                                             mime: {lookup: function(path) { return "text/x-fake"; }}});
@@ -423,7 +424,7 @@ describe("Filesystem Hydra heads", function() {
 
     it("sets the correct Last-Modified for the served files", function(done) {
         var mtime = new Date();
-        var head = new HydraHeadFilesystem({
+        var head = new RoboHydraHeadFilesystem({
             documentRoot: '/var/www',
             fs: fakeFs({
                 '/var/www/json.txt': {
@@ -442,7 +443,7 @@ describe("Filesystem Hydra heads", function() {
         var headers = {
             'if-modified-since': new Date(1337)
         };
-        var head = new HydraHeadFilesystem({
+        var head = new RoboHydraHeadFilesystem({
             documentRoot: '/var/www',
             fs: fakeFs({
                 '/var/www/json.txt': {
@@ -458,18 +459,18 @@ describe("Filesystem Hydra heads", function() {
     });
 });
 
-describe("Proxying Hydra heads", function() {
+describe("Proxying RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new HydraHeadProxy({mountPath: '/'});
-        }).toThrow("InvalidHydraHeadException");
+            var head = new RoboHydraHeadProxy({mountPath: '/'});
+        }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("proxy from default mountPath = /", function(done) {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHeadProxy({proxyTo: 'http://example.com/mounted',
+        var head = new RoboHydraHeadProxy({proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
         checkRouting(head, [
@@ -482,7 +483,7 @@ describe("Proxying Hydra heads", function() {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHeadProxy({path: '/foo',
+        var head = new RoboHydraHeadProxy({path: '/foo',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -496,10 +497,10 @@ describe("Proxying Hydra heads", function() {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHeadProxy({mountPath: '/foobar',
+        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
-        var head2 = new HydraHeadProxy({mountPath: '/foobar',
+        var head2 = new RoboHydraHeadProxy({mountPath: '/foobar',
                                         proxyTo: 'http://example.com/mounted/',
                                         httpCreateClientFunction: fakeHttpCC});
 
@@ -520,7 +521,7 @@ describe("Proxying Hydra heads", function() {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHeadProxy({mountPath: '/foobar',
+        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -533,10 +534,10 @@ describe("Proxying Hydra heads", function() {
         var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new HydraHeadProxy({mountPath: '/foobar',
+        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
                                        proxyTo: 'http://example.com',
                                        httpCreateClientFunction: fakeHttpCC});
-        var head2 = new HydraHeadProxy({mountPath: '/foobar',
+        var head2 = new RoboHydraHeadProxy({mountPath: '/foobar',
                                         proxyTo: 'http://example.com/',
                                         httpCreateClientFunction: fakeHttpCC});
 
@@ -559,7 +560,7 @@ describe("Proxying Hydra heads", function() {
             return res + (typeof(data) === 'undefined' ? '' :
                           ' with data "' + data + '"');
         });
-        var head = new HydraHeadProxy({mountPath: '/foobar',
+        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -585,7 +586,7 @@ describe("Proxying Hydra heads", function() {
             return res + (typeof(data) === 'undefined' ? '' :
                           " with data \"" + data + "\"");
         });
-        var head = new HydraHeadProxy({mountPath: '/foobar',
+        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
                                        proxyTo: 'http://example.com/mounted',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -604,7 +605,7 @@ describe("Proxying Hydra heads", function() {
             return res + (typeof(d) === 'undefined' ? '' :
                           " with data \"" + d + "\"");
         });
-        var head = new HydraHeadProxy({mountPath: '/foobar',
+        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
                                        proxyTo: 'http://example.com:3000/',
                                        httpCreateClientFunction: fakeHttpCC});
 
@@ -620,7 +621,7 @@ describe("Proxying Hydra heads", function() {
                             '/foobarqux'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new HydraHeadProxy({mountPath: dispatchPath,
+            var head = new RoboHydraHeadProxy({mountPath: dispatchPath,
                                            proxyTo: 'http://www.example.com'});
             validPaths.forEach(function(path) {
                 expect(head).toHandle(path);

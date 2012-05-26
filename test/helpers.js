@@ -1,8 +1,8 @@
 var buster = require("buster");
-var hydra      = require("../lib/hydra"),
-    hydraHeads = hydra.heads,
-    assert     = hydra.assert;
-var Response = require("../lib/hydra").Response;
+var robohydra = require("../lib/robohydra"),
+    heads     = robohydra.heads,
+    assert    = robohydra.assert,
+    Response  = robohydra.Response;
 
 function areBuffersEqual(buffer1, buffer2) {
     if (buffer1.length !== buffer2.length) return false;
@@ -51,8 +51,8 @@ buster.assertions.add("hasTestResult", {
         return buster.assertions.deepEqual(this.testResults[plugin][test],
                                            expectedResult);
     },
-    assertMessage: "Expected Hydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
-    refuteMessage: "Expected Hydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
+    assertMessage: "Expected RoboHydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
+    refuteMessage: "Expected RoboHydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
     expectation: "toHaveTestResult"
 });
 
@@ -153,7 +153,7 @@ function fakeReq(url, options) {
 }
 
 function headWithPass(path, hydraUtils, assertionMessage) {
-    return new hydraHeads.HydraHead({
+    return new heads.RoboHydraHead({
         path: path,
         handler: function(req, res) {
             hydraUtils.assert.equal(1, 1, assertionMessage);
@@ -163,7 +163,7 @@ function headWithPass(path, hydraUtils, assertionMessage) {
 }
 
 function headWithFail(path, hydraUtils, assertionMessage) {
-    return new hydraHeads.HydraHead({
+    return new heads.RoboHydraHead({
         path: path,
         handler: function(req, res) {
             hydraUtils.assert.equal(1, 0, assertionMessage);

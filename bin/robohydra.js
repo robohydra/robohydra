@@ -10,9 +10,9 @@ var http      = require("http"),
     fs        = require('fs'),
     qs        = require('qs'),
     commander = require('commander');
-var hydra    = require('../lib/hydra'),
-    Hydra    = hydra.Hydra,
-    Response = hydra.Response;
+var robohydra = require('../lib/robohydra'),
+    RoboHydra = robohydra.RoboHydra,
+    Response  = robohydra.Response;
 
 commander.version('0.0.1').
     usage("mysetup.conf [confvar=value confvar2=value2 ...]").
@@ -31,20 +31,20 @@ function showHelpAndDie(message) {
 }
 
 
-var hydra = new Hydra();
+var robohydra = new RoboHydra();
 
-// Check parameters and load Hydra configuration
+// Check parameters and load RoboHydra configuration
 if (commander.args.length < 1)
     showHelpAndDie();
 var configPath = commander.args[0];
-var hydraConfigString = fs.readFileSync(configPath, 'utf-8');
-var hydraConfig = JSON.parse(hydraConfigString);
-if (! hydraConfig.plugins) {
-    showHelpAndDie(configPath + " doesn't seem like a valid Hydra plugin (missing 'plugins' property in the top-level object)");
+var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
+var robohydraConfig = JSON.parse(robohydraConfigString);
+if (! robohydraConfig.plugins) {
+    showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
 }
 // Process the options
 if (commander.I) {
-    hydra.addPluginLoadPath(commander.I);
+    robohydra.addPluginLoadPath(commander.I);
 }
 // After the second parameter, the rest is extra configuration variables
 var extraVars = {};
@@ -58,16 +58,16 @@ for (var i = 1, len = commander.args.length; i < len; i++) {
 }
 
 
-hydraConfig.plugins.forEach(function(pluginDef) {
+robohydraConfig.plugins.forEach(function(pluginDef) {
     var config = {}, p;
     for (p in pluginDef.config) config[p] = pluginDef.config[p];
     for (p in extraVars) config[p] = extraVars[p];
-    var plugin = hydra.requirePlugin(pluginDef.name, config);
+    var plugin = robohydra.requirePlugin(pluginDef.name, config);
 
     var pluginObject = plugin.module.getBodyParts(plugin.config,
-                                                  hydra.getUtilsObject());
+                                                  robohydra.getUtilsObject());
     pluginObject.name = pluginDef.name;
-    hydra.registerPluginObject(pluginObject);
+    robohydra.registerPluginObject(pluginObject);
 
     var featureMessages = [];
     if (typeof pluginObject.heads === 'object') {
@@ -82,7 +82,7 @@ hydraConfig.plugins.forEach(function(pluginDef) {
         }
         featureMessages.push(testCount + " test(s)");
     }
-    console.log("Registering hydra plugin " + pluginObject.name + " (" +
+    console.log("Registering RoboHydra plugin " + pluginObject.name + " (" +
                 featureMessages.join(", ") + ")");
 });
 
@@ -136,8 +136,8 @@ var server = http.createServer(function(nodeReq, nodeRes) {
         } catch(e) {
             // but it's ok if qs can't handle it
         }
-        // When we have a complete request, dispatch it through Hydra
-        hydra.handle(req, res);
+        // When we have a complete request, dispatch it through RoboHydra
+        robohydra.handle(req, res);
     });
 });
 
@@ -148,7 +148,7 @@ server.on('error', function (e) {
     }
 });
 server.listen(commander.port, function() {
-    var adminUrl = "http://localhost:" + commander.port + "/hydra-admin";
-    console.log("Hydra ready on port %d - Admin URL: %s",
+    var adminUrl = "http://localhost:" + commander.port + "/robohydra-admin";
+    console.log("RoboHydra ready on port %d - Admin URL: %s",
                 commander.port, adminUrl);
 });

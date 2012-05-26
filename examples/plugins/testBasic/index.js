@@ -1,6 +1,6 @@
-var hydra           = require('hydra'),
-    HydraHeadStatic = hydra.heads.HydraHeadStatic,
-    HydraHead       = hydra.heads.HydraHead;
+var heads               = require('robohydra').heads,
+    RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
+    RoboHydraHead       = heads.RoboHydraHead;
 
 exports.getBodyParts = function(config, modules) {
     var assert = modules.assert;
@@ -10,9 +10,9 @@ exports.getBodyParts = function(config, modules) {
         tests: {
             firstTestFoo: {
                 heads: [
-                    new HydraHeadStatic({path: '/foo',
-                                         content: "fixed content"}),
-                    new HydraHeadStatic({content: "more fixed content"})
+                    new RoboHydraHeadStatic({path: '/foo',
+                                             content: "fixed content"}),
+                    new RoboHydraHeadStatic({content: "more fixed content"})
                 ]
             },
 
@@ -21,11 +21,11 @@ exports.getBodyParts = function(config, modules) {
                                 "You can go to [/bar](/bar) for a failure, " +
                                 "or to [/bar2](/bar2) for a pass. Then go " +
                                 "back to " +
-                                "[/hydra-admin/tests](/hydra-admin/tests) " +
+                                "[/robohydra-admin/tests](/robohydra-admin/tests) " +
                                 "to see the results.",
 
                 heads: [
-                    new HydraHead({
+                    new RoboHydraHead({
                         path: '/bar',
                         handler: function(req, res) {
                             assert.equal(1, 1, "1 should be 1");
@@ -35,7 +35,7 @@ exports.getBodyParts = function(config, modules) {
                         }
                     }),
 
-                    new HydraHead({
+                    new RoboHydraHead({
                         path: '/bar2',
                         handler: function(req, res) {
                             assert.equal(1, 1, "1 should be 1 (still)");
