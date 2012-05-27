@@ -31,12 +31,16 @@ Server Error or invalid data.
 * Simulating server connection latency when connecting to a real
 server.
 
+For more information about the different ways in which you can use
+RoboHydra, have a look at the [use cases](usecases).
+
 Documentation
 =============
 
 The documentation is a work in progress. To get started, go read the
 [basic tutorial](tutorial) and the more [advanced
-tutorial](tutorial/advanced).
+tutorial](tutorial/advanced). You will also find examples in the
+[use cases](usecases) section.
 
 Download
 ========
@@ -46,6 +50,14 @@ GitHub](https://github.com/operasoftware/robohydra), or install
 RoboHydra via NPM with the following command:
 
     npm install robohydra
+
+Updates
+=======
+
+For updates and announcements related to this project, follow
+[@robohydra](https://twitter.com/robohydra) on Twitter or watch
+project [robohydra on
+GitHub](https://github.com/operasoftware/robohydra).
 
 License and copyright
 =====================
