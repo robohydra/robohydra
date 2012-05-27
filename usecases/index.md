@@ -179,9 +179,83 @@ do the trick:
                    }),
 
 
+Offline testing/prototyping
+---------------------------
+
+In other situations, you might not have access to the server at
+all. Maybe you don't have internet access, or you are outside of the
+intranet and don't have access to a VPN, etc. In those cases,
+RoboHydra can be used to save the traffic sent by the server, and then
+replay it whenever you don't have access to the internet.
+
+There's no off-the-shelf RoboHydra plugin for this yet, but it's not
+hard to build one according to your needs. For example, you could have
+a plugin with two heads: one to save all the traffic, and another to
+respond back with the data in the same order. Before reading the code,
+note two things: first, both heads are disabled by default and you
+have to manually enable them from the admin interface; second, the
+"replayer" head simply returns all responses in the same order,
+regardless of the request URL, which is likely *not* what you want in
+many situations. That said, the code could look like this:
+
+        new RoboHydraHead({
+            name:    'recorder',
+            path:    '/.*',
+            detached: true,
+            handler: function(req, res, next) {
+                next(req, new Response(
+                    function() {
+                        // Collect the responses in a variable and
+                        // overwrite the traffic file every time
+                        currentTrafficData.push({
+                            statusCode: this.statusCode,
+                            headers: this.headers,
+                            body: this.body.toString('base64')
+                        });
+                        fs.writeSync(trafficFileFd,
+                                     JSON.stringify(currentTrafficData),
+                                     0);
+
+                        // Forward the original response as is
+                        res.forward(this);
+                    }
+                ));
+            }
+        }),
+
+        new RoboHydraHead({
+            name:    'replayer',
+            path:    '/.*',
+            detached: true,
+            handler: function(req, res, next) {
+                next(req, new Response(
+                    function() {
+                        var currentResponse = currentTrafficData[index];
+                        index = ((index + 1) % currentTrafficData.length);
+                        res.statusCode = currentResponse.statusCode;
+                        res.headers    = currentResponse.headers;
+                        res.send(new Buffer(currentResponse.body, 'base64'));
+                    }
+                ));
+            }
+        }),
+
+        // Some proxying head here
+
+See an implementation of this idea in [`examples/plugins/replayer/index.js`](https://github.com/operasoftware/robohydra/blob/master/examples/plugins/replayer/index.js).
 
 
-* Offline testing by using record and re-play with a proxy
 
-* Investigate issues using logging through a proxy (poor man's
-  wireshark) - see examples/plugins/logger
+Logging traffic to help investigate issues
+------------------------------------------
+
+Sometimes it's useful to have a log of all traffic between the client
+and the server. If so, you can use RoboHydra as a proxy while keeping
+a log of all traffic sent between the client and the server. It would
+be a bit like an easier-to-use wireshark. You could decide to turn
+logging on and off, or to turn it on only for certain paths.
+
+The technique used for this is very similar to the one used for the
+previous example (in the "recorder" head), but you can see a full
+implementation in
+[`examples/plugins/logger/index.js`](https://github.com/operasoftware/robohydra/blob/master/examples/plugins/logger/index.js).
