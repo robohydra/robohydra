@@ -14,7 +14,7 @@ any plugins looks like this:
 Assuming that file is called `empty.conf` (you have one such file in
 the `examples` directory in the RoboHydra distribution), if you start
 RoboHydra with `robohydra empty.conf` you will get a server that will
-return 404 to every URL except the admin interface (available in
+return 404 for every URL except the admin interface (available in
 `/robohydra-admin`).
 
 Each element in the `plugins` list in the configuration file will be
@@ -94,8 +94,9 @@ function will be called when loading the plugin with two parameters:
 
 * `conf`: this is a Javascript object with all configuration properties
   defined in the configuration file and the command-line, *plus* the
-  special configuration key `robohydra` (the `RoboHydra` object
-  loading the plugin).
+  special configuration keys `robohydra` (the `RoboHydra` object
+  loading the plugin) and `path` (the full path to the plugin
+  directory, although it's also available as `__dirname` under Node).
 * `modules`: this is a Javascript object with special modules for the
   plugin to use. Currently there is only one module available,
   `assert`, used for assertions (see the [tutorial](../tutorial) for
@@ -317,13 +318,14 @@ Taming the RoboHydra programmatically
 In some situations you will want to access or control the RoboHydra
 that loaded the plugin. As the `config` object passed to
 `getBodyParts` function has a reference to it, you can call any
-methods to get information from it or change it in any way. Starting
-tests, loading extra plugins, detaching or re-attaching heads,
-injecting extra tests results, sending the test results to another
-server, or any other thing you can think of. You could also write your
-own admin interface if you wanted to, as the stock admin interface is
-essentially a normal plugin (see `lib/plugins/admin.js` in the
-RoboHydra source code).
+methods to get information or change it: starting tests, loading extra
+plugins, detaching or re-attaching heads, injecting extra test
+results, sending the test results to another server, or any other
+thing you can think of. You could also write your own admin interface
+if you wanted to, as the stock admin interface is essentially a normal
+plugin (see
+[`lib/plugins/admin.js`](https://github.com/operasoftware/robohydra/blob/master/lib/plugins/admin.js)
+in the RoboHydra source code).
 
 The following is a list of the public RoboHydra API methods:
 
