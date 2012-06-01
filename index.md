@@ -37,10 +37,10 @@ RoboHydra, have a look at the [use cases](usecases).
 Documentation
 =============
 
-The documentation is a work in progress. To get started, go read the
-[basic tutorial](tutorial) and the more [advanced
-tutorial](tutorial/advanced). You will also find examples in the
-[use cases](usecases) section.
+The [documentation](documentation) is a work in progress. To get
+started, go read the [basic tutorial](tutorial) and the more [advanced
+tutorial](tutorial/advanced). You will also find examples in the [use
+cases](usecases) section.
 
 Download
 ========
