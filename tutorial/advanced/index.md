@@ -31,33 +31,33 @@ filenames inside `assets`, where `XXX` are numbers. To do so, simply
 add a new head at the top and tweak the `documentRoot` in the second
 head:
 
-      var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
-          RoboHydraHeadProxy      = require("robohydra").heads.RoboHydraHeadProxy,
-          RoboHydraHead           = require("robohydra").heads.RoboHydraHead;
-
-      exports.getBodyParts = function(conf) {
-          return {
-              heads: [
-                  new RoboHydraHead({
-                      path: '/assets/.*',
-                      handler: function(req, res, next) {
-                          req.url = req.url.replace(new RegExp("\.v[0-9]\+"), "");
-                          next(req, res);
-                      }
-                  }),
-
-                  new RoboHydraHeadFilesystem({
-                      mountPath: '/assets',
-                      documentRoot: 'fake-assets-unversioned'
-                  }),
-
-                  new RoboHydraHeadProxy({
-                      mountPath: '/',
-                      proxyTo: 'http://duckduckgo.com'
-                  })
-              ]
-          };
-      };
+    var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
+        RoboHydraHeadProxy      = require("robohydra").heads.RoboHydraHeadProxy,
+        RoboHydraHead           = require("robohydra").heads.RoboHydraHead;
+    
+    exports.getBodyParts = function(conf) {
+        return {
+            heads: [
+                new RoboHydraHead({
+                    path: '/assets/.*',
+                    handler: function(req, res, next) {
+                        req.url = req.url.replace(new RegExp("\.v[0-9]\+"), "");
+                        next(req, res);
+                    }
+                }),
+    
+                new RoboHydraHeadFilesystem({
+                    mountPath: '/assets',
+                    documentRoot: 'fake-assets-unversioned'
+                }),
+    
+                new RoboHydraHeadProxy({
+                    mountPath: '/',
+                    proxyTo: 'http://duckduckgo.com'
+                })
+            ]
+        };
+    };
 
 
 Now, create a new directory `fake-assets-unversioned` with the same
@@ -76,31 +76,31 @@ object. Then it will tweak the body of that response, _then_ return
 that tweaked response. It sounds complicated, but the code is simple
 enough:
 
-      // This at the top of the file
-      var Response = require("robohydra").Response;
-
-      // ...
-
-      // Then, right before the proxy head...
-      new RoboHydraHead({
-          path: '/',
-          handler: function(req, res, next) {
-              var fakeRes = new Response(
-                  function() {
-                      this.body = this.body.toString().replace(
-                          new RegExp("DuckDuckGo", "g"),
-                          "Duck… Duck… Go!"
-                      );
-                      res.forward(this);
-                  }
-              );
-
-              // Avoid compressed responses to avoid having to
-              // uncompress before processing
-              delete req.headers["accept-encoding"];
-              next(req, fakeRes);
-          }
-      }),
+    // This at the top of the file
+    var Response = require("robohydra").Response;
+    
+    // ...
+    
+    // Then, right before the proxy head...
+    new RoboHydraHead({
+        path: '/',
+        handler: function(req, res, next) {
+            var fakeRes = new Response(
+                function() {
+                    this.body = this.body.toString().replace(
+                        new RegExp("DuckDuckGo", "g"),
+                        "Duck… Duck… Go!"
+                    );
+                    res.forward(this);
+                }
+            );
+    
+            // Avoid compressed responses to avoid having to
+            // uncompress before processing
+            delete req.headers["accept-encoding"];
+            next(req, fakeRes);
+        }
+    }),
 
 The `Response` constructor receives an argument, a function to be
 executed when the response ends. We use this function to inspect the
@@ -141,72 +141,72 @@ couple of results or even an internal server error. Let's implement
 those three cases as tests. Create a new file
 `robohydra/plugins/search/index.js` with the following contents:
 
-      var RoboHydraHead           = require("robohydra").heads.RoboHydraHead,
-          RoboHydraHeadStatic     = require("robohydra").heads.RoboHydraHeadStatic,
-          Response                = require("robohydra").Response;
-
-      exports.getBodyParts = function(conf) {
-          return {
-              heads: [
-                  new RoboHydraHeadStatic({
-                      path: '/foo',
-                      content: "This is the default behaviour of /foo"
-                  }),
-                  new RoboHydraHeadStatic({
-                      path: '/bar',
-                      content: "This is always available, regardless of the current test"
-                  })
-              ],
-              tests: {
-                  noResults: {
-                      heads: [
-                          new RoboHydraHeadStatic({
-                              path: '/foo',
-                              content: {
-                                  "success": true,
-                                  "results": []
-                              }
-                          })
-                      ]
-                  },
-
-                  twoResults: {
-                      heads: [
-                          new RoboHydraHeadStatic({
-                              path: '/foo',
-                              content: {
-                                  "success": true,
-                                  "results": [
-                                      {"url": "http://robohydra.org",
-                                       "title": "RoboHydra testing tool"},
-                                      {"url": "http://en.wikipedia.org/wiki/Hydra",
-                                       "title": "Hydra - Wikipedia"}
-                                  ]
-                              }
-                          })
-                      ]
-                  },
-
-                  serverProblems: {
-                      instructions: "Make a search with any non-empty search term. The client should show some error messaging stating the server couldn't fulfill the request or wasn't available",
-                      heads: [
-                          new RoboHydraHead({
-                              path: '/.*',
-                              handler: function(req, res) {
-                                  res.statusCode = 500;
-                                  res.send("500 - (Synthetic) Internal Server Error");
-                              }
-                          })
-                      ]
-                  }
-              }
-          };
-      };
+    var RoboHydraHead           = require("robohydra").heads.RoboHydraHead,
+        RoboHydraHeadStatic     = require("robohydra").heads.RoboHydraHeadStatic,
+        Response                = require("robohydra").Response;
+    
+    exports.getBodyParts = function(conf) {
+        return {
+            heads: [
+                new RoboHydraHeadStatic({
+                    path: '/foo',
+                    content: "This is the default behaviour of /foo"
+                }),
+                new RoboHydraHeadStatic({
+                    path: '/bar',
+                    content: "This is always available, regardless of the current test"
+                })
+            ],
+            tests: {
+                noResults: {
+                    heads: [
+                        new RoboHydraHeadStatic({
+                            path: '/foo',
+                            content: {
+                                "success": true,
+                                "results": []
+                            }
+                        })
+                    ]
+                },
+    
+                twoResults: {
+                    heads: [
+                        new RoboHydraHeadStatic({
+                            path: '/foo',
+                            content: {
+                                "success": true,
+                                "results": [
+                                    {"url": "http://robohydra.org",
+                                     "title": "RoboHydra testing tool"},
+                                    {"url": "http://en.wikipedia.org/wiki/Hydra",
+                                     "title": "Hydra - Wikipedia"}
+                                ]
+                            }
+                        })
+                    ]
+                },
+    
+                serverProblems: {
+                    instructions: "Make a search with any non-empty search term. The client should show some error messaging stating the server couldn't fulfill the request or wasn't available",
+                    heads: [
+                        new RoboHydraHead({
+                            path: '/.*',
+                            handler: function(req, res) {
+                                res.statusCode = 500;
+                                res.send("500 - (Synthetic) Internal Server Error");
+                            }
+                        })
+                    ]
+                }
+            }
+        };
+    };
 
 Once saved, create a matching configuration file and start RoboHydra
 with it:
 
-      {"plugins": [{"name": "search", "config": {}}]}
+    {"plugins": [{"name": "search", "config": {}}]}
 
 You can see the available tests, which one is active (if any) and
 start and stop them in the [test admin
@@ -243,37 +243,40 @@ encoding problems. Thus, we'll add a test that checks that the client
 sent a correctly formed, UTF-8 search string. We can start by adding a
 new test, `nonAsciiSearchTerm`, with the following definition:
 
-      exports.getBodyParts = function(conf, modules) {
-          var assert = modules.assert;
-
-          return {
-              heads: [
-                  // ...
-              ],
-              tests: {
-                  // ...
-
-                  nonAsciiSearchTerm: {
-                      instructions: "Search for the string 'blåbærsyltetøy'.\n\nYou should _get one search result_ and it should be _displayed correctly_.",
-                      heads: [
-                          new RoboHydraHead({
-                              path: '/foo',
-                              handler: function(req, res) {
-                                  assert.equal(req.getParams.q,
-                                               "blåbærsyltetøy",
-                                               "Character encoding should be ok");
-
-                                  res.headers['content-type'] =
-                                      'application/json; charset=utf-8';
-                                  res.send(JSON.stringify({
-                                      "success": true,
-                                      "results": [{"url":   "http://example.com",
-                                                   "title": "Blåbærsyltetøy'r us"}]
-                                  }));
-                              }
-                          })
-                      ]
-                  }
+    exports.getBodyParts = function(conf, modules) {
+        var assert = modules.assert;
+    
+        return {
+            heads: [
+                // ...
+            ],
+            tests: {
+                // ...
+    
+                nonAsciiSearchTerm: {
+                    instructions: "Search for the string 'blåbærsyltetøy'.\n\nYou should _get one search result_ and it should be _displayed correctly_.",
+                    heads: [
+                        new RoboHydraHead({
+                            path: '/foo',
+                            handler: function(req, res) {
+                                assert.equal(req.getParams.q,
+                                             "blåbærsyltetøy",
+                                             "Character encoding should be ok");
+    
+                                res.headers['content-type'] =
+                                    'application/json; charset=utf-8';
+                                res.send(JSON.stringify({
+                                    "success": true,
+                                    "results": [{"url":   "http://example.com",
+                                                 "title": "Blåbærsyltetøy'r us"}]
+                                }));
+                            }
+                        })
+                    ]
+                }
+            }
+        }
+    }
 
 Note that now the `getBodyParts` function accepts a second parameter,
 `modules`. This second parameter is an object with available modules

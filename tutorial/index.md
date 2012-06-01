@@ -8,13 +8,13 @@ RoboHydra is an HTTP server designed to help you develop and test clients
 of client-server applications. You start RoboHydra by specifying a
 configuration file, such as the provided example `empty.conf`:
 
-     robohydra examples/empty.conf
+    robohydra examples/empty.conf
 
 The ([JSON](http://en.wikipedia.org/wiki/Json) format) configuration
 file specifies zero or more plugins for RoboHydra to load. In particular,
 `empty.conf` doesn't load any plugins, and looks like this:
 
-      {"plugins": []}
+    {"plugins": []}
 
 Plugins tell RoboHydra how to behave when it receives requests for
 given paths. Without any plugins, all requests will initially return
@@ -30,11 +30,11 @@ Your first canned response
 Now, let's assume you want the path `/foo` to always return the
 following JSON data:
 
-      {"success": true,
-       "results": [{"url": "http://robohydra.org",
-                    "title": "RoboHydra testing tool"},
-                   {"url": "http://en.wikipedia.org/wiki/Hydra",
-                    "title": "Hydra - Wikipedia"}]
+    {"success": true,
+     "results": [{"url": "http://robohydra.org",
+                  "title": "RoboHydra testing tool"},
+                 {"url": "http://en.wikipedia.org/wiki/Hydra",
+                  "title": "Hydra - Wikipedia"}]
 
 You can do that very easily: simply go to the [admin
 interface](http://localhost:3000/robohydra-admin), find the "Create a
@@ -57,26 +57,26 @@ Your first plugin
 If you wanted to keep this head for later, you could write a simple
 plugin like this:
 
-       var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic;
-
-       exports.getBodyParts = function(conf) {
-           return {
-               heads: [
-                   new RoboHydraHeadStatic({
-                       path: '/foo',
-                       content: {
-                           "success": true,
-                           "results": [
-                               {"url": "http://robohydra.org",
-                                "title": "RoboHydra testing tool"},
-                               {"url": "http://en.wikipedia.org/wiki/Hydra",
-                                "title": "Hydra - Wikipedia"}
-                           ]
-                       }
-                   })
-               ]
-           };
-       };
+    var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic;
+    
+    exports.getBodyParts = function(conf) {
+        return {
+            heads: [
+                new RoboHydraHeadStatic({
+                    path: '/foo',
+                    content: {
+                        "success": true,
+                        "results": [
+                            {"url": "http://robohydra.org",
+                             "title": "RoboHydra testing tool"},
+                            {"url": "http://en.wikipedia.org/wiki/Hydra",
+                             "title": "Hydra - Wikipedia"}
+                        ]
+                    }
+                })
+            ]
+        };
+    };
 
 A plugin is a collection of heads to be added to your RoboHydra on
 startup. A "head" is an object that monitors a given URL path pattern
@@ -104,27 +104,27 @@ responses. For example, say you want to wait for one second before you
 send the response back to the client. To do that, modify the `require`
 line and `heads` section in your plugin to add a second head like so:
 
-       var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic,
-           RoboHydraHead       = require("robohydra").heads.RoboHydraHead;
-
-       exports.getBodyParts = function(conf) {
-           return {
-               heads: [
-                   new RoboHydraHeadStatic({
-                       // ... Same as before ...
-                   }),
-
-                   new RoboHydraHead({
-                       path: '/slow',
-                       handler: function(req, res) {
-                           setTimeout(function() {
-                               res.send("Some slow response");
-                           }, 1000);
-                       }
-                   })
-               ]
-           };
-       };
+    var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic,
+        RoboHydraHead       = require("robohydra").heads.RoboHydraHead;
+    
+    exports.getBodyParts = function(conf) {
+        return {
+            heads: [
+                new RoboHydraHeadStatic({
+                    // ... Same as before ...
+                }),
+    
+                new RoboHydraHead({
+                    path: '/slow',
+                    handler: function(req, res) {
+                        setTimeout(function() {
+                            res.send("Some slow response");
+                        }, 1000);
+                    }
+                })
+            ]
+        };
+    };
 
 
 Accessing the request data
@@ -137,14 +137,14 @@ on. In this case, RoboHydra allows you to specify URL paths like
 `/slow`. The following handler function will allow you to configure
 the wait in this way:
 
-       new RoboHydraHead({
-           path: '/slow/:millis',
-           handler: function(req, res) {
-               setTimeout(function() {
-                   res.send("Some slow response");
-               }, req.params.millis);
-           }
-       })
+    new RoboHydraHead({
+        path: '/slow/:millis',
+        handler: function(req, res) {
+            setTimeout(function() {
+                res.send("Some slow response");
+            }, req.params.millis);
+        }
+    })
 
 But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
@@ -154,14 +154,14 @@ respectively. The latter object is of type `Buffer` (see the [Node
 documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
 head would match the GET-parameter-style URLs:
 
-       new RoboHydraHead({
-           path: '/slow',
-           handler: function(req, res) {
-               setTimeout(function() {
-                   res.send("Some slow response");
-               }, req.getParams.millis || 1000);
-           }
-       })
+    new RoboHydraHead({
+        path: '/slow',
+        handler: function(req, res) {
+            setTimeout(function() {
+                res.send("Some slow response");
+            }, req.getParams.millis || 1000);
+        }
+    })
 
 
 Other handy kinds of heads
@@ -190,31 +190,31 @@ as the homepage logo. One way to do this is to grab a copy of the logo
 icon]({{ site.url }}/downloads/search_dropdown_homepage.v102.png),
 save them in a folder `fake-assets` and write this simple plugin:
 
-      var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
-          RoboHydraHeadProxy      = require("robohydra").heads.RoboHydraHeadProxy;
-
-      exports.getBodyParts = function(conf) {
-          return {
-              heads: [
-                  new RoboHydraHeadFilesystem({
-                      mountPath: '/assets',
-                      documentRoot: 'fake-assets'
-                  }),
-
-                  new RoboHydraHeadProxy({
-                      mountPath: '/',
-                      proxyTo: 'http://duckduckgo.com'
-                  })
-              ]
-          };
-      };
+    var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
+        RoboHydraHeadProxy      = require("robohydra").heads.RoboHydraHeadProxy;
+    
+    exports.getBodyParts = function(conf) {
+        return {
+            heads: [
+                new RoboHydraHeadFilesystem({
+                    mountPath: '/assets',
+                    documentRoot: 'fake-assets'
+                }),
+    
+                new RoboHydraHeadProxy({
+                    mountPath: '/',
+                    proxyTo: 'http://duckduckgo.com'
+                })
+            ]
+        };
+    };
 
 Note that the first head that matches the request dispatches it, so
 the order is important! Now save the plugin as
 `robohydra/plugins/ddg/index.js`, create a configuration file like
 shown below, and start RoboHydra as `robohydra ddg.conf`:
 
-      {"plugins": [{"name": "ddg", "config": {}}]}
+    {"plugins": [{"name": "ddg", "config": {}}]}
 
 You should see the DuckDuckGo page completely functional, but with the
 Adam Yauch logo.
