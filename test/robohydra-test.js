@@ -16,13 +16,7 @@ buster.spec.expose();
 
 buster.assertions.add("hasHeadAttached", {
     assert: function (actual, pluginName, headName) {
-        var head = actual.findHead(pluginName, headName);
-        if (head) {
-            return head.attached();
-        } else {
-            throw new Error("Head " + pluginName + "/" + headName +
-                            " didn't even exist!");
-        }
+        return actual.isHeadAttached(pluginName, headName);
     },
     assertMessage: "Expected ${0} to have a head '${1}/${2}' attached!",
     refuteMessage: "Expected ${0} to have a head '${1}/${2}' detached!",
