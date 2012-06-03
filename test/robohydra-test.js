@@ -721,7 +721,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             tests: { testWithAssertion: {heads: [
-                headWithFail('/f', hydra.getUtilsObject(), "some message")
+                headWithFail('/f', hydra.getModulesObject(), "some message")
             ]}}});
         hydra.startTest('plugin', 'testWithAssertion');
         expect(hydra).toHaveTestResult('plugin',
@@ -738,7 +738,7 @@ describe("RoboHydra test system", function() {
             name: 'plugin',
             tests: {
                 testWithAssertion: {
-                    heads: [headWithPass('/', hydra.getUtilsObject(),
+                    heads: [headWithPass('/', hydra.getModulesObject(),
                                          assertionMessage)]
                 }
             }});
@@ -761,7 +761,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             tests: { testWithAssertion: {
-                heads: [headWithFail('/', hydra.getUtilsObject(),
+                heads: [headWithFail('/', hydra.getModulesObject(),
                                      assertionMessage)]
             }}
         });
@@ -786,8 +786,8 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             tests: { testWithAssertion: {heads: [
-                headWithFail('/f', hydra.getUtilsObject(), failMessage),
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithFail('/f', hydra.getModulesObject(), failMessage),
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ]}}});
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
@@ -817,8 +817,8 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             tests: { testWithAssertion: {heads: [
-                headWithFail('/f', hydra.getUtilsObject(), failMessage),
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithFail('/f', hydra.getModulesObject(), failMessage),
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ]}}});
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
@@ -846,7 +846,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ]});
         hydra.handle(
             fakeReq('/p'),
@@ -867,7 +867,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
             tests: {testWithAssertion: {heads: []}}});
         hydra.startTest('plugin', 'testWithAssertion');
@@ -891,7 +891,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
             tests: {testWithAssertion: {heads: []}}});
         hydra.startTest('plugin', 'testWithAssertion');
@@ -914,7 +914,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
             tests: {testWithAssertion: {heads: []}}});
         hydra.startTest('plugin', 'testWithAssertion');
@@ -938,7 +938,7 @@ describe("RoboHydra test system", function() {
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
-                headWithPass('/p', hydra.getUtilsObject(), passMessage)
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
             tests: {testWithAssertion: {heads: []},
                     anotherTest:       {heads: []}}});
@@ -967,7 +967,7 @@ describe("RoboHydra test system", function() {
                 new RoboHydraHead({
                     path: '/',
                     handler: function(req, res) {
-                        hydra.getUtilsObject().assert.equal(0, 1);
+                        hydra.getModulesObject().assert.equal(0, 1);
                         executesAfterAssertion = true;
                         res.end();
                     }
@@ -992,7 +992,7 @@ describe("RoboHydra test system", function() {
                 new RoboHydraHead({
                     path: '/',
                     handler: function(req, res) {
-                        hydra.getUtilsObject().assert.equal(1, 1);
+                        hydra.getModulesObject().assert.equal(1, 1);
                         executesAfterAssertion = true;
                         res.end();
                     }
@@ -1016,7 +1016,7 @@ describe("RoboHydra test system", function() {
                     new RoboHydraHead({
                         path: '/',
                         handler: function(req, res) {
-                            hydra.getUtilsObject().assert.equal("foo", "bar");
+                            hydra.getModulesObject().assert.equal("foo", "bar");
                             res.end();
                         }
                     })

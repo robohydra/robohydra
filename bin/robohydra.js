@@ -65,7 +65,7 @@ robohydraConfig.plugins.forEach(function(pluginDef) {
     var plugin = robohydra.requirePlugin(pluginDef.name, config);
 
     var pluginObject = plugin.module.getBodyParts(plugin.config,
-                                                  robohydra.getUtilsObject());
+                                                  robohydra.getModulesObject());
     pluginObject.name = pluginDef.name;
     robohydra.registerPluginObject(pluginObject);
 
