@@ -94,7 +94,7 @@ function stringForLog(req, res) {
     var httpVersion = req.httpVersionMajor + '.' + req.httpVersionMinor;
     var status = res.statusCode;
     var resContentLength = res.headers['content-length'] || "-";
-    var referrer = req.headers['referer'] || req.headers['referrer'] || "-";
+    var referrer = req.headers.referer || req.headers.referrer || "-";
     var userAgent = req.headers['user-agent'] || "-";
 
     return remoteAddr + " - - [" + date + "] \"" + method + " " +
