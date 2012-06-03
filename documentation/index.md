@@ -327,7 +327,8 @@ plugin (see
 [`lib/plugins/admin.js`](https://github.com/operasoftware/robohydra/blob/master/lib/plugins/admin.js)
 in the RoboHydra source code).
 
-The following is a list of interesting public RoboHydra API methods:
+The following is a list of interesting public RoboHydra API methods
+and properties:
 
 * `registerPluginObject`: receives a plugin as a parameter
   and registers it in RoboHydra (at the end). A plugin is a Javascript
@@ -365,13 +366,13 @@ The following is a list of interesting public RoboHydra API methods:
 * `startTest`: given a plugin name and test name, start the given
   test. If it doesn't exist, throw `InvalidRoboHydraTestException`.
 * `stopTest`: stops the current test, if any.
-* `currentTest`: object with two properties, `plugin` and `test`,
-  pointing to the currently running test. If there's no running test,
-  it's `*default*` / `*default*`.
-* `testResults`: object with the current test results. Its keys are
-  plugin names and its values are objects with test names as keys. The
-  values of the latter objects are test results: objects with the keys
-  `result` (`undefined` if the test doesn't have any result yet, or
-  `pass` or `fail` if at least one assertion has run for that test),
-  `passes` (an array with the description of the passing assertions)
-  and `failures` (ditto for failing assertions).
+* `currentTest` (property): object with two properties, `plugin` and
+  `test`, pointing to the currently running test. If there's no running
+  test, it's `*default*` / `*default*`.
+* `testResults` (property): object with the current test results. Its
+  keys are plugin names and its values are objects with test names as
+  keys. The values of the latter objects are test results: objects
+  with the keys `result` (`undefined` if the test doesn't have any
+  result yet, or `pass` or `fail` if at least one assertion has run
+  for that test), `passes` (an array with the description of the
+  passing assertions) and `failures` (ditto for failing assertions).
