@@ -43,7 +43,7 @@ buster.assertions.add("hasPluginList", {
         var list = this.actualPluginList = actual.getPluginNames();
         this.countSpecialPlugins = !!arguments[2];
         if (! this.countSpecialPlugins) {
-            list = list.filter(function(p) { return p.indexOf("*") === -1 });
+            list = list.filter(function(p) { return p.indexOf("*") === -1; });
         }
         return buster.assertions.deepEqual(list, expectedPluginList);
     },
