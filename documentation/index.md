@@ -327,6 +327,41 @@ plugin (see
 [`lib/plugins/admin.js`](https://github.com/operasoftware/robohydra/blob/master/lib/plugins/admin.js)
 in the RoboHydra source code).
 
-The following is a list of the public RoboHydra API methods:
+The following is a list of interesting public RoboHydra API methods:
 
-**TODO**
+* `registerPluginObject`: receives a plugin as a parameter
+  and registers it in RoboHydra (at the end). A plugin is a Javascript
+  object with the following properties:
+  * `name`: mandatory, must be made of just ASCII letters, numbers,
+  underscores and dashes.
+  * `heads`: optional, an array of heads in the plugin.
+  * `tests`: optional, a plain object with tests. See `getBodyParts`
+  documentation for details.
+* `registerDynamicHead`: receives a single head and
+  registers it in RoboHydra (at the end of the `*dynamic-heads*`
+  pseudo-plugin.
+* `getPlugins`: returns a list of all current plugins, including
+  pseudo-plugins.
+* `getPluginNames`: returns a list of all current plugin names, including
+  pseudo-plugins.
+* `getPlugin`: receives one parameter (plugin name) and returns the
+  plugin by that name. If there's no registered plugin with the given
+  name, throws a `RoboHydraPluginNotFoundException`.
+* `headForPath`: given a URL path, it returns the first head that
+  matches that URL. If given a head as a second parameter
+  (`afterHead`), only heads appearing after `afterHead` will be
+  considered.
+* `attachHead` / `detachHead`: given a plugin name and a head name,
+  they (re-)attach or detach the given head. If no such head exists,
+  `RoboHydraHeadNotFoundException` is thrown. If the head was already
+  attached/detached, `InvalidRoboHydraHeadStateException` is thrown.
+* `addPluginLoadPath`: It adds the given path to the list of paths to
+  search for plugins.
+* `requirePlugin`: It receives a plugin name to load and an object
+  with the configuration, and returns an object with two properties:
+  `module` (the module loaded through Node) and `config` (the given
+  configuration object plus additional properties --currently, the
+  `robohydra` property and `path`, the full path to the loaded plugin).
+* `startTest`: given a plugin name and test name, start the given
+  test. If it doesn't exist, throw `InvalidRoboHydraTestException`.
+* `stopTest`: stops the current test, if any.
