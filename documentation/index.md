@@ -69,9 +69,9 @@ command-line, like so:
 Dispatching requests
 --------------------
 
-When RoboHydra receives a new HTTP request, it goes through all
-active heads in order. When it finds a head that matches the path of
-the incoming request, it RoboHydra dispatches the request with that
+When RoboHydra receives a new HTTP request, it goes through all active
+heads in order. When it finds a head that matches the path of the
+incoming request, RoboHydra dispatches the request with that
 head. Otherwise, it returns 404.
 
 Note that heads can call heads below them. See the `next` parameter in
