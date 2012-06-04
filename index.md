@@ -37,10 +37,15 @@ RoboHydra, have a look at the [use cases](usecases).
 Documentation
 =============
 
-The [documentation](documentation) is a work in progress. To get
-started, go read the [basic tutorial](tutorial) and the more [advanced
-tutorial](tutorial/advanced). You will also find examples in the [use
-cases](usecases) section.
+To get started, go read the [basic tutorial](tutorial) and the more
+[advanced tutorial](tutorial/advanced). You will also find examples in
+the [use cases](usecases) section.
+
+You also have [reference documentation](documentation) available. The
+sources don't have embedded documentation (yet), but most of what you
+need is described in the pages above, and the rest you can read in the
+[sources](https://github.com/operasoftware/robohydra) themselves
+(they're still small and easy to understand).
 
 Download
 ========
