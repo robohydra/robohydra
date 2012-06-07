@@ -86,6 +86,8 @@ function getBodyParts(config) {
     var logFilePath = config.logFilePath || 'robohydra.log';
     var logFileFd = fs.openSync(logFilePath, 'w+');
 
+    // Register the head dynamically, instead of a normal head part of
+    // the plugin, so it has precedence over all other dynamic heads.
     config.robohydra.registerDynamicHead(new RoboHydraHead({
         name:    'logger',
         path:    '/.*',
