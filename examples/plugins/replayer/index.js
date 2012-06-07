@@ -5,6 +5,7 @@ var robohydra          = require('robohydra'),
     Response           = robohydra.Response;
 
 exports.getBodyParts = function(config) {
+    var proxyToUrl = config.replayerurl || 'http://hcoder.org';
     // Initialise the log file on RoboHydra start
     var trafficFilePath = config.trafficFilePath || 'robohydra-replayer.json';
     var trafficFileFd, currentTrafficData, index;
@@ -93,7 +94,7 @@ exports.getBodyParts = function(config) {
 
         new RoboHydraHeadProxy({
             mountPath: '/',
-            proxyTo: 'http://hcoder.org'
+            proxyTo: proxyToUrl
         })
     ]};
 };
