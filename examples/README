@@ -1,4 +1,14 @@
-These are some examples of configuration files and plugins.
+RoboHydra sample plugins
+------------------------
+
+These are some examples of configuration files and plugins. To use
+them, call RoboHydra like so:
+
+    $ robohydra -I examples/plugins examples/just-tests.conf
+
+
+Description
+-----------
 
 * empty.conf is a configuration file that doesn't load any plugins whatsoever.
   Thus, the only available path is /hydra-admin (you can create dynamic heads
@@ -8,6 +18,26 @@ These are some examples of configuration files and plugins.
   to /hydra-admin to see the tests, start them, and see the list of available
   heads depending on the current running test
 
-To use these examples, call Hydra like so:
+* logger.conf loads 'logger', a simple logging plugin that will save
+  all traffic to robohydra.log in the current directory. This plugin
+  can be loaded together with any other plugins to ease debugging.
 
-    $ hydra -I examples/plugins examples/just-tests.conf
+* no-caching.conf loads 'no-caching', a sample plugin that tweaks
+  client requests to remove caching headers. It also loads 'logger' so
+  it's easy to see the effects on the requests. By default it does so
+  for all paths, but you can specify a custom path calling RoboHydra
+  as "robohydra -I examples/plugins examples/no-caching.conf
+  nocachingpath=/foo"
+
+* replayer.conf loads 'replayer', a simple plugin to record and replay
+  requests (useful to, say, record how the server behaved at a certain
+  point, then replay the requests to reproduce the problem while
+  offline). To use it, you have to start RoboHydra as "robohydra -I
+  examples/plugins examples/replayer.conf
+  replayerurl=http://myserver.example.com". Then, visit the URL
+  /start-recording when you want to start recording and visit whatever
+  URLs you want (RoboHydra will proxy to the "replayerurl"). When you
+  have the requests recorded, visit /start-replaying to stop recording
+  and start replaying those requests. All recorded requests are in
+  robohydra-replayer.json, so you can keep the file around and replay
+  whenever you want.
