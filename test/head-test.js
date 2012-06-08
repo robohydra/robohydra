@@ -1,4 +1,4 @@
-/*global require, describe, it, expect*/
+/*global describe, it, expect*/
 var buster = require("buster");
 var helpers         = require("./helpers"),
     checkRouting    = helpers.checkRouting,
