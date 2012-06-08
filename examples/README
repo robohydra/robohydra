@@ -10,13 +10,13 @@ them, call RoboHydra like so:
 Description
 -----------
 
-* empty.conf is a configuration file that doesn't load any plugins whatsoever.
-  Thus, the only available path is /hydra-admin (you can create dynamic heads
-  from that web UI)
+* empty.conf is a configuration file that doesn't load any plugins
+  whatsoever.  Thus, the only available path is /robohydra-admin (you
+  can create dynamic heads from that web UI)
 
-* just-tests.conf loads a single plugin with only tests (no default heads). Go
-  to /hydra-admin to see the tests, start them, and see the list of available
-  heads depending on the current running test
+* just-tests.conf loads a single plugin with only tests (no default
+  heads). Go to /robohydra-admin to see the tests, start them, and see
+  the list of available heads depending on the current running test
 
 * logger.conf loads 'logger', a simple logging plugin that will save
   all traffic to robohydra.log in the current directory. This plugin
