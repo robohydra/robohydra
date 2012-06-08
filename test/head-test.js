@@ -302,6 +302,18 @@ describe("Static content RoboHydra heads", function() {
             done();
         });
     });
+
+    it("can return a given status code", function(done) {
+        var statusCode = 202;
+        var head = new RoboHydraHeadStatic({
+            content: {some: 'object'},
+            statusCode: statusCode
+        });
+        withResponse(head, '/', function(res) {
+            expect(res.statusCode).toEqual(statusCode);
+            done();
+        });
+    });
 });
 
 describe("Filesystem RoboHydra heads", function() {
