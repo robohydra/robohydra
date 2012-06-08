@@ -8,7 +8,9 @@ RoboHydra can be used in many different ways. It's closer to a "swiss
 army knife of client testing" than a very specific testing tool with a
 single purpose. Thus, it can be at first hard to tell whether or not
 RoboHydra can help you do what you want. The following is a list of
-usecases and examples of what RoboHydra can do.
+usecases and examples of what RoboHydra can do. See also the
+[examples](https://github.com/operasoftware/robohydra/tree/master/examples)
+directory in the RoboHydra distribution for sample, ready-to-use plugins.
 
 Testsuites
 ----------
