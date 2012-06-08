@@ -1,10 +1,10 @@
 /*global require, describe, it, expect*/
 var buster = require("buster");
-var helpers              = require("./helpers"),
-    checkRouting         = helpers.checkRouting,
-    withResponse         = helpers.withResponse,
-    fakeFs               = helpers.fakeFs,
-    fakeHttpCreateClient = helpers.fakeHttpCreateClient;
+var helpers         = require("./helpers"),
+    checkRouting    = helpers.checkRouting,
+    withResponse    = helpers.withResponse,
+    fakeFs          = helpers.fakeFs,
+    fakeHttpRequest = helpers.fakeHttpRequest;
 var heads                   = require("../lib/heads"),
     RoboHydraHead           = heads.RoboHydraHead,
     RoboHydraHeadStatic     = heads.RoboHydraHeadStatic,
@@ -467,11 +467,13 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("proxy from default mountPath = /", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new RoboHydraHeadProxy({proxyTo: 'http://example.com/mounted',
-                                       httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            proxyTo: 'http://example.com/mounted',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             ['/',      'Proxied GET response for /mounted/'],
@@ -480,12 +482,14 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("ignore the path property (hint: it's mountPath)", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new RoboHydraHeadProxy({path: '/foo',
-                                       proxyTo: 'http://example.com/mounted',
-                                       httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            path: '/foo',
+            proxyTo: 'http://example.com/mounted',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             ['/',      'Proxied GET response for /mounted/'],
@@ -494,15 +498,19 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy simple GET requests", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                       proxyTo: 'http://example.com/mounted',
-                                       httpCreateClientFunction: fakeHttpCC});
-        var head2 = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                        proxyTo: 'http://example.com/mounted/',
-                                        httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com/mounted',
+            httpRequestFunction: fakeHttpR
+        });
+        var head2 = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com/mounted/',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /mounted/'],
@@ -518,12 +526,14 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy GET requests with parameters", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                       proxyTo: 'http://example.com/mounted',
-                                       httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com/mounted',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             ['/foobar/?var=val&lang=scala', 'Proxied GET response for /mounted/?var=val&lang=scala']
@@ -531,15 +541,19 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy simple GET requests to a site's root path", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
         });
-        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                       proxyTo: 'http://example.com',
-                                       httpCreateClientFunction: fakeHttpCC});
-        var head2 = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                        proxyTo: 'http://example.com/',
-                                        httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com',
+            httpRequestFunction: fakeHttpR
+        });
+        var head2 = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com/',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /'],
@@ -555,14 +569,16 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy simple POST requests", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, data) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h, data) {
             var res = "Proxied " + m + " response for " + p;
             return res + (typeof(data) === 'undefined' ? '' :
                           ' with data "' + data + '"');
         });
-        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                       proxyTo: 'http://example.com/mounted',
-                                       httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com/mounted',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             [{path: '/foobar/',
@@ -581,14 +597,16 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy POST requests with GET parameters", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, data) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h, data) {
             var res = "Proxied " + m + " response for " + p;
             return res + (typeof(data) === 'undefined' ? '' :
                           " with data \"" + data + "\"");
         });
-        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                       proxyTo: 'http://example.com/mounted',
-                                       httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com/mounted',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             [{path: '/foobar/?getparam=value',
@@ -599,15 +617,17 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy requests to non-standard ports", function(done) {
-        var fakeHttpCC = fakeHttpCreateClient(function(m, p, h, d, host, port) {
+        var fakeHttpR = fakeHttpRequest(function(m, p, h, d, host, port) {
             var res = "Proxied " + m + " response for " + host + ":" + port +
                                  " -> " + p;
             return res + (typeof(d) === 'undefined' ? '' :
                           " with data \"" + d + "\"");
         });
-        var head = new RoboHydraHeadProxy({mountPath: '/foobar',
-                                       proxyTo: 'http://example.com:3000/',
-                                       httpCreateClientFunction: fakeHttpCC});
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/foobar',
+            proxyTo: 'http://example.com:3000/',
+            httpRequestFunction: fakeHttpR
+        });
 
         checkRouting(head, [
             ['/foobar/', 'Proxied GET response for example.com:3000 -> /']

@@ -104,39 +104,37 @@ function fakeFs(fileMap) {
     };
 }
 
-function fakeHttpCreateClient(responseFunction) {
-    return function(p, h) {
+function fakeHttpRequest(requestDispatcher) {
+    return function(options, resCallback) {
+        var h       = options.host;
+        var p       = options.port;
+        var method  = options.method || 'GET';
+        var path    = options.path;
+        var headers = options.headers || {};
+
         return {
-            request: function(method, path, headers) {
-                return {
-                    handlers: [],
-
-                    addListener: function(event, handler) {
-                        this.handlers[event] = handler;
-                    },
-
-                    write: function(data, mode) {
-                        this.data = data;
-                    },
-
-                    end: function() {
-                        var self = this;
-                        this.handlers.response({
-                            addListener: function(event, handler) {
-                                self.handlers[event] = handler;
-                                if (event === 'data') {
-                                    self.handlers[event](responseFunction(method, path, headers, self.data, h, p));
-                                }
-                                if (event === 'end') {
-                                    self.handlers[event]();
-                                }
-                            }
-                        });
-                    }
-                };
-            },
+            handlers: [],
 
             on: function(event, handler) {
+                this.handlers[event] = handler;
+            },
+
+            write: function(data, mode) {
+                this.data = data;
+            },
+
+            end: function() {
+                var self = this;
+                resCallback({
+                    on: function(event, handler) {
+                        if (event === 'data') {
+                            handler(new Buffer(requestDispatcher(method, path, headers, self.data, h, p)));
+                        }
+                        if (event === 'end') {
+                            handler();
+                        }
+                    }
+                });
             }
         };
     };
@@ -172,10 +170,10 @@ function headWithFail(path, hydraUtils, assertionMessage) {
     });
 }
 
-exports.withResponse         = withResponse;
-exports.checkRouting         = checkRouting;
-exports.fakeFs               = fakeFs;
-exports.fakeHttpCreateClient = fakeHttpCreateClient;
-exports.fakeReq              = fakeReq;
-exports.headWithFail         = headWithFail;
-exports.headWithPass         = headWithPass;
+exports.withResponse    = withResponse;
+exports.checkRouting    = checkRouting;
+exports.fakeFs          = fakeFs;
+exports.fakeHttpRequest = fakeHttpRequest;
+exports.fakeReq         = fakeReq;
+exports.headWithFail    = headWithFail;
+exports.headWithPass    = headWithPass;
