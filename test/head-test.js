@@ -280,7 +280,7 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({content: "<xml/>",
                                             contentType: contentType});
         withResponse(head, '/', function(res) {
-            expect(res.headers['Content-Type']).toEqual(contentType);
+            expect(res.headers['content-type']).toEqual(contentType);
             done();
         });
     });
@@ -288,7 +288,7 @@ describe("Static content RoboHydra heads", function() {
     it("return 'application/json' type by default when content is an object", function(done) {
         var head = new RoboHydraHeadStatic({content: {some: 'object'}});
         withResponse(head, '/', function(res) {
-            expect(res.headers['Content-Type']).toEqual("application/json");
+            expect(res.headers['content-type']).toEqual("application/json");
             done();
         });
     });
@@ -298,7 +298,7 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({content: {some: 'object'},
                                             contentType: contentType});
         withResponse(head, '/', function(res) {
-            expect(res.headers['Content-Type']).toEqual(contentType);
+            expect(res.headers['content-type']).toEqual(contentType);
             done();
         });
     });
