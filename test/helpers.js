@@ -1,3 +1,4 @@
+/*global expect*/
 var buster = require("buster");
 var robohydra = require("../lib/robohydra"),
     heads     = robohydra.heads,
@@ -5,10 +6,12 @@ var robohydra = require("../lib/robohydra"),
     Response  = robohydra.Response;
 
 function areBuffersEqual(buffer1, buffer2) {
-    if (buffer1.length !== buffer2.length) return false;
+    if (buffer1.length !== buffer2.length) { return false; }
 
     for (var i = 0, len = buffer1.length; i < len; i++) {
-        if (buffer1[i] !== buffer2[i]) return false;
+        if (buffer1[i] !== buffer2[i]) {
+            return false;
+        }
     }
 
     return true;
@@ -70,7 +73,7 @@ function withResponse(head, pathOrObject, cb) {
 
 function checkRouting(head, list, cb) {
     if (list.length === 0) {
-        if (typeof(cb) === 'function') cb();
+        if (typeof(cb) === 'function') { cb(); }
     } else {
         withResponse(head, list[0][0], function(res) {
             expect(res).toMatchResponse(list[0][1]);
@@ -87,19 +90,21 @@ function fakeFs(fileMap) {
     }
     return {
         readFile: function(path, cb) {
-            if (fileMap.hasOwnProperty(path))
+            if (fileMap.hasOwnProperty(path)) {
                 cb("", fileMap[path].content);
-            else
+            } else {
                 cb("File not found");
+            }
         },
         stat: function(path, cb) {
-            if (fileMap.hasOwnProperty(path))
+            if (fileMap.hasOwnProperty(path)) {
                 cb("", {
                     isFile: function () { return true; },
                     mtime:  fileMap[path].mtime || new Date()
                 });
-            else
+            } else {
                 cb("File not found");
+            }
         }
     };
 }

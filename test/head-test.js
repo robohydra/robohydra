@@ -32,7 +32,7 @@ describe("Generic RoboHydra heads", function() {
 
     it("can have a name", function() {
         var head = new RoboHydraHead({name: 'foo',
-                                  path: '/', handler: function() {}});
+                                      path: '/', handler: function() {}});
         expect(head.name).toEqual('foo');
 
         var namelessHead = new RoboHydraHead({path: '/', handler: function() {}});
@@ -41,9 +41,9 @@ describe("Generic RoboHydra heads", function() {
 
     it("can serve simple content", function(done) {
         var head = new RoboHydraHead({path: '/foobar',
-                                  handler: function(req, res) {
-                                      res.send('Response for ' + req.url);
-                                  }});
+                                      handler: function(req, res) {
+                                          res.send('Response for ' + req.url);
+                                      }});
 
         checkRouting(head, [
             ['/foobar', 'Response for /foobar']
@@ -52,9 +52,9 @@ describe("Generic RoboHydra heads", function() {
 
     it("can serve content from path matching a regular expression", function(done) {
         var head = new RoboHydraHead({path: '/foobar(/[a-z]*)?',
-                                  handler: function(req, res) {
-                                      res.send('Response for ' + req.url);
-                                  }});
+                                      handler: function(req, res) {
+                                          res.send('Response for ' + req.url);
+                                      }});
 
         checkRouting(head, [
             ['/foobar', 'Response for /foobar'],
@@ -67,8 +67,8 @@ describe("Generic RoboHydra heads", function() {
 
     it("can be created attached/detached", function() {
         var detachedHead = new RoboHydraHead({detached: true,
-                                          path: '/',
-                                          handler: function() {}});
+                                              path: '/',
+                                              handler: function() {}});
         expect(detachedHead.attached()).toEqual(false);
 
         var normalHead = new RoboHydraHead({path: '/', handler: function() {}});
@@ -103,9 +103,9 @@ describe("Generic RoboHydra heads", function() {
 
     it("never dispatch any paths when detached", function() {
         var headStatic = new RoboHydraHead({detached: true, path: '/foo.*',
-                                        handler: function() {}});
+                                            handler: function() {}});
         var headDynamic = new RoboHydraHead({path: '/foo.*',
-                                         handler: function() {}});
+                                             handler: function() {}});
         headDynamic.detach();
 
         var paths = ['/foo', '/foo/bar'];
@@ -143,7 +143,7 @@ describe("Generic RoboHydra heads", function() {
                             '/article/show'];
 
         var head = new RoboHydraHead({path: '/:controller/:action/:id',
-                                  handler: function() {}});
+                                      handler: function() {}});
         validPaths.forEach(function(path) {
             expect(head).toHandle(path);
         });
@@ -155,12 +155,12 @@ describe("Generic RoboHydra heads", function() {
     it("set the appropriate request params with the request variables", function(done) {
         var controller, action, id;
         var head = new RoboHydraHead({path: '/:controller/:action/:id',
-                                  handler: function(req, res) {
-                                      controller = req.params.controller;
-                                      action     = req.params.action;
-                                      id         = req.params.id;
-                                      res.send("Response for " + req.url);
-                                  }});
+                                      handler: function(req, res) {
+                                          controller = req.params.controller;
+                                          action     = req.params.action;
+                                          id         = req.params.id;
+                                          res.send("Response for " + req.url);
+                                      }});
 
         withResponse(head, '/article/show/123', function(res) {
             expect(res).toMatchResponse('Response for /article/show/123');
@@ -218,7 +218,7 @@ describe("Static content RoboHydra heads", function() {
 
     it("return 404 when requesting unknown paths", function(done) {
         var head = new RoboHydraHeadStatic({path: '/foobar',
-                                        content: 'static content'});
+                                            content: 'static content'});
         checkRouting(head, [
             ['/', {status: 404}],
             ['/foobarqux', {status: 404}],
@@ -232,7 +232,7 @@ describe("Static content RoboHydra heads", function() {
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
             var head = new RoboHydraHeadStatic({path: dispatchPath,
-                                            content: "Some test content"});
+                                                content: "Some test content"});
             validPaths.forEach(function(path) {
                 expect(head).toHandle(path);
             });
@@ -247,7 +247,7 @@ describe("Static content RoboHydra heads", function() {
         var invalidPaths = ['/', '/foo/', '/foobar/', '/foo/qux/mux'];
 
         var head = new RoboHydraHeadStatic({path: '/foo/[^/]+',
-                                        content: "Some test content"});
+                                            content: "Some test content"});
         validPaths.forEach(function(path) {
             expect(head).toHandle(path);
         });
@@ -278,7 +278,7 @@ describe("Static content RoboHydra heads", function() {
     it("can return a given Content-Type", function(done) {
         var contentType = "application/xml";
         var head = new RoboHydraHeadStatic({content: "<xml/>",
-                                        contentType: contentType});
+                                            contentType: contentType});
         withResponse(head, '/', function(res) {
             expect(res.headers['Content-Type']).toEqual(contentType);
             done();
@@ -296,7 +296,7 @@ describe("Static content RoboHydra heads", function() {
     it("can use a specific Content Type when content is an object", function(done) {
         var contentType = "application/x-made-up";
         var head = new RoboHydraHeadStatic({content: {some: 'object'},
-                                        contentType: contentType});
+                                            contentType: contentType});
         withResponse(head, '/', function(res) {
             expect(res.headers['Content-Type']).toEqual(contentType);
             done();
@@ -330,9 +330,9 @@ describe("Filesystem RoboHydra heads", function() {
     it("serve files from the file system", function(done) {
         var fileContents = "file contents";
         var head = new RoboHydraHeadFilesystem({mountPath: '/foobar',
-                                            documentRoot: '/var/www',
-                                            fs: fakeFs({'/var/www/file.txt':
-                                                        fileContents})});
+                                                documentRoot: '/var/www',
+                                                fs: fakeFs({'/var/www/file.txt':
+                                                            fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -343,9 +343,9 @@ describe("Filesystem RoboHydra heads", function() {
     it("don't serve non-existent files from the file system", function(done) {
         var fileContents = "file contents";
         var head = new RoboHydraHeadFilesystem({mountPath: '/foobar',
-                                            documentRoot: '/var/www',
-                                            fs: fakeFs({'/var/www/file.txt':
-                                                        fileContents})});
+                                                documentRoot: '/var/www',
+                                                fs: fakeFs({'/var/www/file.txt':
+                                                            fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt~', {status: 404}],
@@ -357,9 +357,9 @@ describe("Filesystem RoboHydra heads", function() {
     it("serve files from the file system with a trailing slash in documentRoot", function(done) {
         var fileContents = "file contents";
         var head = new RoboHydraHeadFilesystem({mountPath: '/foobar',
-                                            documentRoot: '/var/www/',
-                                            fs: fakeFs({'/var/www/file.txt':
-                                                        fileContents})});
+                                                documentRoot: '/var/www/',
+                                                fs: fakeFs({'/var/www/file.txt':
+                                                            fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -370,9 +370,9 @@ describe("Filesystem RoboHydra heads", function() {
     it("serve files from the file system with a trailing slash in path", function(done) {
         var fileContents = "file contents";
         var head = new RoboHydraHeadFilesystem({mountPath: '/foobar/',
-                                            documentRoot: '/var/www',
-                                            fs: fakeFs({'/var/www/file.txt':
-                                                        fileContents})});
+                                                documentRoot: '/var/www',
+                                                fs: fakeFs({'/var/www/file.txt':
+                                                            fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -383,9 +383,9 @@ describe("Filesystem RoboHydra heads", function() {
     it("serve files from the file system with trailing slashes in path and documentRoot", function(done) {
         var fileContents = "file contents";
         var head = new RoboHydraHeadFilesystem({mountPath: '/foobar/',
-                                            documentRoot: '/var/www/',
-                                            fs: fakeFs({'/var/www/file.txt':
-                                                        fileContents})});
+                                                documentRoot: '/var/www/',
+                                                fs: fakeFs({'/var/www/file.txt':
+                                                            fileContents})});
 
         checkRouting(head, [
             ['/foobar/file.txt', fileContents],
@@ -401,7 +401,7 @@ describe("Filesystem RoboHydra heads", function() {
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
             var head = new RoboHydraHeadFilesystem({mountPath: dispatchPath,
-                                                documentRoot: '/var/www'});
+                                                    documentRoot: '/var/www'});
             validPaths.forEach(function(path) {
                 expect(head).toHandle(path);
             });
@@ -412,10 +412,11 @@ describe("Filesystem RoboHydra heads", function() {
     });
 
     it("sets the correct Content-Type for the served files", function(done) {
-        var head = new RoboHydraHeadFilesystem({documentRoot: '/var/www',
-                                            fs: fakeFs({'/var/www/json.txt':
-                                                            'foobar'}),
-                                            mime: {lookup: function(path) { return "text/x-fake"; }}});
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({'/var/www/json.txt': 'foobar'}),
+            mime: {lookup: function(path) { return "text/x-fake"; }}
+        });
         withResponse(head, '/json.txt', function(res) {
             expect(res.headers['content-type']).toEqual("text/x-fake");
             done();
@@ -641,8 +642,10 @@ describe("Proxying RoboHydra heads", function() {
                             '/foobarqux'];
 
         ['/foobar', '/foobar/'].forEach(function(dispatchPath) {
-            var head = new RoboHydraHeadProxy({mountPath: dispatchPath,
-                                           proxyTo: 'http://www.example.com'});
+            var head = new RoboHydraHeadProxy({
+                mountPath: dispatchPath,
+                proxyTo: 'http://www.example.com'
+            });
             validPaths.forEach(function(path) {
                 expect(head).toHandle(path);
             });
