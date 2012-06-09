@@ -214,6 +214,14 @@ describe("Static content RoboHydra heads", function() {
         ], done);
     });
 
+    it("can be created with responses", function(done) {
+        var text = 'static content';
+        var head = new RoboHydraHeadStatic({responses: [{content: text}]});
+        checkRouting(head, [
+            ['/', text]
+        ], done);
+    });
+
     it("return 404 when requesting unknown paths", function(done) {
         var head = new RoboHydraHeadStatic({path: '/foobar',
                                             content: 'static content'});
@@ -311,6 +319,55 @@ describe("Static content RoboHydra heads", function() {
             expect(res.statusCode).toEqual(statusCode);
             done();
         });
+    });
+
+    it("can cycle through an array of responses", function(done) {
+        var response1 = "response 1";
+        var response2 = "response 2";
+        var head = new RoboHydraHeadStatic({
+            responses: [{content: response1},
+                        {content: response2}]
+        });
+        checkRouting(head, [
+            ['/', response1],
+            ['/', response2],
+            ['/', response1]
+        ], done);
+    });
+
+    it("use content, statusCode and contentType by default", function(done) {
+        var defaultContent     = 'It works!';
+        var defaultContentType = 'application/x-foobar';
+        var defaultStatusCode  = 202;
+        var response1    = "response 1";
+        var response2    = "response 2";
+        var contentType1 = 'application/x-custom';
+        var statusCode2  = 404;
+        var contentType3 = 'application/x-default-content';
+        var head = new RoboHydraHeadStatic({
+            responses: [{content: response1,
+                         contentType: contentType1},
+                        {content: response2,
+                         statusCode: statusCode2},
+                        {contentType: contentType3}],
+            content: defaultContent,
+            statusCode: defaultStatusCode,
+            contentType: defaultContentType
+        });
+        checkRouting(head, [
+            ['/', {content: response1,
+                   contentType: contentType1,
+                   statusCode: defaultStatusCode}],
+            ['/', {content: response2,
+                   contentType: defaultContentType,
+                   statusCode: statusCode2}],
+            ['/', {content: defaultContent,
+                   contentType: contentType3,
+                   statusCode: defaultStatusCode}],
+            ['/', {content: response1,
+                   contentType: contentType1,
+                   statusCode: defaultStatusCode}]
+        ], done);
     });
 });
 
