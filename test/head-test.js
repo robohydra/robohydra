@@ -60,8 +60,8 @@ describe("Generic RoboHydra heads", function() {
             ['/foobar', 'Response for /foobar'],
             ['/foobar/', 'Response for /foobar/'],
             ['/foobar/qux', 'Response for /foobar/qux'],
-            ['/foobar/qux123', {status: 404}],
-            ['/foobar/123qux', {status: 404}]
+            ['/foobar/qux123', {statusCode: 404}],
+            ['/foobar/123qux', {statusCode: 404}]
         ], done);
     });
 
@@ -186,14 +186,12 @@ describe("Generic RoboHydra heads", function() {
 
 describe("Static content RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
-        var head;
-
         expect(function() {
-            head = new RoboHydraHeadStatic();
+            var head = new RoboHydraHeadStatic();
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            head = new RoboHydraHeadStatic({path: '/'});
+            var head = new RoboHydraHeadStatic({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
@@ -212,7 +210,7 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({path: '/', content: text});
         checkRouting(head, [
             ['/', text],
-            ['/foobarqux', {status: 404}] // only the given path is served
+            ['/foobarqux', {statusCode: 404}] // only the given path is served
         ], done);
     });
 
@@ -220,9 +218,9 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({path: '/foobar',
                                             content: 'static content'});
         checkRouting(head, [
-            ['/', {status: 404}],
-            ['/foobarqux', {status: 404}],
-            ['/fooba', {status: 404}]
+            ['/', {statusCode: 404}],
+            ['/foobarqux', {statusCode: 404}],
+            ['/fooba', {statusCode: 404}]
         ], done);
     });
 
@@ -335,7 +333,7 @@ describe("Filesystem RoboHydra heads", function() {
         checkRouting(head, [
             ['/file.txt', fileContents],
             ['/dir/file.txt', dirFileContents],
-            ['/dir/non-existentfile.txt', {status: 404}]
+            ['/dir/non-existentfile.txt', {statusCode: 404}]
         ], done);
     });
 
@@ -360,9 +358,9 @@ describe("Filesystem RoboHydra heads", function() {
                                                             fileContents})});
 
         checkRouting(head, [
-            ['/foobar/file.txt~', {status: 404}],
-            ['/foobar/something-completely-different.txt', {status: 404}],
-            ['/file.txt~', {status: 404}]
+            ['/foobar/file.txt~', {statusCode: 404}],
+            ['/foobar/something-completely-different.txt', {statusCode: 404}],
+            ['/file.txt~', {statusCode: 404}]
         ], done);
     });
 
@@ -528,12 +526,12 @@ describe("Proxying RoboHydra heads", function() {
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /mounted/'],
             ['/foobar/blah/', 'Proxied GET response for /mounted/blah/'],
-            ['/blah/',        {status: 404}]
+            ['/blah/',        {statusCode: 404}]
         ], function() {
                checkRouting(head2, [
                    ['/foobar/',      'Proxied GET response for /mounted/'],
                    ['/foobar/blah/', 'Proxied GET response for /mounted/blah/'],
-                   ['/blah/',        {status: 404}]
+                   ['/blah/',        {statusCode: 404}]
                ], done);
            });
     });
@@ -571,12 +569,12 @@ describe("Proxying RoboHydra heads", function() {
         checkRouting(head, [
             ['/foobar/',      'Proxied GET response for /'],
             ['/foobar/blah/', 'Proxied GET response for /blah/'],
-            ['/blah/',        {status: 404}]
+            ['/blah/',        {statusCode: 404}]
         ], function() {
                checkRouting(head2, [
                    ['/foobar/',      'Proxied GET response for /'],
                    ['/foobar/blah/', 'Proxied GET response for /blah/'],
-                   ['/blah/',        {status: 404}]
+                   ['/blah/',        {statusCode: 404}]
                ], done);
            });
     });
@@ -605,7 +603,7 @@ describe("Proxying RoboHydra heads", function() {
             [{path: '/blah/',
               method: 'POST',
               postData: 'will not be found'},
-             {status: 404}]
+             {statusCode: 404}]
         ], done);
     });
 

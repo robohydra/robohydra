@@ -28,9 +28,13 @@ buster.assertions.add("responseMatches", {
             this.actualProps.content = actual.body;
             r = r && (areBuffersEqual(this.actualProps.content, new Buffer(expectedResponse.content)));
         }
-        if (expectedResponse.hasOwnProperty('status')) {
-            this.actualProps.status = actual.statusCode;
-            r = r && (this.actualProps.status === expectedResponse.status);
+        if (expectedResponse.hasOwnProperty('statusCode')) {
+            this.actualProps.statusCode = actual.statusCode;
+            r = r && (this.actualProps.statusCode === expectedResponse.statusCode);
+        }
+        if (expectedResponse.hasOwnProperty('contentType')) {
+            this.actualProps.contentType = actual.headers['content-type'];
+            r = r && (this.actualProps.contentType === expectedResponse.contentType);
         }
         return r;
     },
