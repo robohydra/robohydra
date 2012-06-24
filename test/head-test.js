@@ -727,4 +727,62 @@ describe("Proxying RoboHydra heads", function() {
             });
         });
     });
+
+    it("can set the proxied hostname in headers", function(done) {
+        var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
+            return "The host header says: " + headers.host;
+        });
+        var head1 = new RoboHydraHeadProxy({
+            mountPath: '/example1',
+            proxyTo: 'http://example.com',
+            setHostHeader: true,
+            httpRequestFunction: fakeHttpR
+        });
+        var head2 = new RoboHydraHeadProxy({
+            mountPath: '/example2',
+            proxyTo: 'http://example.com:8080',
+            setHostHeader: true,
+            httpRequestFunction: fakeHttpR
+        });
+
+        checkRouting(head1, [
+            [{path: '/example1/foobar/',
+              headers: {host: 'localhost:3000'}},
+             'The host header says: example.com']
+        ], function() {
+            checkRouting(head2, [
+                [{path: '/example2/foobar/',
+                  headers: {host: 'localhost:3000'}},
+                 'The host header says: example.com:8080']
+            ], done);
+        });
+    });
+
+    it("don't set the proxied hostname unless asked", function(done) {
+        var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
+            return "The host header says: " + headers.host;
+        });
+        var head1 = new RoboHydraHeadProxy({
+            mountPath: '/example1',
+            proxyTo: 'http://example.com',
+            httpRequestFunction: fakeHttpR
+        });
+        var head2 = new RoboHydraHeadProxy({
+            mountPath: '/example2',
+            proxyTo: 'http://example.com:8080',
+            httpRequestFunction: fakeHttpR
+        });
+
+        checkRouting(head1, [
+            [{path: '/example1/foobar/',
+              headers: {host: 'localhost:3000'}},
+             'The host header says: localhost:3000']
+        ], function() {
+            checkRouting(head2, [
+                [{path: '/example2/foobar/',
+                  headers: {host: 'localhost'}},
+                 'The host header says: localhost']
+            ], done);
+        });
+    });
 });
