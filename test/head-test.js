@@ -222,6 +222,12 @@ describe("Static content RoboHydra heads", function() {
         ], done);
     });
 
+    it("cannot be created with an empty response array", function() {
+        expect(function() {
+            var head = new RoboHydraHeadStatic({responses: []});
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
     it("return 404 when requesting unknown paths", function(done) {
         var head = new RoboHydraHeadStatic({path: '/foobar',
                                             content: 'static content'});
