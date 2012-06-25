@@ -15,8 +15,10 @@ Description
   can create dynamic heads from that web UI)
 
 * just-tests.conf loads a single plugin with only tests (no default
-  heads). Go to /robohydra-admin to see the tests, start them, and see
-  the list of available heads depending on the current running test
+  heads). Go to
+  [/robohydra-admin](http://localhost:3000/robohydra-admin) to see the
+  tests, start them, and see the list of available heads depending on
+  the current running test
 
 * replayer.conf loads 'replayer', a simple plugin to record and replay
   requests (useful to, say, record how the server behaved at a certain
@@ -24,9 +26,11 @@ Description
   offline). To use it, you have to start RoboHydra as `robohydra -I
   examples/plugins examples/replayer.conf
   replayerurl=http://myserver.example.com`. Then, visit the URL
-  /start-recording when you want to start recording and visit whatever
-  URLs you want (RoboHydra will proxy to the "replayerurl"). When you
-  have the requests recorded, visit /start-replaying to stop recording
-  and start replaying those requests. All recorded requests are in
-  `robohydra-replayer.json`, so you can keep the file around and replay
-  whenever you want.
+  [/start-recording](http://localhost:3000/start-recording) when you
+  want to start recording and visit whatever URLs you want (RoboHydra
+  will proxy to the "replayerurl"). When you have the requests
+  recorded, visit
+  [/start-replaying](http://localhost:3000/start-replaying) to stop
+  recording and start replaying those requests. All recorded requests
+  are in `robohydra-replayer.json`, so you can keep the file around
+  and replay whenever you want.
