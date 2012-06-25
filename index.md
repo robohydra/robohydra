@@ -13,7 +13,11 @@ server mostly as a data store, or many other things.
 In these situations, RoboHydra allows you to easily make custom "mock"
 servers with little effort, be it to build a test suite, easily
 reproduce problems while fixing bugs, or to help with exploratory
-testing.
+testing. These capabilities can _also_ be combined with proxying in
+several useful ways (eg. helping web developers write the front-end
+code for a project without the need to install a full backend; see the
+[second screencast](http://www.youtube.com/watch?v=dR-XDogJ8b8) for an
+example of this).
 
 RoboHydra is easy to configure to return the responses you want,
 mimicking any server behaviour needed to test your clients. Examples
@@ -32,7 +36,8 @@ Server Error or invalid data.
 server.
 
 For more information about the different ways in which you can use
-RoboHydra, have a look at the [use cases](usecases).
+RoboHydra, have a look at the [use cases](usecases) and the
+[screencasts](http://www.youtube.com/user/robohydra/videos).
 
 Screencasts
 ===========
@@ -86,9 +91,10 @@ Updates
 =======
 
 For updates and announcements related to this project, follow
-[@robohydra](https://twitter.com/robohydra) on Twitter or watch
-project [robohydra on
-GitHub](https://github.com/operasoftware/robohydra).
+[@robohydra](https://twitter.com/robohydra) on Twitter, watch project
+[robohydra on GitHub](https://github.com/operasoftware/robohydra) or
+subscribe to the [RoboHydra channel on
+YouTube](http://www.youtube.com/user/robohydra/videos).
 
 License and copyright
 =====================
