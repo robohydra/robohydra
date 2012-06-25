@@ -18,17 +18,6 @@ Description
   heads). Go to /robohydra-admin to see the tests, start them, and see
   the list of available heads depending on the current running test
 
-* logger.conf loads 'logger', a simple logging plugin that will save
-  all traffic to robohydra.log in the current directory. This plugin
-  can be loaded together with any other plugins to ease debugging.
-
-* no-caching.conf loads 'no-caching', a sample plugin that tweaks
-  client requests to remove caching headers. It also loads 'logger' so
-  it's easy to see the effects on the requests. By default it does so
-  for all paths, but you can specify a custom path calling RoboHydra
-  as "robohydra -I examples/plugins examples/no-caching.conf
-  nocachingpath=/foo"
-
 * replayer.conf loads 'replayer', a simple plugin to record and replay
   requests (useful to, say, record how the server behaved at a certain
   point, then replay the requests to reproduce the problem while
