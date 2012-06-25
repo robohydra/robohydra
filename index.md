@@ -34,6 +34,32 @@ server.
 For more information about the different ways in which you can use
 RoboHydra, have a look at the [use cases](usecases).
 
+Screencasts
+===========
+
+You can see all screencasts in the [RoboHydra YouTube
+channel](http://www.youtube.com/user/robohydra/videos). For
+more in-depth information see the tutorials and the reference
+documentation in the "[Documentation](#documentation)" section below.
+
+This has an introduction to RoboHydra and an example of how to use it
+to test a client of a public API
+([memegenerator.net](http://version1.api.memegenerator.net/) in this
+case):
+
+<iframe width="420" height="315"
+src="http://www.youtube.com/embed/ZlCqa0mbd4g" frameborder="0"
+allowfullscreen="allowfullscreen">Screencast #1: Intro and public API
+client testing</iframe>
+
+This is about using RoboHydra to develop web application front-ends,
+and shows how to make a simple plugin from scratch:
+
+<iframe width="420" height="315"
+src="http://www.youtube.com/embed/dR-XDogJ8b8" frameborder="0"
+allowfullscreen="allowfullscreen">Screencast #2: Using RoboHydra to
+develop web application front-ends, writing a simple plugin</iframe>
+
 Documentation
 =============
 
