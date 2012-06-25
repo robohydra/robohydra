@@ -34,8 +34,9 @@ function showHelpAndDie(message) {
 var robohydra = new RoboHydra();
 
 // Check parameters and load RoboHydra configuration
-if (commander.args.length < 1)
+if (commander.args.length < 1) {
     showHelpAndDie();
+}
 var configPath = commander.args[0];
 var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
 var robohydraConfig = JSON.parse(robohydraConfigString);
@@ -60,8 +61,8 @@ for (var i = 1, len = commander.args.length; i < len; i++) {
 
 robohydraConfig.plugins.forEach(function(pluginDef) {
     var config = {}, p;
-    for (p in pluginDef.config) config[p] = pluginDef.config[p];
-    for (p in extraVars) config[p] = extraVars[p];
+    for (p in pluginDef.config) { config[p] = pluginDef.config[p]; }
+    for (p in extraVars) { config[p] = extraVars[p]; }
     var plugin = robohydra.requirePlugin(pluginDef.name, config);
 
     var pluginObject = plugin.module.getBodyParts(plugin.config,
