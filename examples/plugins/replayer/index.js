@@ -8,7 +8,7 @@ exports.getBodyParts = function(config) {
     var proxyToUrl = config.replayerurl || 'http://hcoder.org';
     // Initialise the log file on RoboHydra start
     var trafficFilePath = config.trafficFilePath || 'robohydra-replayer.json';
-    var trafficFileFd, currentTrafficData, index;
+    var trafficFileFd, currentTrafficData, indexForUrl;
 
     return {heads: [
         new RoboHydraHead({
@@ -19,7 +19,7 @@ exports.getBodyParts = function(config) {
                 var recorderHead = rh.findHead('replayer', 'recorder');
                 if (! recorderHead.attached()) {
                     trafficFileFd = fs.openSync(trafficFilePath, 'w+');
-                    currentTrafficData = [];
+                    currentTrafficData = {};
                     fs.writeSync(trafficFileFd,
                                  JSON.stringify(currentTrafficData));
                     if (rh.findHead('replayer', 'replayer').attached()) {
@@ -40,7 +40,7 @@ exports.getBodyParts = function(config) {
                 if (! replayerHead.attached()) {
                     currentTrafficData =
                         JSON.parse(fs.readFileSync(trafficFilePath));
-                    index = 0;
+                    indexForUrl = {};
                     if (rh.findHead('replayer', 'recorder').attached()) {
                         rh.detachHead('replayer', 'recorder');
                     }
@@ -59,7 +59,9 @@ exports.getBodyParts = function(config) {
                     function() {
                         // Collect the responses in a variable and
                         // overwrite the traffic file every time
-                        currentTrafficData.push({
+                        currentTrafficData[req.url] =
+                            currentTrafficData[req.url] || [];
+                        currentTrafficData[req.url].push({
                             statusCode: this.statusCode,
                             headers: this.headers,
                             body: this.body.toString('base64')
@@ -82,19 +84,32 @@ exports.getBodyParts = function(config) {
             handler: function(req, res, next) {
                 next(req, new Response(
                     function() {
-                        var currentResponse = currentTrafficData[index];
-                        index = ((index + 1) % currentTrafficData.length);
-                        res.statusCode = currentResponse.statusCode;
-                        res.headers    = currentResponse.headers;
-                        res.send(new Buffer(currentResponse.body, 'base64'));
+                        var urlResponses = currentTrafficData[req.url];
+                        if (urlResponses) {
+                            var index = indexForUrl[req.url] || 0;
+                            var currentResponse =
+                                    currentTrafficData[req.url][index];
+                            indexForUrl[req.url] =
+                                ((index + 1) %
+                                 currentTrafficData[req.url].length);
+                            res.statusCode = currentResponse.statusCode;
+                            res.headers    = currentResponse.headers;
+                            res.send(new Buffer(currentResponse.body,
+                                                'base64'));
+                        } else {
+                            res.statusCode = 404;
+                            res.send(new Buffer("Not Found", "utf-8"));
+                        }
                     }
                 ));
             }
         }),
 
         new RoboHydraHeadProxy({
+            name: 'proxy',
             mountPath: '/',
-            proxyTo: proxyToUrl
+            proxyTo: proxyToUrl,
+            setHostHeader: true
         })
     ]};
 };
