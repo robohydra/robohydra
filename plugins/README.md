@@ -44,3 +44,18 @@ Description
   RoboHydra as "robohydra your.conf nocachingpath=/foo". The 'logger'
   plugin is a good companion for 'no-caching', as it allows you to see
   the effects on the requests.
+
+* replayer - plugin that records or replays requests (useful to, say,
+  record how the server behaved at a certain point, then replay the
+  requests to reproduce the problem while offline). To use it, you
+  have to start RoboHydra as `robohydra -I examples/plugins
+  examples/replayer.conf
+  replayerurl=http://myserver.example.com`. Then, visit the URL
+  [/start-recording](http://localhost:3000/start-recording) when you
+  want to start recording and visit whatever URLs you want (RoboHydra
+  will proxy to the "replayerurl"). When you have the requests
+  recorded, visit
+  [/start-replaying](http://localhost:3000/start-replaying) to stop
+  recording and start replaying those requests. All recorded requests
+  are in `robohydra-replayer.json`, so you can keep the file around
+  and replay whenever you want.
