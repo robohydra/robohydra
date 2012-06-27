@@ -5,7 +5,7 @@ var robohydra          = require('robohydra'),
     Response           = robohydra.Response;
 
 exports.getBodyParts = function(config) {
-    var proxyToUrl = config.replayerurl || 'http://hcoder.org';
+    var proxyToUrl = config.replayerurl || 'http://robohydra.org';
     // Initialise the log file on RoboHydra start
     var trafficFilePath = config.trafficFilePath || 'robohydra-replayer.json';
     var trafficFileFd, currentTrafficData, indexForUrl;
