@@ -65,6 +65,16 @@ src="http://www.youtube.com/embed/dR-XDogJ8b8" frameborder="0"
 allowfullscreen="allowfullscreen">Screencast #2: Using RoboHydra to
 develop web application front-ends, writing a simple plugin</iframe>
 
+This one shows the plugins that come with the RoboHydra distribution:
+replayer (a plugin to record and replay data from a real server),
+logger (a detailed log file generator), and no-caching (removes client
+caching headers before processing requests):
+
+<iframe width="420" height="315"
+src="http://www.youtube.com/embed/tuEOSoi0RFM" frameborder="0"
+allowfullscreen="allowfullscreen">RoboHydra screencast #3: standard
+plugins (replayer, logger and no-caching)</iframe>
+
 Documentation
 =============
 
