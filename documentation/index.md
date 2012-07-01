@@ -262,13 +262,19 @@ heads available. Namely, `RoboHydraHeadStatic`,
 This head always returns fixed, static content. A head of this class
 has the following properties:
 
-* `content`: the content to be sent back for every request. This can
-  be a string or a plain Javascript object.
+* `content` (optional): the content to be sent back for every
+  request. This can be a string or a plain Javascript object.
+* `responses` (optional): an array of responses to send to the client
+  (round-robin). Each response in the array can contain the properties
+  `content`, `contentType` and `statusCode`. For each of these
+  properties that is not given, the head's property is used instead.
 * `path` (optional): the regular expression matching URL paths to be
   handled by this head. Defaults to `/` if not present.
 * `contentType` (optional): the value for the `Content-Type` header in
   the response. If not present and content is an object, defaults to
   `application/json`.
+* `statusCode` (optional): the status code for the response. By
+  default it's 200.
 
 
 ### RoboHydraHeadFilesystem
