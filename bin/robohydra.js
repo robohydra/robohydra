@@ -112,16 +112,17 @@ var server = http.createServer(function(nodeReq, nodeRes) {
         headers: nodeReq.headers,
         rawBody: new Buffer("")
     };
-    var res = new Response(function() {
-                               console.log(stringForLog(nodeReq, this));
-
-                               nodeRes.writeHead(res.statusCode,
-                                                 res.headers);
-                               if (res.body.length) {
-                                   nodeRes.write(res.body);
-                               }
-                               nodeRes.end();
-                           });
+    var res = new Response().
+        on('head', function() {
+            console.log(stringForLog(nodeReq, this));
+            nodeRes.writeHead(res.statusCode, res.headers);
+        }).
+        on('data', function(chunk) {
+            nodeRes.write(chunk);
+        }).
+        on('end', function() {
+            nodeRes.end();
+        });
 
     // Fetch POST data if available
     nodeReq.addListener("data", function (chunk) {
