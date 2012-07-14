@@ -1,4 +1,5 @@
 /*global require, describe, it, expect, JSON*/
+
 var buster = require("buster");
 var fs = require("fs");
 var robohydra = require("../lib/robohydra"),
@@ -1049,5 +1050,88 @@ describe("RoboHydra test system", function() {
                 }
             }});
        expect(hydra.getPlugin('plugin').tests.testWithInstructions.instructions).toEqual(instructions);
+    });
+});
+
+describe("Response object", function() {
+    it("can't be used without an 'end' handler", function() {
+        var r = new Response();
+        expect(function() {
+            r.end();
+        }).toThrow("InvalidRoboHydraResponse");
+    });
+
+    it("supports basic observers", function() {
+        var headHandler = this.spy();
+        var dataHandler = this.spy();
+        var endHandler  = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('data', dataHandler).
+                               on('end',  endHandler);
+        r.writeHead(200);
+        expect(headHandler).toHaveBeenCalled();
+        expect(dataHandler).not.toHaveBeenCalled();
+        expect(endHandler).not.toHaveBeenCalled();
+        r.write("");
+        expect(dataHandler).toHaveBeenCalled();
+        expect(endHandler).not.toHaveBeenCalled();
+        r.end();
+        expect(endHandler).toHaveBeenCalled();
+    });
+
+    it("produces a head event on the first data event", function() {
+        var headHandler = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('end',  this.spy());
+        r.write("");
+        expect(headHandler).toHaveBeenCalled();
+    });
+
+    it("doesn't produce a head event if writeHead was called", function() {
+        var headHandler = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('end',  this.spy());
+        r.writeHead(200);
+        r.write("");
+        expect(headHandler).toHaveBeenCalledOnce();
+    });
+
+    it("doesn't produce a head event if one was produced already", function() {
+        var headHandler = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('end',  this.spy());
+        r.write("");
+        r.write("");
+        expect(headHandler).toHaveBeenCalledOnce();
+    });
+
+    it("calls explicit 'head' event handler with empty header object if no headers", function() {
+        var headHandler = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('end',  this.spy());
+        var statusCode = 200;
+        r.writeHead(statusCode);
+        expect(headHandler).toHaveBeenCalledWith(statusCode, {});
+    });
+
+    it("calls implicit 'head' event handler with empty header object if no headers", function() {
+        var headHandler = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('end',  this.spy());
+        var statusCode = 200;
+        r.statusCode = statusCode;
+        r.write("");
+        expect(headHandler).toHaveBeenCalledWith(statusCode, {});
+    });
+
+    it("calls implicit 'head' event with correct headers", function() {
+        var headHandler = this.spy();
+        var r = new Response().on('head', headHandler).
+                               on('end',  this.spy());
+        var statusCode = 200, headers = {foobar: 'qux'};
+        r.statusCode = statusCode;
+        r.headers    = headers;
+        r.write("");
+        expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
     });
 });

@@ -1,4 +1,5 @@
 /*global expect*/
+
 var buster = require("buster");
 var robohydra = require("../lib/robohydra"),
     heads     = robohydra.heads,
