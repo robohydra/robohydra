@@ -1134,4 +1134,42 @@ describe("Response object", function() {
         r.write("");
         expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
     });
+
+    it("allows easy response chaining", function() {
+        var headHandler = this.spy();
+        var dataHandler = this.spy();
+        var endHandler  = this.spy();
+        var r1 = new Response().on('head', headHandler).
+                                on('data', dataHandler).
+                                on('end',  endHandler);
+        var r2 = new Response().chain(r1);
+
+        // Do things on r2, expect them to happen on r1
+        var statusCode = 200, headers = {foobar: 'qux'};
+        r2.writeHead(statusCode, headers);
+        expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
+        var buffer = new Buffer("foobar");
+        r2.write(buffer);
+        expect(dataHandler).toHaveBeenCalledWith(buffer);
+        var buffer2 = new Buffer("qux");
+        r2.write(buffer2);
+        expect(dataHandler).toHaveBeenCalledWith(buffer2);
+        r2.end();
+        expect(endHandler).toHaveBeenCalledOnce();
+    });
+
+    it("triggers implicit head events when chaining", function() {
+        var headHandler = this.spy();
+        var r1 = new Response().on('head', headHandler).
+                                on('data', this.spy()).
+                                on('end',  this.spy());
+        var r2 = new Response().chain(r1);
+
+        // Do things on r2, expect them to happen on r1
+        var statusCode = 200, headers = {foobar: 'qux'};
+        r2.statusCode = statusCode;
+        r2.headers    = headers;
+        r2.write("foobar");
+        expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
+    });
 });
