@@ -61,13 +61,15 @@ for (var i = 1, len = commander.args.length; i < len; i++) {
 
 robohydraConfig.plugins.forEach(function(pluginDef) {
     var config = {}, p;
-    for (p in pluginDef.config) { config[p] = pluginDef.config[p]; }
+    var pluginName = typeof pluginDef === 'string' ? pluginDef : pluginDef.name;
+    var pluginConfig = pluginDef.config || {};
+    for (p in pluginConfig) { config[p] = pluginConfig[p]; }
     for (p in extraVars) { config[p] = extraVars[p]; }
-    var plugin = robohydra.requirePlugin(pluginDef.name, config);
+    var plugin = robohydra.requirePlugin(pluginName, config);
 
     var pluginObject = plugin.module.getBodyParts(plugin.config,
                                                   robohydra.getModulesObject());
-    pluginObject.name = pluginDef.name;
+    pluginObject.name = pluginName;
     robohydra.registerPluginObject(pluginObject);
 
     var featureMessages = [];
