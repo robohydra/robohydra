@@ -1079,12 +1079,21 @@ describe("Response object", function() {
         expect(endHandler).toHaveBeenCalled();
     });
 
-    it("produces a head event on the first data event", function() {
-        var headHandler = this.spy();
-        var r = new Response().on('head', headHandler).
-                               on('end',  this.spy());
+    it("produces a head event on (but before!) the first data event", function() {
+        var callOrder = [];
+        var r = new Response().
+            on('head', function(_, __) {
+                callOrder.push("head");
+            }).
+            on('data', function(_) {
+                callOrder.push("data");
+            }).
+            on('end', function(_) {
+                callOrder.push("end");
+            });
         r.write("");
-        expect(headHandler).toHaveBeenCalled();
+        r.end();
+        expect(callOrder).toEqual(["head", "data", "end"]);
     });
 
     it("doesn't produce a head event if writeHead was called", function() {
