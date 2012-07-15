@@ -1164,7 +1164,7 @@ describe("Response object", function() {
         r2.write(buffer2);
         expect(dataHandler).toHaveBeenCalledWith(buffer2);
         r2.end();
-        expect(endHandler).toHaveBeenCalledOnce();
+        expect(endHandler).toHaveBeenCalledWith(r1);
     });
 
     it("triggers implicit head events when chaining", function() {
