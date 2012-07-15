@@ -112,16 +112,9 @@ var server = http.createServer(function(nodeReq, nodeRes) {
         headers: nodeReq.headers,
         rawBody: new Buffer("")
     };
-    var res = new Response().
-        on('head', function(statusCode, headers) {
-            nodeRes.writeHead(statusCode, headers);
-        }).
-        on('data', function(chunk) {
-            nodeRes.write(chunk);
-        }).
+    var res = new Response().chain(nodeRes).
         on('end', function(response) {
             console.log(stringForLog(nodeReq, response));
-            nodeRes.end();
         });
 
     // Fetch POST data if available
