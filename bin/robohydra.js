@@ -113,14 +113,14 @@ var server = http.createServer(function(nodeReq, nodeRes) {
         rawBody: new Buffer("")
     };
     var res = new Response().
-        on('head', function() {
-            console.log(stringForLog(nodeReq, this));
-            nodeRes.writeHead(res.statusCode, res.headers);
+        on('head', function(statusCode, headers) {
+            nodeRes.writeHead(statusCode, headers);
         }).
         on('data', function(chunk) {
             nodeRes.write(chunk);
         }).
-        on('end', function() {
+        on('end', function(response) {
+            console.log(stringForLog(nodeReq, response));
             nodeRes.end();
         });
 
