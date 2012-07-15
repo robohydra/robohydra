@@ -1079,6 +1079,29 @@ describe("Response object", function() {
         expect(endHandler).toHaveBeenCalled();
     });
 
+    it("supports more than one listener for each event", function() {
+        var headHandler1 = this.spy();
+        var dataHandler1 = this.spy();
+        var endHandler1  = this.spy();
+        var headHandler2 = this.spy();
+        var dataHandler2 = this.spy();
+        var endHandler2  = this.spy();
+        var r = new Response().on('head', headHandler1).
+                               on('data', dataHandler1).
+                               on('end',  endHandler1).
+                               on('head', headHandler2).
+                               on('data', dataHandler2).
+                               on('end',  endHandler2);
+        r.write("");
+        r.end();
+        expect(headHandler1).toHaveBeenCalled();
+        expect(dataHandler1).toHaveBeenCalled();
+        expect(endHandler1).toHaveBeenCalled();
+        expect(headHandler2).toHaveBeenCalled();
+        expect(dataHandler2).toHaveBeenCalled();
+        expect(endHandler2).toHaveBeenCalled();
+    });
+
     it("produces a head event on (but before!) the first data event", function() {
         var callOrder = [];
         var r = new Response().
