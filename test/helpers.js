@@ -4,6 +4,7 @@ var buster = require("buster");
 var robohydra = require("../lib/robohydra"),
     heads     = robohydra.heads,
     assert    = robohydra.assert,
+    Request   = robohydra.Request,
     Response  = robohydra.Response;
 
 function areBuffersEqual(buffer1, buffer2) {
@@ -69,10 +70,10 @@ function withResponse(head, pathOrObject, cb) {
     if (typeof(pathOrObject) === 'string') {
         pathOrObject = {path: pathOrObject};
     }
-    head.handle(fakeReq(pathOrObject.path,
-                        {method:  pathOrObject.method || 'GET',
-                         headers: pathOrObject.headers,
-                         body: pathOrObject.postData}),
+    head.handle(simpleReq(pathOrObject.path,
+                          {method:  pathOrObject.method || 'GET',
+                           headers: pathOrObject.headers,
+                           body: pathOrObject.postData}),
                 new Response(function() { cb(this); }));
 }
 
@@ -150,14 +151,14 @@ function fakeHttpRequest(requestDispatcher) {
     };
 }
 
-function fakeReq(url, options) {
+function simpleReq(url, options) {
     options = options || {};
-    return {url: url,
-            method: options.method || 'get',
-            getParams: options.get,
-            bodyParams: options.post,
-            rawBody: options.body,
-            headers: options.headers};
+    return new Request({
+        url:     url,
+        method:  options.method,
+        headers: options.headers,
+        rawBody: options.body
+    });
 }
 
 function headWithPass(path, hydraUtils, assertionMessage) {
@@ -184,6 +185,6 @@ exports.withResponse    = withResponse;
 exports.checkRouting    = checkRouting;
 exports.fakeFs          = fakeFs;
 exports.fakeHttpRequest = fakeHttpRequest;
-exports.fakeReq         = fakeReq;
+exports.simpleReq       = simpleReq;
 exports.headWithFail    = headWithFail;
 exports.headWithPass    = headWithPass;

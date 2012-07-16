@@ -10,8 +10,7 @@ var helpers              = require("./helpers"),
     checkRouting         = helpers.checkRouting,
     withResponse         = helpers.withResponse,
     fakeFs               = helpers.fakeFs,
-    fakeHttpCreateClient = helpers.fakeHttpCreateClient,
-    fakeReq              = helpers.fakeReq;
+    fakeHttpCreateClient = helpers.fakeHttpCreateClient;
 
 buster.spec.expose();
 

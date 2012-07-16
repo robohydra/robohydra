@@ -694,7 +694,7 @@ describe("Proxying RoboHydra heads", function() {
         var fakeHttpR = fakeHttpRequest(function(m, p, h, d, host, port) {
             var res = "Proxied " + m + " response for " + host + ":" + port +
                                  " -> " + p;
-            return res + (d === undefined ? '' : " with data \"" + d + "\"");
+            return res + (d.length ? " with data \"" + d + "\"" : "");
         });
         var head = new RoboHydraHeadProxy({
             mountPath: '/foobar',
