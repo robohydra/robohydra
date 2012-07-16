@@ -6,12 +6,12 @@
  */
 
 var http      = require("http"),
-    url       = require("url"),
     fs        = require('fs'),
     qs        = require('qs'),
     commander = require('commander');
 var robohydra = require('../lib/robohydra'),
     RoboHydra = robohydra.RoboHydra,
+    Request   = robohydra.Request,
     Response  = robohydra.Response;
 
 commander.version('0.0.1').
@@ -107,13 +107,11 @@ function stringForLog(req, res) {
 
 // Routes are all dynamic, so we only need a catch-all here
 var server = http.createServer(function(nodeReq, nodeRes) {
-    var req = {
+    var req = new Request({
         url: nodeReq.url,
-        getParams: url.parse(nodeReq.url, true).query,
         method: nodeReq.method,
-        headers: nodeReq.headers,
-        rawBody: new Buffer("")
-    };
+        headers: nodeReq.headers
+    });
     var res = new Response().chain(nodeRes).
         on('end', function(response) {
             console.log(stringForLog(nodeReq, response));

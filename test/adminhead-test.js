@@ -3,6 +3,7 @@
 var buster = require("buster");
 var robohydra = require("../lib/robohydra"),
     RoboHydra = robohydra.RoboHydra,
+    Request   = robohydra.Request,
     Response  = robohydra.Response;
 var RoboHydraHeadStatic = require("../lib/heads").RoboHydraHeadStatic;
 var helpers              = require("./helpers"),
@@ -18,7 +19,7 @@ describe("Admin RoboHydra UI", function() {
     it("shows up by default on /robohydra-admin", function(done) {
         var robohydra = new RoboHydra();
 
-        var req = {url: '/robohydra-admin', getParams: {}};
+        var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
                        expect(res.statusCode).toEqual(200);
                        var res2 = new Response(function() {
@@ -38,7 +39,7 @@ describe("Admin RoboHydra UI", function() {
             heads: [new RoboHydraHeadStatic({name: headName, content: 'foo'})]
         });
 
-        var req = {url: '/robohydra-admin', getParams: {}};
+        var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
                       expect(this.body).toMatch(pluginName);
                       expect(this.body).toMatch(headName);
