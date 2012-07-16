@@ -577,7 +577,7 @@ describe("RoboHydras", function() {
         expect(function() {
             hydra.handle(fakeReq('/foo'),
                          new Response(function() {}));
-        }).toThrow("InvalidRoboHydraNextParameters");
+        }).toThrow("InvalidRoboHydraNextParametersException");
     });
 });
 
@@ -1058,7 +1058,7 @@ describe("Response object", function() {
         var r = new Response();
         expect(function() {
             r.end();
-        }).toThrow("InvalidRoboHydraResponse");
+        }).toThrow("InvalidRoboHydraResponseException");
     });
 
     it("supports basic observers", function() {
