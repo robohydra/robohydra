@@ -645,7 +645,7 @@ describe("Proxying RoboHydra heads", function() {
     it("can proxy simple POST requests", function(done) {
         var fakeHttpR = fakeHttpRequest(function(m, p, h, data) {
             var res = "Proxied " + m + " response for " + p;
-            return res + (typeof(data) === 'undefined' ? '' :
+            return res + (data === undefined ? '' :
                           ' with data "' + data + '"');
         });
         var head = new RoboHydraHeadProxy({
@@ -673,7 +673,7 @@ describe("Proxying RoboHydra heads", function() {
     it("can proxy POST requests with GET parameters", function(done) {
         var fakeHttpR = fakeHttpRequest(function(m, p, h, data) {
             var res = "Proxied " + m + " response for " + p;
-            return res + (typeof(data) === 'undefined' ? '' :
+            return res + (data === undefined ? '' :
                           " with data \"" + data + "\"");
         });
         var head = new RoboHydraHeadProxy({
@@ -694,8 +694,7 @@ describe("Proxying RoboHydra heads", function() {
         var fakeHttpR = fakeHttpRequest(function(m, p, h, d, host, port) {
             var res = "Proxied " + m + " response for " + host + ":" + port +
                                  " -> " + p;
-            return res + (typeof(d) === 'undefined' ? '' :
-                          " with data \"" + d + "\"");
+            return res + (d === undefined ? '' : " with data \"" + d + "\"");
         });
         var head = new RoboHydraHeadProxy({
             mountPath: '/foobar',

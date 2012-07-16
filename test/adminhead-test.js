@@ -1,3 +1,5 @@
+/*global describe, it, expect*/
+
 var buster = require("buster");
 var robohydra = require("../lib/robohydra"),
     RoboHydra = robohydra.RoboHydra,
