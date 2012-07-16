@@ -40,3 +40,9 @@ Description
   examples/plugins examples/simple-i18n.conf
   simplei18ndir=my/other/dir`. It also loads the logger plugin so it's
   easy to see what's going on.
+
+* simple-streaming.conf loads a plugin that serves some simple content
+  in chunks, to demonstrate RoboHydra's streaming capabilities. To see
+  it in action, go to `/data` and watch how the data comes in slowly
+  (you may need to use some command-line tool like `wget` to see the
+  effect clearly).
