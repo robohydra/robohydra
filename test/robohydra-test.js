@@ -1167,6 +1167,47 @@ describe("Response object", function() {
         expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
     });
 
+    it("produces a head event on (but before!) 'end', if there was no data", function() {
+        var callOrder = [];
+        var statusCode = 302, locationHeader = 'http://example.com';
+        var r = new Response().
+            on('head', function(sc, h) {
+                expect(sc).toEqual(statusCode);
+                expect(h.location).toEqual(locationHeader);
+                callOrder.push("head");
+            }).
+            on('data', function(_) {
+                callOrder.push("data");
+            }).
+            on('end', function(_) {
+                callOrder.push("end");
+            });
+        r.statusCode = statusCode;
+        r.headers = {location: locationHeader};
+        r.end();
+        expect(callOrder).toEqual(["head", "end"]);
+    });
+
+    it("doesn't produce a head event on 'end', if there was one already", function() {
+        var callOrder = [];
+        var statusCode = 302, locationHeader = 'http://example.com';
+        var r = new Response().
+            on('head', function(sc, h) {
+                expect(sc).toEqual(statusCode);
+                expect(h.location).toEqual(locationHeader);
+                callOrder.push("head");
+            }).
+            on('data', function(_) {
+                callOrder.push("data");
+            }).
+            on('end', function(_) {
+                callOrder.push("end");
+            });
+        r.writeHead(statusCode, {location: locationHeader});
+        r.end();
+        expect(callOrder).toEqual(["head", "end"]);
+    });
+
     it("allows easy response chaining", function() {
         var headHandler = this.spy();
         var dataHandler = this.spy();
