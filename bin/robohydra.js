@@ -31,7 +31,7 @@ function showHelpAndDie(message) {
 }
 
 
-var robohydra = new RoboHydra();
+var hydra = new RoboHydra();
 
 // Check parameters and load RoboHydra configuration
 if (commander.args.length < 1) {
@@ -45,7 +45,7 @@ if (! robohydraConfig.plugins) {
 }
 // Process the options
 if (commander.I) {
-    robohydra.addPluginLoadPath(commander.I);
+    hydra.addPluginLoadPath(commander.I);
 }
 // After the second parameter, the rest is extra configuration variables
 var extraVars = {};
@@ -65,12 +65,12 @@ robohydraConfig.plugins.forEach(function(pluginDef) {
     var pluginConfig = pluginDef.config || {};
     for (p in pluginConfig) { config[p] = pluginConfig[p]; }
     for (p in extraVars) { config[p] = extraVars[p]; }
-    var plugin = robohydra.requirePlugin(pluginName, config);
+    var plugin = hydra.requirePlugin(pluginName, config);
 
     var pluginObject = plugin.module.getBodyParts(plugin.config,
-                                                  robohydra.getModulesObject());
+                                                  hydra.getModulesObject());
     pluginObject.name = pluginName;
-    robohydra.registerPluginObject(pluginObject);
+    hydra.registerPluginObject(pluginObject);
 
     var featureMessages = [];
     if (typeof pluginObject.heads === 'object') {
@@ -132,7 +132,7 @@ var server = http.createServer(function(nodeReq, nodeRes) {
             // but it's ok if qs can't handle it
         }
         // When we have a complete request, dispatch it through RoboHydra
-        robohydra.handle(req, res);
+        hydra.handle(req, res);
     });
 });
 
