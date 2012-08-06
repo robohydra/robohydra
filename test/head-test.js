@@ -556,22 +556,6 @@ describe("Proxying RoboHydra heads", function() {
         ], done);
     });
 
-    it("ignore the path property (hint: it's mountPath)", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
-            return "Proxied " + m + " response for " + p;
-        });
-        var head = new RoboHydraHeadProxy({
-            path: '/foo',
-            proxyTo: 'http://example.com/mounted',
-            httpRequestFunction: fakeHttpR
-        });
-
-        checkRouting(head, [
-            ['/',      'Proxied GET response for /mounted/'],
-            ['/blah/', 'Proxied GET response for /mounted/blah/']
-        ], done);
-    });
-
     it("can proxy simple GET requests", function(done) {
         var fakeHttpR = fakeHttpRequest(function(m, p, h) {
             return "Proxied " + m + " response for " + p;
