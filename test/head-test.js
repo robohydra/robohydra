@@ -9,7 +9,8 @@ var heads                   = require("../lib/heads"),
     RoboHydraHead           = heads.RoboHydraHead,
     RoboHydraHeadStatic     = heads.RoboHydraHeadStatic,
     RoboHydraHeadFilesystem = heads.RoboHydraHeadFilesystem,
-    RoboHydraHeadProxy      = heads.RoboHydraHeadProxy;
+    RoboHydraHeadProxy      = heads.RoboHydraHeadProxy,
+    RoboHydraHeadFilter     = heads.RoboHydraHeadFilter;
 
 buster.spec.expose();
 
@@ -783,5 +784,25 @@ describe("Proxying RoboHydra heads", function() {
                  'The host header says: localhost']
             ], done);
         });
+    });
+});
+
+describe("RoboHydra filtering heads", function() {
+    it("cannot be created without the 'filter' property", function() {
+        expect(function() {
+            var head = new RoboHydraHeadFilter({path: '/.*'});
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("cannot be created with a non-function 'filter' property", function() {
+        expect(function() {
+            var head = new RoboHydraHeadFilter({filter: ''});
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("can be created with only the 'filter' property", function() {
+        expect(function() {
+            var head = new RoboHydraHeadFilter({filter: '/.*'});
+        }).toThrow("InvalidRoboHydraHeadException");
     });
 });
