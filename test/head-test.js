@@ -16,18 +16,12 @@ buster.spec.expose();
 
 describe("Generic RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
-        var head;
-
         expect(function() {
-            head = new RoboHydraHead();
+            var head = new RoboHydraHead({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            head = new RoboHydraHead({path: '/'});
-        }).toThrow("InvalidRoboHydraHeadException");
-
-        expect(function() {
-            head = new RoboHydraHead({handler: function() {}});
+            var head = new RoboHydraHead({handler: function() {}});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
