@@ -783,4 +783,97 @@ describe("RoboHydra filtering heads", function() {
             var head = new RoboHydraHeadFilter({filter: '/.*'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
+
+    it("filter trivial, non-compressed answers", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(bodyText) {
+                return bodyText.toString().toUpperCase();
+            }
+        });
+
+        var next = function(_, res) { res.send("foobar"); };
+        withResponse(head, {path: '/test', nextFunction: next}, function(res) {
+            expect(res.body).toEqual("FOOBAR");
+            done();
+        });
+    });
+
+    it("keep status codes and headers", function(done) {
+        function bodyUpdater(bodyText) {
+            return "I change the body (orig: '" + bodyText +
+                "'), but status code and headers remain the same";
+        }
+        var head = new RoboHydraHeadFilter({ filter: bodyUpdater });
+
+        var origBody     = "response body",
+            expectedBody = bodyUpdater(origBody),
+            statusCode   = 401,
+            headers      = {'content-type': 'application/x-snafu'};
+        var next = function(_, res) {
+            res.statusCode = 401;
+            res.headers = headers;
+            res.send(origBody);
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.body).toEqual(expectedBody);
+            expect(res.statusCode).toEqual(statusCode);
+            expect(res.headers).toEqual(headers);
+            done();
+        });
+    });
+
+    it("update the Content-Length header, if present", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(text) { return "OH HAI " + text; }
+        });
+
+        var origBody    = "response body",
+            contentType = 'application/x-snafu',
+            headers     = {'content-type': contentType,
+                           'content-length': origBody.length};
+        var next = function(_, res) {
+            res.headers = headers;
+            res.send(origBody);
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.headers).toEqual({
+                'content-type': contentType,
+                'content-length': "OH HAI response body".length
+            });
+            done();
+        });
+    });
+
+    it("don't add a Content-Length header if there wasn't one", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(text) { return "OH HAI " + text; }
+        });
+
+        var origBody = "response body";
+        var next = function(_, res) {
+            res.send(origBody);
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.headers['content-length']).not.toBeDefined();
+            done();
+        });
+    });
+
+    it("update Content-Length header even if it was 0", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(text) { return "OH HAI " + text.toString(); }
+        });
+
+        var next = function(_, res) {
+            res.headers['content-length'] = 0;
+            res.end();
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.headers['content-length']).toEqual(7);
+            done();
+        });
+    });
+
+    // Check different compressions
+    // Can return both strings and Buffer objects
 });

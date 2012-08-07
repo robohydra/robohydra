@@ -74,7 +74,8 @@ function withResponse(head, pathOrObject, cb) {
                           {method:  pathOrObject.method || 'GET',
                            headers: pathOrObject.headers,
                            body: pathOrObject.postData}),
-                new Response(function() { cb(this); }));
+                new Response(function() { cb(this); }),
+                pathOrObject.nextFunction);
 }
 
 function checkRouting(head, list, cb) {
