@@ -1,5 +1,7 @@
 /*global describe, it, expect*/
-var buster = require("buster");
+var buster = require("buster"),
+    fs     = require("fs"),
+    zlib   = require("zlib");
 var helpers         = require("./helpers"),
     checkRouting    = helpers.checkRouting,
     withResponse    = helpers.withResponse,
@@ -874,6 +876,65 @@ describe("RoboHydra filtering heads", function() {
         });
     });
 
-    // Check different compressions
-    // Can return both strings and Buffer objects
+    it("transparently uncompress and compress back gzip", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(text) { return "OH HAI " + text.toString(); }
+        });
+
+        var next = function(_, res) {
+            res.headers['content-encoding'] = 'gzip';
+            // "THAR" gzip'ed
+            res.send(new Buffer("H4sIAAAAAAAAAwvxcAwCAA3VpXcEAAAA", "base64"));
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.headers['content-encoding']).toEqual('gzip');
+            zlib.gunzip(res.body, function(err, uncompressedBody) {
+                expect(uncompressedBody).toEqual("OH HAI THAR");
+                done();
+            });
+        });
+    });
+
+    it("transparently uncompress and compress back deflate", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(text) { return new Buffer("- Buzz: " + text.toString()); }
+        });
+
+        var next = function(_, res) {
+            res.headers['content-encoding'] = 'deflate';
+            // "heads, heads everywhere" deflated
+            res.send(new Buffer("eJzLSE1MKdZRyABRCqllqUWV5RmpRakAZNMIvQ==",
+                                "base64"));
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.headers['content-encoding']).toEqual('deflate');
+            zlib.inflate(res.body, function(err, uncompressedBody) {
+                expect(uncompressedBody).toEqual("- Buzz: heads, heads everywhere");
+                done();
+            });
+        });
+    });
+
+    it("pass through on unknown compression methods", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(text) {
+                return "lcase -> " + text.toString().toLowerCase();
+            }
+        });
+
+        var text = "THISISVERYCOMPRESSEDDATANOTREALLY";
+        var next = function(_, res) {
+            res.headers['content-encoding'] = 'made-up';
+            res.send(new Buffer(text));
+        };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            var bodyString = res.body.toString();
+            expect(bodyString).toEqual("lcase -> " + text.toLowerCase());
+            done();
+        });
+    });
+
+    // What happens with corrupt compressed data? Node 0.6.x's zlib
+    // doesn't seem to give proper error messages when the data is
+    // corrupt
 });
