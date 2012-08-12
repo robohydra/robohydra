@@ -94,7 +94,14 @@ function fakeFs(fileMap) {
         if (typeof fileMap[p] === 'string') {
             fileMap[p] = { content: fileMap[p] };
         }
+        // Also add entries for directories
+        var directory = p;
+        while (directory !== '/' && directory !== '') {
+            directory = directory.replace(new RegExp('[^/]*/?$'), '');
+            fileMap[directory] = { directory: true};
+        }
     }
+
     return {
         readFile: function(path, cb) {
             if (fileMap.hasOwnProperty(path)) {
@@ -104,10 +111,18 @@ function fakeFs(fileMap) {
             }
         },
         stat: function(path, cb) {
-            if (fileMap.hasOwnProperty(path)) {
+            var matchingPath;
+            ['', '/'].forEach(function(pathSuffix) {
+                if (fileMap.hasOwnProperty(path + pathSuffix)) {
+                    matchingPath = path + pathSuffix;
+                }
+            });
+
+            if (matchingPath) {
                 cb("", {
-                    isFile: function () { return true; },
-                    mtime:  fileMap[path].mtime || new Date()
+                    isFile: function () { return !fileMap[matchingPath].directory; },
+                    isDirectory: function () { return fileMap[matchingPath].directory; },
+                    mtime:  fileMap[matchingPath].mtime || new Date()
                 });
             } else {
                 cb("File not found");

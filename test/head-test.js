@@ -528,6 +528,21 @@ describe("Filesystem RoboHydra heads", function() {
             done();
         });
     });
+
+    it("serves index.html on directories by default", function(done) {
+        var indexHtmlContents = 'index.html contents!';
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({
+                '/var/www/directory/index.html': indexHtmlContents
+            })
+        });
+
+        checkRouting(head, [
+            ['/directory',  indexHtmlContents],
+            ['/directory/', indexHtmlContents]
+        ], done);
+    });
 });
 
 describe("Proxying RoboHydra heads", function() {
