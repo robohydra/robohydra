@@ -543,6 +543,101 @@ describe("Filesystem RoboHydra heads", function() {
             ['/directory/', indexHtmlContents]
         ], done);
     });
+
+    it("can configure index files", function(done) {
+        var indexFileContents = 'index.html contents!';
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            indexFiles: ['myindexfile.html'],
+            fs: fakeFs({
+                '/var/www/directory/myindexfile.html': indexFileContents,
+                '/var/www/directory/index.html': 'WRONG INDEX FILE!'
+            })
+        });
+
+        checkRouting(head, [
+            ['/directory',  indexFileContents],
+            ['/directory/', indexFileContents]
+        ], done);
+    });
+
+    it("index files replace the defaults", function(done) {
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            indexFiles: ['myindexfile.html'],
+            fs: fakeFs({
+                '/var/www/directory/index.html': 'WRONG INDEX FILE!'
+            })
+        });
+
+        checkRouting(head, [
+            ['/directory/', {status: 404}]
+        ], done);
+    });
+
+    it("all specified index files should work", function(done) {
+        var correctIndexFileContents = "The contents of the index file";
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            indexFiles: ['index1.html', 'index2.html', 'index3.html'],
+            fs: fakeFs({
+                '/var/www/dir1/index1.html': correctIndexFileContents,
+                '/var/www/dir2/index2.html': correctIndexFileContents,
+                '/var/www/dir3/index3.html': correctIndexFileContents
+            })
+        });
+
+        checkRouting(head, [
+            ['/dir1/', correctIndexFileContents],
+            ['/dir2/', correctIndexFileContents],
+            ['/dir3/', correctIndexFileContents]
+        ], done);
+    });
+
+    it("give preference to the first index files", function(done) {
+        var correctIndexFileContents = "The contents of the index file",
+            wrongIndexFileContents   = "Wrong index file contents";
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            indexFiles: ['index1.html', 'index2.html', 'index3.html'],
+            fs: fakeFs({
+                '/var/www/dir/index1.html': correctIndexFileContents,
+                '/var/www/dir/index2.html': wrongIndexFileContents,
+                '/var/www/dir/index3.html': wrongIndexFileContents
+            })
+        });
+
+        checkRouting(head, [
+            ['/dir/', correctIndexFileContents]
+        ], done);
+    });
+
+    it("allows the index file list to be empty", function(done) {
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            indexFiles: [],
+            fs: fakeFs({
+                '/var/www/dir/index.html': "YOU SHOULD NOT SERVE THIS FILE!"
+            })
+        });
+
+        checkRouting(head, [
+            ['/dir/', {status: 403}]
+        ], done);
+    });
+
+    it("can't serve directories without appropriate index files", function(done) {
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({
+                '/var/www/dir/random.html': "YOU SHOULD NOT SERVE THIS FILE!"
+            })
+        });
+
+        checkRouting(head, [
+            ['/dir/', {status: 403}]
+        ], done);
+    });
 });
 
 describe("Proxying RoboHydra heads", function() {

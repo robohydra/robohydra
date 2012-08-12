@@ -110,6 +110,24 @@ function fakeFs(fileMap) {
                 cb("File not found");
             }
         },
+        statSync: function(path) {
+            var matchingPath;
+            ['', '/'].forEach(function(pathSuffix) {
+                if (fileMap.hasOwnProperty(path + pathSuffix)) {
+                    matchingPath = path + pathSuffix;
+                }
+            });
+
+            if (matchingPath) {
+                return {
+                    isFile: function () { return !fileMap[matchingPath].directory; },
+                    isDirectory: function () { return fileMap[matchingPath].directory; },
+                    mtime:  fileMap[matchingPath].mtime || new Date()
+                };
+            } else {
+                throw new Error("ENOENT, no such file or directory '" + path + "'");
+            }
+        },
         stat: function(path, cb) {
             var matchingPath;
             ['', '/'].forEach(function(pathSuffix) {
