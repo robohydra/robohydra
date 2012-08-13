@@ -1043,8 +1043,4 @@ describe("RoboHydra filtering heads", function() {
             done();
         });
     });
-
-    // What happens with corrupt compressed data? Node 0.6.x's zlib
-    // doesn't seem to give proper error messages when the data is
-    // corrupt
 });
