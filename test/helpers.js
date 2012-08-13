@@ -103,7 +103,11 @@ function fakeFs(fileMap) {
     }
 
     return {
+        _demoronisePath: function(path) {
+            return path.replace(new RegExp('//+', 'g'), '/');
+        },
         readFile: function(path, cb) {
+            path = this._demoronisePath(path);
             if (fileMap.hasOwnProperty(path)) {
                 cb("", fileMap[path].content);
             } else {
@@ -111,6 +115,8 @@ function fakeFs(fileMap) {
             }
         },
         statSync: function(path) {
+            path = this._demoronisePath(path);
+
             var matchingPath;
             ['', '/'].forEach(function(pathSuffix) {
                 if (fileMap.hasOwnProperty(path + pathSuffix)) {
@@ -125,25 +131,24 @@ function fakeFs(fileMap) {
                     mtime:  fileMap[matchingPath].mtime || new Date()
                 };
             } else {
-                throw new Error("ENOENT, no such file or directory '" + path + "'");
+                throw {message: "ENOENT, no such file or directory '" + path + "'",
+                       code: "ENOENT"};
             }
         },
         stat: function(path, cb) {
-            var matchingPath;
-            ['', '/'].forEach(function(pathSuffix) {
-                if (fileMap.hasOwnProperty(path + pathSuffix)) {
-                    matchingPath = path + pathSuffix;
+            var result;
+            try {
+                result = this.statSync(path);
+            } catch (e) {
+                if (e.code === 'ENOENT') {
+                    cb(e.message);
+                } else {
+                    throw e;
                 }
-            });
+            }
 
-            if (matchingPath) {
-                cb("", {
-                    isFile: function () { return !fileMap[matchingPath].directory; },
-                    isDirectory: function () { return fileMap[matchingPath].directory; },
-                    mtime:  fileMap[matchingPath].mtime || new Date()
-                });
-            } else {
-                cb("File not found");
+            if (result) {
+                cb("", result);
             }
         }
     };
