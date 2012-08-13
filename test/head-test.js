@@ -875,6 +875,26 @@ describe("Proxying RoboHydra heads", function() {
             ], done);
         });
     });
+
+    it("can connect using HTTPS", function(done) {
+        var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
+            return "WRONG, CONNECTION THROUGH HTTP";
+        });
+        var sslMessage = "SSL connection (HTTPS) to ";
+        var fakeHttpsR = fakeHttpRequest(function(method, path, headers) {
+            return sslMessage + path;
+        });
+
+        var head = new RoboHydraHeadProxy({
+            mountPath: '/',
+            proxyTo: 'https://example.com',
+            httpRequestFunction: fakeHttpR,
+            httpsRequestFunction: fakeHttpsR
+        });
+        checkRouting(head, [
+            ['/foobar/', sslMessage + '/foobar/']
+        ], done);
+    });
 });
 
 describe("RoboHydra filtering heads", function() {
