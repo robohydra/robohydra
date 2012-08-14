@@ -31,13 +31,12 @@ function showHelpAndDie(message) {
 }
 
 
-var hydra = new RoboHydra();
-
 // Check parameters and load RoboHydra configuration
 if (commander.args.length < 1) {
     showHelpAndDie();
 }
 var configPath = commander.args[0];
+var extraPluginLoadpath;
 var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
 var robohydraConfig = JSON.parse(robohydraConfigString);
 if (! robohydraConfig.plugins) {
@@ -45,7 +44,7 @@ if (! robohydraConfig.plugins) {
 }
 // Process the options
 if (commander.I) {
-    hydra.addPluginLoadPath(commander.I);
+    extraPluginLoadpath = commander.I;
 }
 // After the second parameter, the rest is extra configuration variables
 var extraVars = {};
@@ -58,6 +57,9 @@ for (var i = 1, len = commander.args.length; i < len; i++) {
     }
 }
 
+
+var hydra = new RoboHydra(extraVars);
+if (extraPluginLoadpath) { hydra.addPluginLoadPath(extraPluginLoadpath); }
 
 robohydraConfig.plugins.forEach(function(pluginDef) {
     var config = {}, p;
