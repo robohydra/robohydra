@@ -109,8 +109,10 @@ function getBodyParts(config) {
 
     // All plugins must have at least one head
     return {heads: [new RoboHydraHeadStatic({
+        name: 'dummy',
         path: '/robohydra-admin/logger',
-        content: "Not implemented"
+        content: 'Not implemented',
+        statusCode: 501
     })]};
 }
 
