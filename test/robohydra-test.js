@@ -1245,4 +1245,14 @@ describe("Response object", function() {
         r2.write("foobar");
         expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
     });
+
+    it("doesn't write an empty body when copying responses", function() {
+        var r1 = new Response(function() {});
+        r1.write = this.spy();
+        var r2 = new Response();
+
+        r2.statusCode = 200;
+        r1.copyFrom(r2);
+        expect(r1.write).not.toHaveBeenCalled();
+    });
 });
