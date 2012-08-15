@@ -1,4 +1,5 @@
 /*global describe, it, expect*/
+
 var buster = require("buster"),
     fs     = require("fs"),
     zlib   = require("zlib");
@@ -420,7 +421,7 @@ describe("Filesystem RoboHydra heads", function() {
         checkRouting(head, [
             ['/foobar/file.txt~', {statusCode: 404}],
             ['/foobar/something-completely-different.txt', {statusCode: 404}],
-            ['/file.txt~', {statusCode: 404}]
+            ['/file.txt', {statusCode: 404}]
         ], done);
     });
 
