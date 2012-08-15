@@ -482,6 +482,34 @@ describe("Filesystem RoboHydra heads", function() {
         });
     });
 
+    it("don't get confused with regular expression characters in paths", function(done) {
+        var fileContents = "Correct content, yay! o/";
+        var fakeFsObject = fakeFs({'/var/www/README': fileContents});
+        var exoticUrlPath = '/id$[foo]+/*w|n*^{2,1}/c:\\new_dir(2)';
+
+        var head = new RoboHydraHeadFilesystem({
+            mountPath: exoticUrlPath,
+            documentRoot: '/var/www',
+            fs: fakeFsObject
+        });
+        // The problem with dots being treated as regular expressions
+        // we have to test the other way around (making sure it
+        // *doesn't* match)
+        var head2 = new RoboHydraHeadFilesystem({
+            mountPath: '/cmd.com',
+            documentRoot: '/var/www',
+            fs: fakeFsObject
+        });
+
+        checkRouting(head, [
+            [exoticUrlPath + "/README", fileContents]
+        ], function() {
+            checkRouting(head2, [
+                ["/cmd2com/README", {statusCode: 404}]
+            ], done);
+        });
+    });
+
     it("sets the correct Content-Type for the served files", function(done) {
         var head = new RoboHydraHeadFilesystem({
             documentRoot: '/var/www',
