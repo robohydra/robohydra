@@ -847,6 +847,23 @@ describe("Proxying RoboHydra heads", function() {
         });
     });
 
+    it("don't get confused with regular expression characters in paths", function(done) {
+        var exoticUrlPath = '/id$foo';
+        var fakeHttpR = fakeHttpRequest(function(method, path) {
+            return "Response for " + method + " " + path;
+        });
+
+        var head = new RoboHydraHeadProxy({
+            mountPath: exoticUrlPath,
+            proxyTo: 'http://example.com',
+            httpRequestFunction: fakeHttpR
+        });
+
+        checkRouting(head, [
+            [exoticUrlPath + "/README", "Response for GET /README"]
+        ], done);
+    });
+
     it("can set the proxied hostname in headers", function(done) {
         var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
             return "The host header says: " + headers.host;
