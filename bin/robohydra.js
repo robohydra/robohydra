@@ -14,7 +14,7 @@ var robohydra = require('../lib/robohydra'),
     Request   = robohydra.Request,
     Response  = robohydra.Response;
 
-commander.version('0.0.1').
+commander.version('0.2.0+').
     usage("mysetup.conf [confvar=value confvar2=value2 ...]").
     option('-I <path>', 'Adds a new path in the plugin search path list').
     option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
@@ -31,20 +31,20 @@ function showHelpAndDie(message) {
 }
 
 
+// Process the options
+var extraPluginLoadpath;
+if (commander.I) {
+    extraPluginLoadpath = commander.I;
+}
 // Check parameters and load RoboHydra configuration
 if (commander.args.length < 1) {
     showHelpAndDie();
 }
 var configPath = commander.args[0];
-var extraPluginLoadpath;
 var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
 var robohydraConfig = JSON.parse(robohydraConfigString);
 if (! robohydraConfig.plugins) {
     showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
-}
-// Process the options
-if (commander.I) {
-    extraPluginLoadpath = commander.I;
 }
 // After the second parameter, the rest is extra configuration variables
 var extraVars = {};
