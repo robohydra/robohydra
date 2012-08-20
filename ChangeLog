@@ -1,0 +1,49 @@
+2012-08-20  Esteban Manchado Velázquez  <emanchado@demiurgo.org>
+
+	* Streaming support: calls to the "write" method will be written
+	immediately, even when chaining requests (when setup
+	properly). This allows sending data in chunks, or sending data and
+	never close the connection. Check the new "chain" and "on" methods
+	in the Response class documentation for details.
+
+	* Compact configuration: plugins with no special configuration can
+	be specified in configuration files as a simple string (the plugin
+	name), as opposed to a Javascript object with the keys "name" and
+	"config".
+
+	* New request class: you can use it to create new, fake requests
+	(eg. when chaining).
+
+	* Query (GET) parameters: the "getParams" property is deprecated
+	now, in favour of "queryParams".
+
+	* New RoboHydraHeadFilter head: this new head allows you to filter
+	the result of a any matching request and return a different
+	response. It understands compression and will transparently
+	uncompress and compress back any compressed responses. See the
+	documentation for more details.
+
+	* Make heads more strict: heads will complain now about any
+	properties they don't understand.
+
+	* Admin UI: now filesystem and proxy heads can be created
+	dynamically from the web UI; URL paths for dynamically-created
+	static content heads will now match GET parameters; the path
+	debugger will highlight now *all* matching heads, not just the
+	first one; the admin plugin is not shown on the list of heads
+	anymore (see the source for details if you really want to show
+	them).
+
+	* RoboHydraFilesystemHead: support index files now. See
+	documentation for details.
+
+	* RoboHydraFilesystemHead and RoboHydraProxyHead: "mountPath" is
+	now treated as a plain string, meaning any special regexp
+	characters must not be escaped from the mount path.
+
+	* HTTPS: RoboHydra can now receive HTTPS requests, and
+	RoboHydraProxyHead can connect to HTTPS websites.
+
+	* Exceptions: if a head throws an exception, it will be caught and
+	the request will return a 500 internal server error with the
+	stacktrace as the response body.
