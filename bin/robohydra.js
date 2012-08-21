@@ -14,6 +14,8 @@ var robohydra = require('../lib/robohydra'),
     RoboHydra = robohydra.RoboHydra,
     Request   = robohydra.Request,
     Response  = robohydra.Response;
+var RoboHydraPluginNotFoundException =
+        robohydra.RoboHydraPluginNotFoundException;
 
 commander.version('0.2.0+').
     usage("mysetup.conf [confvar=value confvar2=value2 ...]").
@@ -68,7 +70,18 @@ robohydraConfig.plugins.forEach(function(pluginDef) {
     var pluginConfig = pluginDef.config || {};
     for (p in pluginConfig) { config[p] = pluginConfig[p]; }
     for (p in extraVars) { config[p] = extraVars[p]; }
-    var plugin = hydra.requirePlugin(pluginName, config);
+    var plugin;
+    try {
+        plugin = hydra.requirePlugin(pluginName, config);
+    } catch(e) {
+        if (e instanceof RoboHydraPluginNotFoundException) {
+            console.log("Could not find or load plugin '" + pluginName + "'");
+            process.exit(1);
+        } else {
+            console.log("Unknown error loading plugin '" + pluginName + "'");
+            throw e;
+        }
+    }
 
     var pluginObject = plugin.module.getBodyParts(plugin.config,
                                                   hydra.getModulesObject());
