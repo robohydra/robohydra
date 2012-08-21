@@ -564,20 +564,36 @@ describe("RoboHydras", function() {
         }));
     });
 
-    it("throw an exception if the 'next' function is called without parameters", function() {
+    it("throw an exception if the 'next' function is called without parameters", function(done) {
         var hydra = new RoboHydra();
         var finalRes;
         var headCallingNext = new RoboHydraHead({
             path: '/foo',
             handler: function(req, res, next) {
-                // http://bit.ly/KkdH81
-                next();
+                expect(function() {
+                    // http://bit.ly/KkdH81
+                    next();
+                }).toThrow("InvalidRoboHydraNextParametersException");
+                res.end();
             }});
         hydra.registerDynamicHead(headCallingNext);
-        expect(function() {
-            hydra.handle(simpleReq('/foo'),
-                         new Response(function() {}));
-        }).toThrow("InvalidRoboHydraNextParametersException");
+        hydra.handle(simpleReq('/foo'), new Response(done));
+    });
+
+    it("return 500 if a head dies", function(done) {
+        var hydra = new RoboHydra();
+        var dyingHead = new RoboHydraHead({
+            path: '/.*',
+            handler: function() {
+                throw new Error("I'm dying... I'M DYING!");
+            }
+        });
+        hydra.registerDynamicHead(dyingHead);
+        hydra.handle(simpleReq('/whatever'), new Response(function(res) {
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.toString()).toMatch(new RegExp('dying'));
+            done();
+        }));
     });
 });
 
