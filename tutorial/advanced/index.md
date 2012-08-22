@@ -206,7 +206,7 @@ those three cases as tests. Create a new file
 Once saved, create a matching configuration file and start RoboHydra
 with it:
 
-    {"plugins": [{"name": "search", "config": {}}]}
+    {"plugins": ["search"]}
 
 You can see the available tests, which one is active (if any) and
 start and stop them in the [test admin

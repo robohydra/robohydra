@@ -89,10 +89,16 @@ the incoming request. Now, save the above text in a file
 `robohydra/plugins/firstplugin/index.js` and create a new file
 `first.conf` with the following content:
 
-      {"plugins": [{"name": "firstplugin", "config": {}}]}
+      {"plugins": ["firstplugin"]}
 
 If you start RoboHydra again with `robohydra first.conf`, a head
 listening in `/foo` will be readily available.
+
+Note that, if you use RoboHydra 0.2 or lower, you need a slightly more
+verbose version of the configuration file (this applies to all other
+examples):
+
+      {"plugins": [{"name": "firstplugin", "config": {}}]}
 
 
 More flexibility in request handling
@@ -214,7 +220,7 @@ the order is important! Now save the plugin as
 `robohydra/plugins/ddg/index.js`, create a configuration file like
 shown below, and start RoboHydra as `robohydra ddg.conf`:
 
-    {"plugins": [{"name": "ddg", "config": {}}]}
+    {"plugins": ["ddg"]}
 
 You should see the DuckDuckGo page completely functional, but with the
 Adam Yauch logo.
