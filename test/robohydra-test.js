@@ -589,9 +589,9 @@ describe("RoboHydras", function() {
             }
         });
         hydra.registerDynamicHead(dyingHead);
-        hydra.handle(simpleReq('/whatever'), new Response(function(res) {
-            expect(res.statusCode).toEqual(500);
-            expect(res.body.toString()).toMatch(new RegExp('dying'));
+        hydra.handle(simpleReq('/whatever'), new Response(function() {
+            expect(this.statusCode).toEqual(500);
+            expect(this.body.toString()).toMatch(new RegExp('dying'));
             done();
         }));
     });
