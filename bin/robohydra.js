@@ -5,7 +5,8 @@
  * Module dependencies.
  */
 
-var http      = require("http"),
+var http      = require('http'),
+    https     = require('https'),
     fs        = require('fs'),
     qs        = require('qs'),
     commander = require('commander');
@@ -108,7 +109,7 @@ function stringForLog(req, res) {
 }
 
 // Routes are all dynamic, so we only need a catch-all here
-var server = http.createServer(function(nodeReq, nodeRes) {
+var requestHandler = function(nodeReq, nodeRes) {
     var req = new Request({
         url: nodeReq.url,
         method: nodeReq.method,
@@ -136,7 +137,18 @@ var server = http.createServer(function(nodeReq, nodeRes) {
         // When we have a complete request, dispatch it through RoboHydra
         hydra.handle(req, res);
     });
-});
+};
+
+var server;
+var protocolModule = http;
+if (robohydraConfig.secure) {
+    var key  = fs.readFileSync(robohydraConfig.sslOptions.key),
+        cert = fs.readFileSync(robohydraConfig.sslOptions.cert);
+    server = https.createServer({key: key, cert: cert}, requestHandler);
+} else {
+    server = http.createServer(requestHandler);
+}
+
 
 server.on('error', function (e) {
     if (e.code === 'EADDRINUSE') {
