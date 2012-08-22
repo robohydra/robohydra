@@ -1121,13 +1121,13 @@ describe("Response object", function() {
     it("produces a head event on (but before!) the first data event", function() {
         var callOrder = [];
         var r = new Response().
-            on('head', function(_, __) {
+            on('head', function() {
                 callOrder.push("head");
             }).
-            on('data', function(_) {
+            on('data', function() {
                 callOrder.push("data");
             }).
-            on('end', function(_) {
+            on('end', function() {
                 callOrder.push("end");
             });
         r.write("");
@@ -1159,7 +1159,9 @@ describe("Response object", function() {
                                on('end',  this.spy());
         var statusCode = 200;
         r.writeHead(statusCode);
-        expect(headHandler).toHaveBeenCalledWith(statusCode, {});
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: {}});
     });
 
     it("calls implicit 'head' event handler with empty header object if no headers", function() {
@@ -1169,7 +1171,9 @@ describe("Response object", function() {
         var statusCode = 200;
         r.statusCode = statusCode;
         r.write("");
-        expect(headHandler).toHaveBeenCalledWith(statusCode, {});
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: {}});
     });
 
     it("calls implicit 'head' event with correct headers", function() {
@@ -1180,22 +1184,25 @@ describe("Response object", function() {
         r.statusCode = statusCode;
         r.headers    = headers;
         r.write("");
-        expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: headers});
     });
 
     it("produces a head event on (but before!) 'end', if there was no data", function() {
         var callOrder = [];
         var statusCode = 302, locationHeader = 'http://example.com';
         var r = new Response().
-            on('head', function(sc, h) {
+            on('head', function(evt) {
+                var sc = evt.statusCode, h = evt.headers;
                 expect(sc).toEqual(statusCode);
                 expect(h.location).toEqual(locationHeader);
                 callOrder.push("head");
             }).
-            on('data', function(_) {
+            on('data', function() {
                 callOrder.push("data");
             }).
-            on('end', function(_) {
+            on('end', function() {
                 callOrder.push("end");
             });
         r.statusCode = statusCode;
@@ -1208,15 +1215,16 @@ describe("Response object", function() {
         var callOrder = [];
         var statusCode = 302, locationHeader = 'http://example.com';
         var r = new Response().
-            on('head', function(sc, h) {
+            on('head', function(evt) {
+                var sc = evt.statusCode, h = evt.headers;
                 expect(sc).toEqual(statusCode);
                 expect(h.location).toEqual(locationHeader);
                 callOrder.push("head");
             }).
-            on('data', function(_) {
+            on('data', function() {
                 callOrder.push("data");
             }).
-            on('end', function(_) {
+            on('end', function() {
                 callOrder.push("end");
             });
         r.writeHead(statusCode, {location: locationHeader});
@@ -1236,15 +1244,20 @@ describe("Response object", function() {
         // Do things on r2, expect them to happen on r1
         var statusCode = 200, headers = {foobar: 'qux'};
         r2.writeHead(statusCode, headers);
-        expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: headers});
         var buffer = new Buffer("foobar");
         r2.write(buffer);
-        expect(dataHandler).toHaveBeenCalledWith(buffer);
+        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
+                                                  data: buffer});
         var buffer2 = new Buffer("qux");
         r2.write(buffer2);
-        expect(dataHandler).toHaveBeenCalledWith(buffer2);
+        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
+                                                  data: buffer2});
         r2.end();
-        expect(endHandler).toHaveBeenCalledWith(r1);
+        expect(endHandler).toHaveBeenCalledWith({type: 'end',
+                                                 response: r1});
     });
 
     it("triggers implicit head events when chaining", function() {
@@ -1259,7 +1272,9 @@ describe("Response object", function() {
         r2.statusCode = statusCode;
         r2.headers    = headers;
         r2.write("foobar");
-        expect(headHandler).toHaveBeenCalledWith(statusCode, headers);
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: headers});
     });
 
     it("doesn't write an empty body when copying responses", function() {
