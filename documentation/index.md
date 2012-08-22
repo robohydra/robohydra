@@ -17,16 +17,22 @@ RoboHydra with `robohydra empty.conf` you will get a server that will
 return 404 for every URL except the admin interface (available in
 `/robohydra-admin`).
 
-Each element in the `plugins` list in the configuration file will be
-a plain Javascript object with the properties `name` and `config`. The
+Each element in the `plugins` list in the configuration file can be
+one of two things:
+
+* A plain Javascript object with the properties `name` and `config`. The
 former specifies the name of the plugin to load, while the latter
 specifies a Javascript object with the configuration keys and values
-you want to pass to the plugin. Not all plugins need it, so the
-configuration object might be empty. An example of a RoboHydra
-configuration file loading a plugin named `my-plugin` with the
-configuration keys `path` and `logLevel` could be:
+you want to pass to the plugin.
+* A string with the name of the plugin. This is equivalent to setting
+`config` to an empty object.
 
-    {"plugins": [{"name": "my-plugin",
+An example of a RoboHydra configuration file loading a plugin `logger`
+(without special configuration) and a plugin named `my-plugin` with
+the configuration keys `path` and `logLevel` could be:
+
+    {"plugins": ["logger",
+                 {"name": "my-plugin",
                   "config": {"path": "/var/log/example.log",
                              "logLevel": "warn"}]}
 
