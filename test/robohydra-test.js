@@ -59,7 +59,7 @@ buster.assertions.add("hasPluginWithHeadcount", {
 function simpleRoboHydraHead(path, content, name) {
     var props = {path:    path    || '/.*',
                  content: content || 'foo'};
-    if (name) props.name = name;
+    if (name) { props.name = name; }
     return new RoboHydraHeadStatic(props);
 }
 
