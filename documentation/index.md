@@ -195,9 +195,10 @@ response object has the following API:
   headers.
 * `write`: a method to write content to the body. It accepts a single
   parameter, namely a `Buffer` or string to append to the current
-  response body. This method allows a head to write the response body
-  in chunks, *however* the response won't be sent in chunks to the
-  client, but all at once when it's finished.
+  response body. This method allows a RoboHydra head to write the
+  response body in chunks, and the response will be sent in chunks to
+  the client (so you could, say, send data, then wait, then send more
+  data, wait, then close the connection).
 * `end`: a method you must call to end the request.
 * `send`: a method to send content to the client. It's a `write` +
   `end`, so you can call `send` with the content to be sent instead of
