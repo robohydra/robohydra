@@ -209,20 +209,49 @@ documentation below), you often want to pass a mock response so you
 can inspect or modify it before sending back to the client. In that
 case you will be interested in these other API methods methods:
 
-* The constructor: It receives one parameter, the callback to be
-  called when the following head finishes with the request. Here you
-  would typically inspect or modify the mock response (`this` in the
-  function always points to the mock response object), then write data
-  to your own response object, possibly with the help of the methods
-  below.
+* The constructor: It receives one optional parameter, the event
+  listener for the `end` event (see the `on` method and event
+  documentation below). Here you would typically inspect or modify the
+  mock response (`this` in the function always points to the mock
+  response object), then write data to your own response object,
+  possibly with the help of the methods below. If you don't pass any
+  parameters, you can add your own event listeners with the `on`
+  method.
+* `on`: It attaches event listeners to the response object. It
+  receives an event name (see event list below) and a callback
+  function. The callback function will receive a single parameter,
+  `event`, an object with the property `type` set to the event type,
+  plus different properties according to the event fired. Note that
+  you can setup more than one event listener for a single event: in
+  that case, all event listeners will be executed.
+* `chain`: It connects a response with the given parameter (another
+  response) in such a way that all events in the second response will
+  be duplicated in the first one. It's intended to be used when
+  creating a response. As it replicates all events, it keeps
+  streaming. Note that, as you can setup more than one event listener
+  for a given event, you can chain a response to another one, then add
+  extra event listeners for extra processing or logging.
 * `copyFrom`: It receives a response as a parameter and copies the
   data in the parameter to the current response
   (eg. `res.copyFrom(res2)` copies the information in `res2` into
-  `res`).
+  `res`). It's intended to be used when `res2` is finished and won't
+  change again. Thus, it breaks streaming.
 * `forward`: It receives a response as a parameter and forwards it as
   if that had been the original response. In other words,
   `res.forward(res2)` is equivalent to `res.copyFrom(res2);
-  res.end()`.
+  res.end()`. It's intended to be used when `res2` is finished and
+  won't change again. Thus, it breaks streaming.
+
+The list of response object events is:
+
+* `head`: Fired when the header is written. Event objects for this
+  event contain two properties, `statusCode` and `headers`.
+* `data`: Fired when there is data written in the response
+  object. Event objects for this event contain a single property,
+  `data`, an instance of `Buffer`.
+* `end`: Fired when the response is finished. Event objects for this
+  event contain a single property, `response`, the response object
+  that fired the event.
 
 
 ### The next function
