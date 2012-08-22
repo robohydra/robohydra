@@ -154,9 +154,10 @@ the wait in this way:
 
 But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
-`req.getParams`. Similarly, the POST parameters and the raw body of
-the request are available as `req.bodyParams` and `req.rawBody`
-respectively. The latter object is of type `Buffer` (see the [Node
+`req.queryParams` (`req.getParams` in RoboHydra 0.2 and
+lower). Similarly, the POST parameters and the raw body of the request
+are available as `req.bodyParams` and `req.rawBody` respectively. The
+latter object is of type `Buffer` (see the [Node
 documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
 head would match the GET-parameter-style URLs:
 
@@ -165,7 +166,7 @@ head would match the GET-parameter-style URLs:
         handler: function(req, res) {
             setTimeout(function() {
                 res.send("Some slow response");
-            }, req.getParams.millis || 1000);
+            }, req.queryParams.millis || 1000);
         }
     })
 

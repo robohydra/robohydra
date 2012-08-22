@@ -259,7 +259,8 @@ new test, `nonAsciiSearchTerm`, with the following definition:
                         new RoboHydraHead({
                             path: '/foo',
                             handler: function(req, res) {
-                                assert.equal(req.getParams.q,
+                                // Use req.getParams.q in RoboHydra <= 0.2
+                                assert.equal(req.queryParams.q,
                                              "blåbærsyltetøy",
                                              "Character encoding should be ok");
     

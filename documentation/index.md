@@ -167,8 +167,9 @@ object. This object contains the following properties:
   parameters (eg. `/foo`, `/bar/qux`, `/articles?order=date`).
 * `headers`: an object with the request headers. These headers are in
   Node-style (ie. lowercased).
-* `getParams`: an object containing the GET parameters for the
-  request.
+* `queryParams`: an object containing the GET parameters for the
+  request. It was called `getParams` before, but now that property is
+  deprecated.
 * `rawBody`: a `Buffer` object with the raw body of the request.
 * `bodyParams`: an object containing the body parameters, if the body
   was parseable. Otherwise, `undefined`.
