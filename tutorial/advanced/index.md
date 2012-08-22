@@ -289,7 +289,7 @@ fetch the results.
 Now, if you start the `nonAsciiSearchTerm` test and make a request
 with the wrong string
 (eg. [http://localhost:3000/foo?q=blaabaersyltetoy](http://localhost:3000/foo?q=blaabaersyltetoy)),
-you'll get an empty response and see the test failure in the [test
+you'll get an error response and see the test failure in the [test
 index page](http://localhost:3000/robohydra-admin/tests). If you send
 the correct string
 (eg. [http://localhost:3000/foo?q=blåbærsyltetøy](http://localhost:3000/foo?q=blåbærsyltetøy)),
