@@ -353,6 +353,12 @@ properties:
   a bit differently than the `path` property in other heads. In this
   case, it's not a regular expression, but a path under which
   everything is considered handled by the head. It defaults to `/`.
+* `indexFiles` (optional): the list of files that will be considered
+  "index" (ie. if a request comes for a directory, and that
+  directory contains one of the index files, the index file is served
+  instead). Defaults to `index.html`, `index.htm`, `home.html`,
+  `home.htm`. Order matters, first matching file will be used as
+  index.
 * `fs` (optional): an object that behaves like Node's `fs`
   module. Useful if you need to fake stuff.
 * `mime` (optional): an object that behaves like Node's `mime`
