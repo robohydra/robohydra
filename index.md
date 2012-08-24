@@ -97,6 +97,10 @@ RoboHydra via NPM with the following command:
 
     npm install robohydra
 
+You can check the
+[ChangeLog](https://raw.github.com/operasoftware/robohydra/master/ChangeLog)
+for the changes between versions.
+
 Updates
 =======
 
