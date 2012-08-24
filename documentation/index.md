@@ -317,7 +317,8 @@ Other kinds of heads
 --------------------
 Apart from the generic RoboHydra head, there are other classes of
 heads available. Namely, `RoboHydraHeadStatic`,
-`RoboHydraHeadFilesystem` and `RoboHydraHeadProxy`.
+`RoboHydraHeadFilesystem`, `RoboHydraHeadProxy` and
+`RoboHydraHeadFilter`.
 
 
 ### RoboHydraHeadStatic
@@ -388,6 +389,26 @@ example, a head with `proxyTo = http://github.com/operasoftware` and
 `mountPath = /github` that receives a request to `/github/robohydra`
 will proxy the request to the URL
 `http://github.com/operasoftware/robohydra`.
+
+
+### RoboHydraHeadFilter
+This head filters a request processed by another head. It has the
+following properties:
+
+* `path` (optional): the regular expression matching URL paths to be
+  handled by this head. Defaults to `/` if not present.
+* `filter`: a function receiving a `Buffer` object with the response
+  body and returning the filtered response to be sent back to the
+  client. The returned value can be either a string or another
+  `Buffer` object.
+
+This head will match certain URLs and pass those requests through for
+processing by other heads (see the `next` function
+documentation). When the response comes back from the next head, the
+`RoboHydraHeadFilter` head will take the response body, apply the
+given `filter` function (transparently uncompressing and compressing
+back if necessary, and also updating the `Content-Length` header, if
+present) and send that as a response.
 
 
 Taming the RoboHydra programmatically
