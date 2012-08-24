@@ -185,7 +185,7 @@ describe("Generic RoboHydra heads", function() {
 describe("Static content RoboHydra heads", function() {
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new RoboHydraHeadStatic();
+            var head = new RoboHydraHeadStatic({});
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
