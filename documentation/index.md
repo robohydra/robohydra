@@ -4,10 +4,11 @@ layout: default
 RoboHydra usage
 ===============
 
-To start a RoboHydra server, you call `robohydra` with the
-configuration file as a parameter. The configuration file is a JSON
-file with the list of plugins to load. A configuration file without
-any plugins looks like this:
+To start a RoboHydra server, you call `robohydra` with a configuration
+file as a parameter. The RoboHydra configuration file is a JSON file
+with the list of plugins to load, and SSL information if you want
+RoboHydra to use the HTTPS protocol when responding to requests. A
+configuration file without any plugins looks like this:
 
     {"plugins": []}
 
@@ -39,6 +40,18 @@ the configuration keys `path` and `logLevel` could be:
 You can load as many plugins as you want. Remember that the order is
 important: the heads declared in the first will catch requests before
 any heads defined in further plugins.
+
+If you want RoboHydra to use the HTTPS protocol, you have to set the
+`secure` property to `true`, and the property `sslOptions` to an
+object with the following two properties: `key` and `cert`, both being
+the paths to the files containing the secret key and the certificate
+for the server. An example configuration file for an HTTPS server
+could be:
+
+    {"secure": true,
+     "sslOptions": {"key":  "my-key.pem",
+                    "cert": "my-cert.pem"},
+     "plugins": ["logger"]}
 
 
 Findings plugins
