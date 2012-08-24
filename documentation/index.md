@@ -204,6 +204,18 @@ for path `/articles/:articleid/view` and you receive a request for
 `params` property with a single property, `articleid` with value
 `introduction-to-hydra`.
 
+When you use the `next` function in a RoboHydra head (see
+documentation below), you sometimes want to pass a mock request so you
+can modify it before sending further to the next head. To create a
+mock request, simply call the constructor with an object containing
+the request properties. Valid properties for that object are:
+
+* `url`: the URL path of the request.
+* `method`: `GET`, `POST`, etc. defaults to `GET`.
+* `headers`: an object with the request headers.
+* `rawBody`: a `Buffer` object with the request body, if any.
+
+
 
 ### The response object
 The response object is how you send data back to the client. The
