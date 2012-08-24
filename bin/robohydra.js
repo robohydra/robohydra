@@ -129,8 +129,8 @@ var requestHandler = function(nodeReq, nodeRes) {
         headers: nodeReq.headers
     });
     var res = new Response().chain(nodeRes).
-        on('end', function(response) {
-            console.log(stringForLog(nodeReq, response));
+        on('end', function(evt) {
+            console.log(stringForLog(nodeReq, evt.response));
         });
 
     // Fetch POST data if available
