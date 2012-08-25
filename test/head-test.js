@@ -7,7 +7,9 @@ var helpers         = require("./helpers"),
     checkRouting    = helpers.checkRouting,
     withResponse    = helpers.withResponse,
     fakeFs          = helpers.fakeFs,
-    fakeHttpRequest = helpers.fakeHttpRequest;
+    fakeHttpRequest = helpers.fakeHttpRequest,
+    simpleReq       = helpers.simpleReq;
+var Response        = require("../lib/robohydra").Response;
 var heads                   = require("../lib/heads"),
     RoboHydraHead           = heads.RoboHydraHead,
     RoboHydraHeadStatic     = heads.RoboHydraHeadStatic,
@@ -1108,5 +1110,22 @@ describe("RoboHydra filtering heads", function() {
             expect(bodyString).toEqual("lcase -> " + text.toLowerCase());
             done();
         });
+    });
+
+    it("don't break streaming-expecting chained heads", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(r) { return r.toString().toLowerCase(); }
+        });
+
+        var text = "SOME TEXT";
+        var actualString;
+        var res = new Response().
+            on('data', function(evt) { actualString = evt.data.toString(); }).
+            on('end', function() {
+                expect(actualString).toEqual(text.toLowerCase());
+                done();
+            });
+        var next = function(_, res) { res.send(new Buffer(text)); };
+        head.handle(simpleReq('/'), res, next);
     });
 });
