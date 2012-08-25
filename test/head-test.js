@@ -1128,4 +1128,15 @@ describe("RoboHydra filtering heads", function() {
         var next = function(_, res) { res.send(new Buffer(text)); };
         head.handle(simpleReq('/'), res, next);
     });
+
+    it("break if the filter function doesn't return anything", function(done) {
+        var head = new RoboHydraHeadFilter({
+            filter: function(r) { "Forgot the return statement :'("; }
+        });
+        var next = function(_, res) { res.send(new Buffer("foobar")); };
+        withResponse(head, {path: '/', nextFunction: next}, function(res) {
+            expect(res.statusCode).toEqual(500);
+            done();
+        });
+    });
 });
