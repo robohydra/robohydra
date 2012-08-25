@@ -14,6 +14,11 @@ Description
   whatsoever.  Thus, the only available path is /robohydra-admin (you
   can create dynamic heads from that web UI)
 
+* empty-https.conf is like empty.conf, but listening for HTTPS
+  connections. It uses an example, self-signed certificate. You can
+  read about how to make your own self-signed certificates at
+  http://nodejs.org/docs/latest/api/tls.html.
+
 * just-tests.conf loads a single plugin with only tests (no default
   heads). Go to
   [/robohydra-admin](http://localhost:3000/robohydra-admin) to see the
