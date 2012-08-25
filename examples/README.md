@@ -51,3 +51,8 @@ Description
   it in action, go to `/data` and watch how the data comes in slowly
   (you may need to use some command-line tool like `wget` to see the
   effect clearly).
+
+* simple-filtering.conf loads a plugin that will proxy requests to Dev
+  Opera, but before returning content to the client, it will replace
+  all the occurrences of "developers" by "DEVELOPERS, DEVELOPERS,
+  DEVELOPERS, DEVELOPERS".
