@@ -153,11 +153,20 @@ var requestHandler = function(nodeReq, nodeRes) {
 };
 
 var server;
-var protocolModule = http;
 if (robohydraConfig.secure) {
-    var key  = fs.readFileSync(robohydraConfig.sslOptions.key),
-        cert = fs.readFileSync(robohydraConfig.sslOptions.cert);
-    server = https.createServer({key: key, cert: cert}, requestHandler);
+    var sslOptionsObject = {};
+    var keyPath  = robohydraConfig.sslOptions.key,
+        certPath = robohydraConfig.sslOptions.cert;
+    try {
+        sslOptionsObject.key  = fs.readFileSync(keyPath);
+        sslOptionsObject.cert = fs.readFileSync(certPath);
+    } catch(e) {
+        console.log("Could not read the HTTPS key or certificate file.");
+        console.log("Paths were '" + keyPath + "' and '" + certPath + "'.");
+        console.log("You must set properties 'key' and 'cert' inside 'sslOptions'.");
+        process.exit(1);
+    }
+    server = https.createServer(sslOptionsObject, requestHandler);
 } else {
     server = http.createServer(requestHandler);
 }
