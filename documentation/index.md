@@ -163,7 +163,9 @@ following parameters:
   has to handle (it's not enough that the URL path in the request
   matches the `path` property, because there could be another head
   before handling the request --see "Dispatching requests"). This
-  function must always call `res.end()` to end the request.
+  function must always call `res.end()` to end the request, either
+  explicitly or implicitly (eg. by passing the `res` object to the
+  `next` function).
 * `detached` (optional): a *boolean* specifying if the head should be
   detached when starting RoboHydra. If this is true, RoboHydra will
   behave as if the head wasn't there. Heads can be detached and
@@ -200,15 +202,16 @@ as part of the regular expression. These expressions will match any
 URL path fragment, and the matched contents will be available in the
 `params` object in the request object. For example, if you have a head
 for path `/articles/:articleid/view` and you receive a request for
-`/articles/introduction-to-hydra/view`, the request object will have a
-`params` property with a single property, `articleid` with value
-`introduction-to-hydra`.
+`/articles/introduction-to-robohydra/view`, the request object will
+have a `params` property with a single property, `articleid` with
+value `introduction-to-robohydra`.
 
 When you use the `next` function in a RoboHydra head (see
-documentation below), you sometimes want to pass a mock request so you
-can modify it before sending further to the next head. To create a
-mock request, simply call the constructor with an object containing
-the request properties. Valid properties for that object are:
+documentation below), you sometimes want to modify the request before
+sending it further to the next head. You can modify the request in
+place before calling `next`, or simply create a new mock request with
+the `Request` class. To do the latter, call the constructor with an
+object containing the request properties. Valid properties are:
 
 * `url`: the URL path of the request.
 * `method`: `GET`, `POST`, etc. defaults to `GET`.
@@ -238,17 +241,17 @@ response object has the following API:
 
 When you use the `next` function in a RoboHydra head (see
 documentation below), you often want to pass a mock response so you
-can inspect or modify it before sending back to the client. In that
+can inspect or modify it before sending it back to the client. In that
 case you will be interested in these other API methods methods:
 
-* The constructor: It receives one optional parameter, the event
-  listener for the `end` event (see the `on` method and event
-  documentation below). Here you would typically inspect or modify the
-  mock response (`this` in the function always points to the mock
-  response object), then write data to your own response object,
-  possibly with the help of the methods below. If you don't pass any
-  parameters, you can add your own event listeners with the `on`
-  method.
+* `Response` class constructor: It receives one optional parameter,
+  the event listener for the `end` event (see the `on` method and
+  event documentation below). Here you would typically inspect or
+  modify the mock response (`this` in the function always points to
+  the mock response object), then write data to your own response
+  object, possibly with the help of the methods below. If you don't
+  pass any parameters, you can add your own event listeners with the
+  `on` method.
 * `on`: It attaches event listeners to the response object. It
   receives an event name (see event list below) and a callback
   function. The callback function will receive a single parameter,
@@ -265,9 +268,9 @@ case you will be interested in these other API methods methods:
   extra event listeners for extra processing or logging.
 * `copyFrom`: It receives a response as a parameter and copies the
   data in the parameter to the current response
-  (eg. `res.copyFrom(res2)` copies the information in `res2` into
-  `res`). It's intended to be used when `res2` is finished and won't
-  change again. Thus, it breaks streaming.
+  (eg. `res.copyFrom(res2)` copies `res2` into `res`). It's intended
+  to be used when `res2` is finished and won't change again. Thus, it
+  breaks streaming.
 * `forward`: It receives a response as a parameter and forwards it as
   if that had been the original response. In other words,
   `res.forward(res2)` is equivalent to `res.copyFrom(res2);

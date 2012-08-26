@@ -41,7 +41,7 @@ head:
                 new RoboHydraHead({
                     path: '/assets/.*',
                     handler: function(req, res, next) {
-                        req.url = req.url.replace(new RegExp("\.v[0-9]\+"), "");
+                        req.url = req.url.replace(new RegExp("\\.v[0-9]+"), "");
                         next(req, res);
                     }
                 }),
@@ -68,13 +68,12 @@ working as before, and will keep working even if DuckDuckGo changes
 the version number in the URLs.
 
 But what about tweaking the response we get from some other head?
-That's interesting, too. Let's turn "DuckDuckGo" in the page title
-into "Duck… Duck… Go!". To do that, we have to create another head
-before the `RoboHydraHeadProxy`. This new head will call the proxying
-head with the `next` function, but passing a fake response
-object. Then it will tweak the body of that response, _then_ return
-that tweaked response. It sounds complicated, but the code is simple
-enough:
+That's interesting, too. Let's turn "Real" (in "Real Privacy" at the
+bottom) into "REAL". To do that, we have to create another head before
+the `RoboHydraHeadProxy`. This new head will call the proxying head
+with the `next` function, but passing a fake response object. Then it
+will tweak the body of that response, _then_ return that tweaked
+response. It sounds complicated, but the code is simple enough:
 
     // This at the top of the file
     var Response = require("robohydra").Response;
@@ -85,15 +84,15 @@ enough:
     new RoboHydraHead({
         path: '/',
         handler: function(req, res, next) {
-            var fakeRes = new Response(
-                function() {
-                    this.body = this.body.toString().replace(
-                        new RegExp("DuckDuckGo", "g"),
-                        "Duck… Duck… Go!"
-                    );
-                    res.forward(this);
-                }
-            );
+            var fakeRes = new Response().
+                on('end', function(evt) {
+                    evt.response.body =
+                        evt.response.body.toString().replace(
+                            new RegExp("Real", "g"),
+                            "REAL"
+                        );
+                    res.forward(evt.response);
+                });
     
             // Avoid compressed responses to avoid having to
             // uncompress before processing
@@ -109,6 +108,23 @@ response. Also, note how we remove the "Accept-Encoding" header from
 the request before proxying it: this is to avoid that the response
 comes compressed. We could have also received the normal request and
 uncompress it, but this is simpler for this example.
+
+In fact, this is a relatively common thing to do, so there's a head
+for specifically this purpose: `RoboHydraHeadFilter`. Using this head,
+you don't have to care about compression in the server response, and
+the code is much more compact and readable. A new version of the above
+head using `RoboHydraHeadFilter` could be:
+
+    new RoboHydraHeadFilter({
+        path: '/',
+        filter: function(body) {
+            return body.toString().replace(
+                            new RegExp("Real", "g"),
+                            "REAL"
+                        );
+        }
+    })
+
 
 
 Test suites

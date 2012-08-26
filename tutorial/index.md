@@ -175,7 +175,8 @@ Other handy kinds of heads
 --------------------------
 
 Apart from `RoboHydraHeadStatic` and the generic `RoboHydraHead`,
-there are two other head classes: `RoboHydraHeadFilesystem` and
+there are other, more specific head classes. In this section we will
+see two of them in action: `RoboHydraHeadFilesystem` and
 `RoboHydraHeadProxy`. As you can guess, the former serves static files
 from the filesystem, while the latter proxies requests to another URL.
 
@@ -191,7 +192,7 @@ the common, development server.
 
 Let's demonstrate this with a simple example. Let's say you use
 DuckDuckGo as your search engine, but want to keep [Adam Yauch's
-tribute logo]({{ site.url }}/downloads/logo_homepage.normal.v101.png)
+tribute logo]({{ site.url }}/downloads/logo_homepage.normal.v102.png)
 as the homepage logo. One way to do this is to grab a copy of the logo
 (the one linked in the previous sentence) and the [search box
 icon]({{ site.url }}/downloads/search_dropdown_homepage.v102.png),
