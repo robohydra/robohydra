@@ -1280,10 +1280,26 @@ describe("Response object", function() {
     it("doesn't write an empty body when copying responses", function() {
         var r1 = new Response(function() {});
         r1.write = this.spy();
-        var r2 = new Response();
+        var r2 = new Response(function() {});
 
         r2.statusCode = 200;
+        r2.end();
         r1.copyFrom(r2);
+        r1.end();
         expect(r1.write).not.toHaveBeenCalled();
+    });
+
+    it("doesn't break streaming when using copyFrom", function() {
+        var dataSpy = this.spy();
+        var r1 = new Response().on('data', dataSpy).on('end', function() {});
+        r1.write = this.spy();
+        var r2 = new Response(function() {});
+
+        r2.write("foobar");
+        r2.end();
+        r1.copyFrom(r2);
+        expect(dataSpy).not.toHaveBeenCalled();
+        r1.end();
+        expect(dataSpy).toHaveBeenCalledOnce();
     });
 });
