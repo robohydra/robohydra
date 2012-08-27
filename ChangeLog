@@ -30,7 +30,7 @@ Version 0.3
 	* Admin UI: now filesystem and proxy heads can be created
 	dynamically from the web UI; URL paths for dynamically-created
 	static content heads will now match GET parameters; the path
-	debugger will highlight now *all* matching heads, not just the
+	debugger will now highlight *all* matching heads, not just the
 	first one; the admin plugin is not shown on the list of heads
 	anymore (see the source for details if you really want to show
 	them).
