@@ -15,7 +15,8 @@ var heads                   = require("../lib/heads"),
     RoboHydraHeadStatic     = heads.RoboHydraHeadStatic,
     RoboHydraHeadFilesystem = heads.RoboHydraHeadFilesystem,
     RoboHydraHeadProxy      = heads.RoboHydraHeadProxy,
-    RoboHydraHeadFilter     = heads.RoboHydraHeadFilter;
+    RoboHydraHeadFilter     = heads.RoboHydraHeadFilter,
+    RoboHydraHeadWatchdog   = heads.RoboHydraHeadWatchdog;
 
 buster.spec.expose();
 
@@ -1137,6 +1138,186 @@ describe("RoboHydra filtering heads", function() {
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             expect(res.statusCode).toEqual(500);
             done();
+        });
+    });
+});
+
+describe("RoboHydra watchdog heads", function() {
+    it("can't be created without a watcher", function() {
+        expect(function() {
+            var head = new RoboHydraHeadWatchdog({
+                path: '/.*'
+            });
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("can be created without a reporter", function() {
+        expect(function() {
+            var head = new RoboHydraHeadWatchdog({
+                watcher: function() { return true; }
+            });
+        }).not.toThrow();
+    });
+
+    it("complain if watcher is not a function", function() {
+        expect(function() {
+            var head = new RoboHydraHeadWatchdog({
+                watcher: 'not a function'
+            });
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("complain if reporter is there but is not a function", function() {
+        expect(function() {
+            var head = new RoboHydraHeadWatchdog({
+                watcher: function() {},
+                reporter: 'not a function'
+            });
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("match all paths by default", function(done) {
+        var spy = this.spy();
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function() { return true; },
+            reporter: spy
+        });
+
+        var fakeRes = new Response().on('end', function() {
+            expect(spy).toHaveBeenCalledOnce();
+            done();
+        });
+        head.handle(simpleReq('/madeuppath'), fakeRes, function(req, res) {
+            res.end();
+        });
+    });
+
+    it("don't do anything if the watcher returns false", function(done) {
+        var spy = this.spy();
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function() { return false; },
+            reporter: spy
+        });
+
+        var res = new Response().on('end', done);
+        head.handle(simpleReq('/madeuppath'), res, function(req, res) {
+            expect(spy).not.toHaveBeenCalled();
+            res.end();
+        });
+    });
+
+    it("pass the request to the watcher", function(done) {
+        var path = '/some/path';
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function(req) {
+                expect(req.url).toEqual(path);
+                return req.url === path;
+            },
+            reporter: function() {}
+        });
+
+        var res = new Response(done);
+        head.handle(simpleReq(path), res, function(req, res) { res.end(); });
+    });
+
+    it("pass the response to the watcher", function(done) {
+        var content = "Some random content";
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function(req, res) {
+                expect(res.body.toString()).toEqual(content);
+            },
+            reporter: function() {}
+        });
+
+        var res = new Response(done);
+        head.handle(simpleReq('/'), res, function(req, res) {
+            res.send(content);
+        });
+    });
+
+    it("automatically uncompress gzip'ed response bodies", function(done) {
+        var content = "Some random (but initially compressed) content";
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function(req, res) {
+                expect(res.body.toString()).toEqual(content);
+            },
+            reporter: function() {}
+        });
+
+        zlib.gzip(content, function(err, data) {
+            if (err) { throw new Error("WTF DUDE"); }
+
+            var res = new Response(done);
+            head.handle(simpleReq('/'), res, function(req, res) {
+                res.headers['content-encoding'] = 'gzip';
+                res.send(data);
+            });
+        });
+    });
+
+    it("automatically uncompress deflated response bodies", function(done) {
+        var content = "Some random (but initially deflated) content";
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function(req, res) {
+                expect(res.body.toString()).toEqual(content);
+            },
+            reporter: function() {}
+        });
+
+        zlib.deflate(content, function(err, data) {
+            if (err) { throw new Error("WTF DUDE"); }
+
+            var res = new Response(done);
+            head.handle(simpleReq('/'), res, function(req, res) {
+                res.headers['content-encoding'] = 'deflate';
+                res.send(data);
+            });
+        });
+    });
+
+    it("always have raw response bodies available", function(done) {
+        var content = "Some random (but initially deflated) content";
+
+        zlib.deflate(content, function(err, data) {
+            if (err) { throw new Error("WTF DUDE"); }
+
+            var head = new RoboHydraHeadWatchdog({
+                watcher: function(req, res) {
+                    expect(res.body.toString()).toEqual(content);
+                    expect(res.rawBody.toString('base64')).toEqual(data.toString('base64'));
+                },
+                reporter: function() {}
+            });
+
+            var res = new Response(done);
+            head.handle(simpleReq('/'), res, function(req, res) {
+                res.headers['content-encoding'] = 'deflate';
+                res.send(data);
+            });
+        });
+    });
+
+    it("pass the same response to the reporter", function(done) {
+        var path = 'random/path';
+        var content = "Some random (but initially deflated) content";
+
+        zlib.deflate(content, function(err, data) {
+            if (err) { throw new Error("WTF DUDE"); }
+
+            var head = new RoboHydraHeadWatchdog({
+                watcher: function(req, res) { return true; },
+                reporter: function(req, res) {
+                    expect(req.url).toEqual(path);
+                    expect(res.body.toString()).toEqual(content);
+                    expect(res.rawBody.toString('base64')).toEqual(data.toString('base64'));
+                }
+            });
+
+            var res = new Response(done);
+            head.handle(simpleReq(path), res, function(req, res) {
+                res.headers['content-encoding'] = 'deflate';
+                res.send(data);
+            });
         });
     });
 });
