@@ -1192,6 +1192,20 @@ describe("RoboHydra watchdog heads", function() {
         });
     });
 
+    it("work with a default reporter if none given", function(done) {
+        var head = new RoboHydraHeadWatchdog({
+            watcher: function() { return false; }
+        });
+
+        var fakeRes = new Response().on('end', function(evt) {
+            expect(head.reporter).toBeFunction();
+            done();
+        });
+        head.handle(simpleReq('/madeuppath'), fakeRes, function(req, res) {
+            res.end();
+        });
+    });
+
     it("don't do anything if the watcher returns false", function(done) {
         var spy = this.spy();
         var head = new RoboHydraHeadWatchdog({
