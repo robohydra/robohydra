@@ -320,8 +320,8 @@ Other kinds of heads
 --------------------
 Apart from the generic RoboHydra head, there are other classes of
 heads available. Namely, `RoboHydraHeadStatic`,
-`RoboHydraHeadFilesystem`, `RoboHydraHeadProxy` and
-`RoboHydraHeadFilter`.
+`RoboHydraHeadFilesystem`, `RoboHydraHeadProxy`,
+`RoboHydraHeadFilter` and `RoboHydraHeadWatchdog`.
 
 
 ### RoboHydraHeadStatic
@@ -399,7 +399,7 @@ This head filters a request processed by another head. It has the
 following properties:
 
 * `path` (optional): the regular expression matching URL paths to be
-  handled by this head. Defaults to `/` if not present.
+  handled by this head. Defaults to `/.*` if not present.
 * `filter`: a function receiving a `Buffer` object with the response
   body and returning the filtered response to be sent back to the
   client. The returned value can be either a string or another
@@ -412,6 +412,28 @@ documentation). When the response comes back from the next head, the
 given `filter` function (transparently uncompressing and compressing
 back if necessary, and also updating the `Content-Length` header, if
 present) and send that as a response.
+
+
+### RoboHydraHeadWatchdog
+This head acts as a watchdog, looking for requests/responses matching
+certain criteria and executing a given action. It has the following
+properties:
+
+* `path` (optional): the regular expression matching URL paths to be
+  handled by this head. Defaults to `/.*` if not present.
+* `watcher`: a function receiving the `Request` and `Response` objects
+  for every request. If this function returns true, the `reporter`
+  function will be executed.
+* `reporter` (optional): a function receiving the `Request` and
+  `Response` objects for the requests that make `watcher` return true.
+
+This head will look for "interesting" request/responses (by checking
+if the `watcher` function returns true), and when finding one, it will
+execute a given action (the `reporter` function; by default, printing
+some extra output to the console). Note that both these functions will
+receive a special `Response` object that guarantees that its `body`
+property is always uncompressed. If you need the original (whether it
+was compressed or not), you can check the `rawBody` property.
 
 
 Taming the RoboHydra programmatically
