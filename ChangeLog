@@ -32,6 +32,12 @@ Version 0.3
 	uncompress and compress back any compressed responses. See the
 	documentation for more details.
 
+	* New RoboHydraHeadWatchdog head: it allows you to watch the
+	traffic for a certain pattern, and act when that pattern is
+	found. For example, you might want to log responses containing a
+	given text separately. It will transparently uncompress to make it
+	easier to inspect response bodies.
+
 	* Make heads more strict: heads will complain now about any
 	properties they don't understand.
 
