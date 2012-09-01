@@ -974,17 +974,18 @@ describe("RoboHydra test system", function() {
         );
     });
 
-    it("doesn't run the code after an assertion failure", function(done) {
+    it("simply returns false on assertion failure", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did NOT)";
-        var executesAfterAssertion = false;
+        var executesAfterAssertion = false, testResult = null;
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
                 new RoboHydraHead({
                     path: '/',
                     handler: function(req, res) {
-                        hydra.getModulesObject().assert.equal(0, 1);
+                        testResult =
+                            hydra.getModulesObject().assert.equal(0, 1);
                         executesAfterAssertion = true;
                         res.end();
                     }
@@ -993,23 +994,25 @@ describe("RoboHydra test system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(executesAfterAssertion).toBeFalsy();
+                expect(executesAfterAssertion).toBeTrue();
+                expect(testResult).toBeFalse();
                 done();
             })
         );
     });
 
-    it("does run code after an assertion pass", function(done) {
+    it("returns true on assertion pass", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
-        var executesAfterAssertion = false;
+        var executesAfterAssertion = false, testResult = null;
         hydra.registerPluginObject({
             name: 'plugin',
             heads: [
                 new RoboHydraHead({
                     path: '/',
                     handler: function(req, res) {
-                        hydra.getModulesObject().assert.equal(1, 1);
+                        testResult =
+                            hydra.getModulesObject().assert.equal(1, 1);
                         executesAfterAssertion = true;
                         res.end();
                     }
@@ -1018,7 +1021,8 @@ describe("RoboHydra test system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(executesAfterAssertion).toBeTruthy();
+                expect(executesAfterAssertion).toBeTrue();
+                expect(testResult).toBeTrue();
                 done();
             })
         );

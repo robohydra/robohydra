@@ -1,6 +1,14 @@
 Version 0.3
 -----------
 
+	* Potentially breaking change: assertion failures won't throw
+	exceptions from now on. Instead, they will simply return
+	false. This means that code after a failed assertion *does get
+	executed* in RoboHydra 0.3. Most of the time this is exactly what
+	you want. Moreover, it's much easier to simulate the old behaviour
+	in RoboHydra 0.3, in the very few cases you might need it, than
+	simulate the new behaviour with RoboHydra 0.2.
+
 	* Streaming support: calls to the "write" method will be written
 	immediately, even when chaining requests (when setup
 	properly). This allows sending data in chunks, or sending data and
