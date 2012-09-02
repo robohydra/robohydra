@@ -275,18 +275,27 @@ new test, `nonAsciiSearchTerm`, with the following definition:
                         new RoboHydraHead({
                             path: '/foo',
                             handler: function(req, res) {
-                                // Use req.getParams.q in RoboHydra <= 0.2
-                                assert.equal(req.queryParams.q,
-                                             "blåbærsyltetøy",
-                                             "Character encoding should be ok");
-    
                                 res.headers['content-type'] =
                                     'application/json; charset=utf-8';
-                                res.send(JSON.stringify({
-                                    "success": true,
-                                    "results": [{"url":   "http://example.com",
-                                                 "title": "Blåbærsyltetøy'r us"}]
-                                }));
+
+                                // Only for RoboHydra >= 0.3
+                                if (assert.equal(
+                                    req.queryParams.q,
+                                    "blåbærsyltetøy",
+                                    "Character encoding should be ok")
+                                   ) {
+                                       res.send(JSON.stringify({
+                                           success: true,
+                                           results: [
+                                               {"url":   "http://example.com",
+                                                "title": "Blåbærsyltetøy'r us"}
+                                           ]}));
+                                } else {
+                                    res.send(JSON.stringify({
+                                        success: false,
+                                        results: []
+                                    }));
+                                }
                             }
                         })
                     ]
@@ -300,19 +309,22 @@ Note that now the `getBodyParts` function accepts a second parameter,
 as its properties. The only module available as of today is `assert`:
 an object with all the functions in the standard, [`assert`
 module](http://nodejs.org/docs/latest/api/assert.html) from Node. This
-version, though, is special for RoboHydra and allows RoboHydra to
-fetch the results.
+version, though, is special in two ways: first, it's tied to the
+server, which allows RoboHydra to fetch the results; second, test
+failures won't throw an exception, but instead return false. This
+behaviour is much more useful because it allows you to respond with
+whatever content you want in case of failure.
 
 Now, if you start the `nonAsciiSearchTerm` test and make a request
 with the wrong string
 (eg. [http://localhost:3000/foo?q=blaabaersyltetoy](http://localhost:3000/foo?q=blaabaersyltetoy)),
-you'll get an error response and see the test failure in the [test
+you'll get an error response, and see the test failure in the [test
 index page](http://localhost:3000/robohydra-admin/tests). If you send
 the correct string
 (eg. [http://localhost:3000/foo?q=blåbærsyltetøy](http://localhost:3000/foo?q=blåbærsyltetøy)),
-you'll see the one-result response and the test pass in the test index
-page. In case you want to access this information in an automated
-fashion, you can get the results in JSON format at the URL
+however, you'll see the one-result response and the test pass in the
+test index page. In case you want to access this information in an
+automated fashion, you can get the results in JSON format at the URL
 [http://localhost:3000/robohydra-admin/tests/results.json](http://localhost:3000/robohydra-admin/tests/results.json).
 
 And this is the end of the advanced RoboHydra tutorial. Now you have
