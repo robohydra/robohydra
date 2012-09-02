@@ -1,5 +1,8 @@
-Version 0.3
------------
+Next
+----
+
+Version 0.3 (2012-09-02)
+------------------------
 
 	* Potentially breaking change: assertion failures won't throw
 	exceptions from now on. Instead, they will simply return
