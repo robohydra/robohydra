@@ -17,7 +17,7 @@ var robohydra = require('../lib/robohydra'),
 var RoboHydraPluginNotFoundException =
         robohydra.RoboHydraPluginNotFoundException;
 
-commander.version('0.3.0').
+commander.version('0.3.0+').
     usage("mysetup.conf [confvar=value confvar2=value2 ...]").
     option('-I <path>', 'Adds a new path in the plugin search path list').
     option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
