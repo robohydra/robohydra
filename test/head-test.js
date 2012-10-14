@@ -196,6 +196,12 @@ describe("Static content RoboHydra heads", function() {
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
+    it("can't be created with extra, unknown properties", function() {
+        expect(function() {
+            var head = new RoboHydraHeadStatic({madeUpProperty: true});
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
     it("can be created with only static content", function(done) {
         var text = 'static content';
         var head = new RoboHydraHeadStatic({content: text});
