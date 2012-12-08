@@ -82,6 +82,24 @@ To get started, go read the [basic tutorial](tutorial) and the more
 [advanced tutorial](tutorial/advanced). You will also find examples in
 the [use cases](usecases) section.
 
+[Dev Opera](http://dev.opera.com) published three articles on
+RoboHydra that serve as tutorials for different RoboHydra use cases:
+
+1. [Robohydra: a new testing tool for client-server
+interactions](http://dev.opera.com/articles/view/robohydra-a-new-testing-tool-for-client-server-interactions/)
+serves as a general introduction and covers how to build a simple
+development proxy for front-end developers.
+
+2. [Using RoboHydra as a mock
+server](http://dev.opera.com/articles/view/using-robohydra-as-a-mock-server/)
+covers how to use RoboHydra to build mock servers that help you
+reproduce bugs and build a functional testsuite.
+
+3. [RoboHydra: advanced
+techniques](http://dev.opera.com/articles/view/robohydra-advanced-techniques/)
+covers advanced techniques that can be applied to any kind of
+RoboHydra server.
+
 You also have [reference documentation](documentation) available. The
 sources don't have embedded documentation (yet), but most of what you
 need is described in the pages above, and the rest you can read in the
