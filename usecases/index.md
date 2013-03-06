@@ -8,25 +8,41 @@ RoboHydra can be used in many different ways. It's closer to a "swiss
 army knife of client testing" than a very specific testing tool with a
 single purpose. Thus, it can be at first hard to tell whether or not
 RoboHydra can help you do what you want. The following is a list of
-usecases and examples of what RoboHydra can do. See also the
-[examples](https://github.com/operasoftware/robohydra/tree/master/examples)
-directory in the RoboHydra distribution for sample, ready-to-use plugins.
+usecases and examples of what RoboHydra can do:
+[testsuites](#testsuites), [exploratory
+testing](#exploratory_testing), [help test race
+conditions](#testing_race_conditions), [help your front-end
+developers](#make_your_frontend_developers_lives_easier), and
+[off-line testing and prototyping](#offline_testingprototyping).
 
 Testsuites
 ----------
 
-If you have a client server application with a complex client and want
-to write a test suite specifically for the client, you can use
-RoboHydra for that. There are a couple of reasons why you might want
-to use RoboHydra instead of a real server in a test suite: often,
-interesting test cases are not easy to reproduce with a real server
-(eg. semi-broken data or combinations of server data that are
-time-consuming to set up), it might be costly or simply inconvenient
-to set up a real server (eg. you want front-end developers to execute
-the test suite, but they work on a different platform; or you need too
-many server resources to run the real thing in Continuous
-Integration), or you may prefer not to hammer the server with your
-tests if the API you're using is provided by someone else.
+Often, testing the client side of a client-server project is
+cumbersome and time-consuming:
+
+<img src="../static/img/testsuite-comic1.png" />
+
+However, what if you could easily, instantly get whatever responses
+you needed from your server, plus you could save those special
+responses so that you can recall them later? With RoboHydra, you can:
+
+<img src="../static/img/testsuite-comic2.png" />
+
+It's easy to configure a RoboHydra-based server to mimick any server
+behaviour needed to test your clients. Examples of this might be:
+
+* Testing how the client behaves when it receives a certain
+combination of valid (but possibly uncommon, cumbersome or even
+impossible to reproduce) data.
+
+* Being able to easily reproduce race conditions.
+
+* Checking how the client behaves when the server returns Internal
+Server Error or invalid data.
+
+* Simulating server connection latency when connecting to a real
+server.
 
 So, let's say you build a client of the [Opera Link
 API](http://dev.opera.com/articles/view/introducing-the-opera-link-api/)
@@ -34,8 +50,8 @@ and decide to build a test suite for it. The first step would be to
 identify what test cases are useful or interesting to test. In this
 case, let's assume that what you want is to simulate a user data store
 with one Speed Dial and two bookmarks, one of the bookmarks having the
-same URL as the Speed Dial. In that case, these two heads would do the
-job nicely:
+same URL as the Speed Dial. In that case, these two RoboHydra heads
+would do the job nicely:
 
     tests: {
         duplicateUrlInSpeeddialAndBookmark: {
@@ -110,12 +126,12 @@ all clients must ignore any attributes they don't understand. As a
 tester, it would be great to be able to test that easily and reliably
 (something the server will never return).
 
-One possibility would be to use RoboHydra as a proxy, and create heads
-dynamically using the [admin
-interface](http://localhost:3000/robohydra-admin) whenever you want to
-try something special that needs a specific response from the
-server. When you're done with the test you can detach the head from
-the RoboHydra and everything will go back to a regular proxy.
+One possibility would be to use RoboHydra as a proxy to your normal
+development server, and then create heads dynamically using the [admin
+interface](http://localhost:3000/robohydra-admin) to get specific test
+responses for certain paths (say, temporarily override path
+`/api/widgets/1` to show some special testing data instead of whatever
+your development server replies with).
 
 
 Testing race conditions
@@ -190,74 +206,5 @@ intranet and don't have access to a VPN, etc. In those cases,
 RoboHydra can be used to save the traffic sent by the server, and then
 replay it whenever you don't have access to the internet.
 
-There's no off-the-shelf RoboHydra plugin for this yet, but it's not
-hard to build one according to your needs. For example, you could have
-a plugin with two heads: one to save all the traffic, and another to
-respond back with the data in the same order. Before reading the code,
-note two things: first, both heads are disabled by default and you
-have to manually enable them from the admin interface; second, the
-"replayer" head simply returns all responses in the same order,
-regardless of the request URL, which is likely *not* what you want in
-many situations. That said, the code could look like this:
-
-        new RoboHydraHead({
-            name:    'recorder',
-            path:    '/.*',
-            detached: true,
-            handler: function(req, res, next) {
-                next(req, new Response(
-                    function() {
-                        // Collect the responses in a variable and
-                        // overwrite the traffic file every time
-                        currentTrafficData.push({
-                            statusCode: this.statusCode,
-                            headers: this.headers,
-                            body: this.body.toString('base64')
-                        });
-                        fs.writeSync(trafficFileFd,
-                                     JSON.stringify(currentTrafficData),
-                                     0);
-
-                        // Forward the original response as is
-                        res.forward(this);
-                    }
-                ));
-            }
-        }),
-
-        new RoboHydraHead({
-            name:    'replayer',
-            path:    '/.*',
-            detached: true,
-            handler: function(req, res, next) {
-                next(req, new Response(
-                    function() {
-                        var currentResponse = currentTrafficData[index];
-                        index = ((index + 1) % currentTrafficData.length);
-                        res.statusCode = currentResponse.statusCode;
-                        res.headers    = currentResponse.headers;
-                        res.send(new Buffer(currentResponse.body, 'base64'));
-                    }
-                ));
-            }
-        }),
-
-        // Some proxying head here
-
-See an implementation of this idea in [`examples/plugins/replayer/index.js`](https://github.com/operasoftware/robohydra/blob/master/examples/plugins/replayer/index.js).
-
-
-
-Logging traffic to help investigate issues
-------------------------------------------
-
-Sometimes it's useful to have a log of all traffic between the client
-and the server. If so, you can use RoboHydra as a proxy while keeping
-a log of all traffic sent between the client and the server. It would
-be a bit like an easier-to-use wireshark. You could decide to turn
-logging on and off, or to turn it on only for certain paths.
-
-The technique used for this is very similar to the one used for the
-previous example (in the "recorder" head), but you can see a full
-implementation in
-[`examples/plugins/logger/index.js`](https://github.com/operasoftware/robohydra/blob/master/examples/plugins/logger/index.js).
+RoboHydra comes with a simple _replayer_ plugin for this (see the
+[screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM)).

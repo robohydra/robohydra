@@ -5,82 +5,29 @@ RoboHydra HTTP client test tool
 ===============================
 
 RoboHydra is a web server designed to help you test any kind of
-HTTP-based client. It could be a GUI that uses a public API, a mobile
-application that communicates with some server in order to retrieve
-information, a complex Javascript front-end application that uses the
-server mostly as a data store, or many other things.
+HTTP-based client: GUIs that use a public API, mobile applications
+that communicate with some server in order to retrieve information,
+complex Javascript front-ends that use the server mostly as a data
+store, etc.
 
-In these situations, RoboHydra allows you to easily make custom "mock"
-servers with little effort, be it to build a test suite, easily
-reproduce problems while fixing bugs, or to help with exploratory
-testing. These capabilities can _also_ be combined with proxying in
-several useful ways (eg. helping web developers write the front-end
-code for a project without the need to install a full backend; see the
-[second screencast](http://www.youtube.com/watch?v=dR-XDogJ8b8) for an
-example of this).
-
-RoboHydra is easy to configure to return the responses you want,
-mimicking any server behaviour needed to test your clients. Examples
-of this might be:
-
-* Testing how the client behaves when it receives a certain
-combination of valid (but possibly uncommon or cumbersome to
-reproduce) data.
-
-* Being able to easily reproduce race conditions.
-
-* Checking how the client behaves when the server returns Internal
-Server Error or invalid data.
-
-* Simulating server connection latency when connecting to a real
-server.
+RoboHydra allows you to easily build custom "mock" servers with little
+effort, be it to build a test suite or easily reproduce problems while
+fixing bugs. You can even add functionality to your RoboHydra-based
+server via its web interface, which is very useful when doing
+exploratory testing of your client. All these capabilities can _also_
+be combined with proxying in several useful ways.
 
 For more information about the different ways in which you can use
-RoboHydra, have a look at the [use cases](usecases) and the
-[screencasts](http://www.youtube.com/user/robohydra/videos).
-
-Screencasts
-===========
-
-You can see all screencasts in the [RoboHydra YouTube
-channel](http://www.youtube.com/user/robohydra/videos). For
-more in-depth information see the tutorials and the reference
-documentation in the "[Documentation](#documentation)" section below.
-
-This has an introduction to RoboHydra and an example of how to use it
-to test a client of a public API
-([memegenerator.net](http://version1.api.memegenerator.net/) in this
-case):
-
-<iframe width="420" height="315"
-src="http://www.youtube.com/embed/ZlCqa0mbd4g" frameborder="0"
-allowfullscreen="allowfullscreen">Screencast #1: Intro and public API
-client testing</iframe>
-
-This is about using RoboHydra to develop web application front-ends,
-and shows how to make a simple plugin from scratch:
-
-<iframe width="420" height="315"
-src="http://www.youtube.com/embed/dR-XDogJ8b8" frameborder="0"
-allowfullscreen="allowfullscreen">Screencast #2: Using RoboHydra to
-develop web application front-ends, writing a simple plugin</iframe>
-
-This one shows the plugins that come with the RoboHydra distribution:
-replayer (a plugin to record and replay data from a real server),
-logger (a detailed log file generator), and no-caching (removes client
-caching headers before processing requests):
-
-<iframe width="420" height="315"
-src="http://www.youtube.com/embed/tuEOSoi0RFM" frameborder="0"
-allowfullscreen="allowfullscreen">RoboHydra screencast #3: standard
-plugins (replayer, logger and no-caching)</iframe>
+RoboHydra, have a look at the [use cases](usecases) (now includes a
+comic!).
 
 Documentation
 =============
 
 To get started, go read the [basic tutorial](tutorial) and the more
-[advanced tutorial](tutorial/advanced). You will also find examples in
-the [use cases](usecases) section.
+[advanced tutorial](tutorial/advanced). There are also a number of
+screencasts in the [RoboHydra YouTube
+channel](http://www.youtube.com/user/robohydra/videos).
 
 [Dev Opera](http://dev.opera.com) published three articles on
 RoboHydra that serve as tutorials for different RoboHydra use cases:
@@ -131,7 +78,7 @@ YouTube](http://www.youtube.com/user/robohydra/videos).
 License and copyright
 =====================
 
-This code is Copyright 2012 Esteban Manchado Velázquez, and it's
+This code is Copyright 2012-2013 Esteban Manchado Velázquez, and it's
 released under the [Apache 2.0
 license](http://www.apache.org/licenses/LICENSE-2.0.txt). Jacob Rask
 did all the CSS for the admin interface (and I stole it for this
