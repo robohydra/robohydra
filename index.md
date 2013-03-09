@@ -70,9 +70,12 @@ Updates
 =======
 
 For updates and announcements related to this project, follow
-[@robohydra](https://twitter.com/robohydra) on Twitter, watch project
-[robohydra on GitHub](https://github.com/operasoftware/robohydra) or
-subscribe to the [RoboHydra channel on
+[@robohydra](https://twitter.com/robohydra) on Twitter, subscribe to
+the [development group on Google
+Groups](https://groups.google.com/forum/?hl=es&fromgroups#!forum/robohydra),
+watch project [robohydra on
+GitHub](https://github.com/operasoftware/robohydra) or subscribe to
+the [RoboHydra channel on
 YouTube](http://www.youtube.com/user/robohydra/videos).
 
 License and copyright
