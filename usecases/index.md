@@ -127,11 +127,23 @@ tester, it would be great to be able to test that easily and reliably
 (something the server will never return).
 
 One possibility would be to use RoboHydra as a proxy to your normal
-development server, and then create heads dynamically using the [admin
-interface](http://localhost:3000/robohydra-admin) to get specific test
-responses for certain paths (say, temporarily override path
-`/api/widgets/1` to show some special testing data instead of whatever
-your development server replies with).
+development or production server, and then create heads dynamically using
+the [admin interface](http://localhost:3000/robohydra-admin) to get
+specific test responses for certain paths (say, temporarily override
+path `/api/widgets/1` to show some special testing data instead of
+whatever your development or production server replies with).
+
+Or imagine you're testing a mobile application that sends the high
+scores to a server. There are many situations that are not necessarily
+easy to test if you use the real server:
+
+<img src="../static/img/exploratory-comic1.png" />
+
+By using RoboHydra as a server, though, many of those cases become
+very easy to test. More freedom for exploratory testing, happier
+testers and more reliable software:
+
+<img src="../static/img/exploratory-comic2.png" />
 
 
 Testing race conditions
