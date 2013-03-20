@@ -191,6 +191,8 @@ dependencies, front-end developers not familiar with the language or
 environment you're using for the back-end, etc.), RoboHydra might be
 helpful.
 
+<img src="../static/img/frontend-comic1.png" />
+
 One possiblity is to prepare a very simple RoboHydra plugin that
 serves the front-end files from the local disk, while all other paths
 are proxied. That would allow you to have a single development
@@ -206,7 +208,9 @@ do the trick:
                    new RoboHydraHeadProxy({
                        mountPath: '/',
                        proxyTo: 'http://dev.myapp.example.com'
-                   }),
+                   })
+
+<img src="../static/img/frontend-comic2.png" />
 
 
 Offline testing/prototyping
