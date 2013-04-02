@@ -2,3 +2,4 @@ node_modules
 .*.swp
 robohydra.log
 robohydra-replayer.json
+tmp/
