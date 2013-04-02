@@ -1067,6 +1067,62 @@ describe("RoboHydra test system", function() {
     });
 });
 
+describe("Fixture system", function() {
+    before(function() {
+        this.hydra = new RoboHydra();
+        var rootDir = __dirname + '/fixture-module-fs';
+        var plugin = this.hydra.requirePlugin('simple-fixtures',
+                                              {},
+                                              {rootDir: rootDir});
+        this.hydra.registerPluginObject(plugin);
+    });
+
+    it("can load basic fixtures", function(done) {
+        this.hydra.handle(simpleReq('/fixtures/basic.txt'),
+                          new Response(function() {
+                              expect(this.body.toString()).toMatch(
+                                  new RegExp('Simple fixture'));
+                              done();
+                          }));
+    });
+
+    it("fails when the fixture doesn't exist", function(done) {
+        this.hydra.handle(simpleReq('/fixtures/non-existent'),
+                          new Response(function() {
+                              expect(this.statusCode).toEqual(500);
+                              done();
+                          }));
+    });
+
+    it("loads non-ASCII fixtures", function(done) {
+        this.hydra.handle(simpleReq('/fixtures/non-ascii.txt'),
+                          new Response(function() {
+                              expect(this.body.toString()).toEqual(
+                                  'Velázquez\n');
+                              done();
+                          }));
+    });
+
+    it("doesn't try to load fixtures from other directories", function(done) {
+        this.hydra.handle(simpleReq('/absolute-directory-fixture'),
+                          new Response(function() {
+                              expect(this.body.toString()).toEqual(
+                                  'This is a fake /etc/passwd\n');
+                              done();
+                          }));
+    });
+
+    it("doesn't allow leaving the fixture directory", function(done) {
+        this.hydra.handle(simpleReq('/relative-directory-fixture'),
+                          new Response(function() {
+                              expect(this.body.toString()).toEqual(
+                                  'This is a fake /etc/passwd\n');
+                              done();
+                          }));
+    });
+});
+
+
 describe("Response object", function() {
     it("can't be used without an 'end' handler", function() {
         var r = new Response();
