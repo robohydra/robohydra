@@ -1,3 +1,13 @@
-exports.getBodyParts = function() {};
+var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic;
 
-exports.testProperty = '/opt version';
+exports.getBodyParts = function(conf) {
+    return {
+        heads: [
+            new RoboHydraHeadStatic({
+                name: conf.path,
+                path: '/.*',
+                content: '/opt version'
+            })
+        ]
+    };
+};

@@ -83,10 +83,7 @@ robohydraConfig.plugins.forEach(function(pluginDef) {
         }
     }
 
-    var pluginObject = plugin.module.getBodyParts(plugin.config,
-                                                  hydra.getModulesObject());
-    pluginObject.name = pluginName;
-    hydra.registerPluginObject(pluginObject);
+    hydra.registerPluginObject(plugin);
 
     var featureMessages = [];
     if (typeof pluginObject.heads === 'object') {

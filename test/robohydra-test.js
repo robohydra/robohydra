@@ -174,11 +174,9 @@ describe("RoboHydras", function() {
         var plugin = hydra.requirePlugin('simple',
                                          {configKey: configKeyValue},
                                          {rootDir: rootDir});
-        expect(plugin.module.testProperty).toEqual('testValue');
-        expect(plugin.module.getBodyParts).toBeFunction();
-        expect(plugin.config).toEqual({path: rootDir + '/usr/share/robohydra/plugins/simple',
-                                       robohydra: hydra,
-                                       configKey: configKeyValue});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/usr/share/robohydra/plugins/simple');
+        expect(plugin.heads[1].name).toEqual(configKeyValue);
     });
 
     it("loads plugins in the right order of preference", function() {
@@ -187,9 +185,8 @@ describe("RoboHydras", function() {
         var plugin = hydra.requirePlugin('definedtwice',
                                          {},
                                          {rootDir: rootDir});
-        expect(plugin.module.testProperty).toEqual('/usr/local version');
-        expect(plugin.config).toEqual({path: rootDir + '/usr/local/share/robohydra/plugins/definedtwice',
-                                       robohydra: hydra});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
     });
 
     it("can define own load path, and takes precedence", function() {
@@ -199,9 +196,8 @@ describe("RoboHydras", function() {
         var plugin = hydra.requirePlugin('definedtwice',
                                          {},
                                          {rootDir: rootDir});
-        expect(plugin.module.testProperty).toEqual('/opt version');
-        expect(plugin.config).toEqual({path: rootDir + '/opt/robohydra/plugins/definedtwice',
-                                       robohydra: hydra});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/opt/robohydra/plugins/definedtwice');
     });
 
     it("can define more than one load path, latest has precedence", function() {
@@ -213,9 +209,8 @@ describe("RoboHydras", function() {
         var plugin = hydra.requirePlugin('definedtwice',
                                          {},
                                          {rootDir: rootDir});
-        expect(plugin.module.testProperty).toEqual('/opt/project version');
-        expect(plugin.config).toEqual({path: rootDir + '/opt/project/robohydra-plugins/definedtwice',
-                                       robohydra: hydra});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/opt/project/robohydra-plugins/definedtwice');
     });
 
     it("can define more than one load path, first is still valid", function() {
@@ -226,9 +221,8 @@ describe("RoboHydras", function() {
         var plugin = hydra.requirePlugin('customloadpath',
                                          {},
                                          {rootDir: rootDir});
-        expect(plugin.module.testProperty).toEqual('custom plugin in /opt');
-        expect(plugin.config).toEqual({path: rootDir + '/opt/robohydra/plugins/customloadpath',
-                                       robohydra: hydra});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/opt/robohydra/plugins/customloadpath');
     });
 
     it("consider all paths 404 when there are no plugins", function() {
