@@ -158,73 +158,6 @@ describe("RoboHydras", function() {
         }).toThrow("RoboHydraPluginNotFoundException");
     });
 
-    it("fail when loading non-existent plugins", function() {
-        var hydra = new RoboHydra();
-        expect(function() {
-            hydra.requirePlugin('i-dont-exist',
-                                {},
-                                {rootDir: __dirname + '/plugin-fs'});
-        }).toThrow('RoboHydraPluginNotFoundException');
-    });
-
-    it("can load a simple plugin", function() {
-        var configKeyValue = 'config value';
-        var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('simple',
-                                         {configKey: configKeyValue},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/usr/share/robohydra/plugins/simple');
-        expect(plugin.heads[1].name).toEqual(configKeyValue);
-    });
-
-    it("loads plugins in the right order of preference", function() {
-        var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('definedtwice',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
-    });
-
-    it("can define own load path, and takes precedence", function() {
-        var hydra = new RoboHydra();
-        hydra.addPluginLoadPath('/opt/robohydra/plugins');
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('definedtwice',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/opt/robohydra/plugins/definedtwice');
-    });
-
-    it("can define more than one load path, latest has precedence", function() {
-        var hydra = new RoboHydra();
-        hydra.addPluginLoadPath('/opt/robohydra/plugins');
-        hydra.addPluginLoadPath('/opt/project/robohydra-plugins');
-
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('definedtwice',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/opt/project/robohydra-plugins/definedtwice');
-    });
-
-    it("can define more than one load path, first is still valid", function() {
-        var hydra = new RoboHydra();
-        hydra.addPluginLoadPath('/opt/robohydra/plugins');
-        hydra.addPluginLoadPath('/opt/project/robohydra-plugins');
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('customloadpath',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/opt/robohydra/plugins/customloadpath');
-    });
-
     it("consider all paths 404 when there are no plugins", function() {
         var hydra = new RoboHydra();
         hydra.handle(simpleReq('/'),
@@ -590,6 +523,115 @@ describe("RoboHydras", function() {
         }));
     });
 });
+
+describe("Plugin loader", function() {
+    it("fail when loading non-existent plugins", function() {
+        var hydra = new RoboHydra();
+        expect(function() {
+            hydra.requirePlugin('i-dont-exist',
+                                {},
+                                {rootDir: __dirname + '/plugin-fs'});
+        }).toThrow('RoboHydraPluginNotFoundException');
+    });
+
+    it("can load a simple plugin", function() {
+        var configKeyValue = 'config value';
+        var hydra = new RoboHydra();
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('simple',
+                                         {configKey: configKeyValue},
+                                         {rootDir: rootDir});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/usr/share/robohydra/plugins/simple');
+        expect(plugin.heads[1].name).toEqual(configKeyValue);
+    });
+
+    it("loads plugins in the right order of preference", function() {
+        var hydra = new RoboHydra();
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('definedtwice',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
+    });
+
+    it("can define own load path, and takes precedence", function() {
+        var hydra = new RoboHydra();
+        hydra.addPluginLoadPath('/opt/robohydra/plugins');
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('definedtwice',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/opt/robohydra/plugins/definedtwice');
+    });
+
+    it("can define more than one load path, latest has precedence", function() {
+        var hydra = new RoboHydra();
+        hydra.addPluginLoadPath('/opt/robohydra/plugins');
+        hydra.addPluginLoadPath('/opt/project/robohydra-plugins');
+
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('definedtwice',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/opt/project/robohydra-plugins/definedtwice');
+    });
+
+    it("can define more than one load path, first is still valid", function() {
+        var hydra = new RoboHydra();
+        hydra.addPluginLoadPath('/opt/robohydra/plugins');
+        hydra.addPluginLoadPath('/opt/project/robohydra-plugins');
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('customloadpath',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(plugin.heads[0].name).toEqual(
+            rootDir + '/opt/robohydra/plugins/customloadpath');
+    });
+
+    it("can load test from external files", function() {
+        var hydra = new RoboHydra();
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('external-tests-simple',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(Object.keys(plugin.tests)).toEqual(['firstTest']);
+    });
+
+    it("can load tests from both external files and main file", function() {
+        var hydra = new RoboHydra();
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('external-tests-mixed',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(Object.keys(plugin.tests).sort()).toEqual(['external',
+                                                          'internal']);
+    });
+
+    it("can load a plugin without heads, and with only external tests", function() {
+        var hydra = new RoboHydra();
+        var rootDir = __dirname + '/plugin-fs';
+        var plugin = hydra.requirePlugin('external-tests-headless',
+                                         {},
+                                         {rootDir: rootDir});
+        expect(Object.keys(plugin.tests).sort()).toEqual(['firstTest',
+                                                          'secondTest']);
+    });
+
+    it("doesn't allow internal and external tests with the same name", function() {
+        var hydra = new RoboHydra();
+        var rootDir = __dirname + '/plugin-fs';
+        expect(function() {
+            hydra.requirePlugin('external-tests-conflicting-names',
+                                {},
+                                {rootDir: rootDir});
+        }).toThrow('InvalidRoboHydraPluginException');
+    });
+});
+
 
 describe("RoboHydra test system", function() {
     it("has '*default*' as the default test", function() {
