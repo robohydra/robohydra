@@ -1162,6 +1162,16 @@ describe("Fixture system", function() {
                               done();
                           }));
     });
+
+    it("works from external tests", function(done) {
+        this.hydra.startTest('simple-fixtures', 'fixtureLoader');
+        this.hydra.handle(simpleReq('/external-test-fixture'),
+                          new Response(function() {
+                              expect(this.body.toString()).toEqual(
+                                  'Simple fixture\n');
+                              done();
+                          }));
+    });
 });
 
 
