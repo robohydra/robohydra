@@ -61,46 +61,46 @@ for (var i = 1, len = commander.args.length; i < len; i++) {
 }
 
 
-var hydra = new RoboHydra(extraVars);
-if (extraPluginLoadpath) { hydra.addPluginLoadPath(extraPluginLoadpath); }
-
-robohydraConfig.plugins.forEach(function(pluginDef) {
-    var config = {}, p;
+var pluginList = robohydraConfig.plugins.map(function(pluginDef) {
     var pluginName = typeof pluginDef === 'string' ? pluginDef : pluginDef.name;
-    var pluginConfig = pluginDef.config || {};
-    for (p in pluginConfig) { config[p] = pluginConfig[p]; }
-    for (p in extraVars) { config[p] = extraVars[p]; }
-    var plugin;
-    try {
-        plugin = hydra.requirePlugin(pluginName, config);
-    } catch(e) {
-        if (e instanceof RoboHydraPluginNotFoundException) {
-            console.log("Could not find or load plugin '" + pluginName + "'");
-            process.exit(1);
-        } else {
-            console.log("Unknown error loading plugin '" + pluginName + "'");
-            throw e;
-        }
+    var pluginSpecificConfig = pluginDef.config || {};
+    var p, pluginConfig = {};
+    for (p in pluginSpecificConfig) {
+        pluginConfig[p] = pluginSpecificConfig[p];
+    }
+    for (p in extraVars) {
+        pluginConfig[p] = extraVars[p];
     }
 
-    hydra.registerPluginObject(plugin);
+    return [pluginName, pluginConfig];
+});
 
-    var featureMessages = [];
-    if (typeof plugin.heads === 'object') {
-        featureMessages.push(plugin.heads.length + " head(s)");
-    }
-    if (typeof plugin.tests === 'object') {
-        var testCount = 0;
-        for (var test in plugin.tests) {
-            if (plugin.tests.hasOwnProperty(test)) {
-                testCount++;
+var hydra = createHydra(extraVars, extraPluginLoadpath, pluginList);
+
+function createHydra(extraVars, extraPluginLoadpath, pluginList) {
+    var hydra = new RoboHydra(extraVars);
+    if (extraPluginLoadpath) { hydra.addPluginLoadPath(extraPluginLoadpath); }
+
+    pluginList.forEach(function(pluginNameAndConfig) {
+        var plugin;
+        try {
+            plugin = hydra.requirePlugin(pluginNameAndConfig[0],
+                                         pluginNameAndConfig[1]);
+        } catch(e) {
+            if (e instanceof RoboHydraPluginNotFoundException) {
+                console.log("Could not find or load plugin '" + pluginName + "'");
+                process.exit(1);
+            } else {
+                console.log("Unknown error loading plugin '" + pluginName + "'");
+                throw e;
             }
         }
-        featureMessages.push(testCount + " test(s)");
-    }
-    console.log("Registering RoboHydra plugin " + plugin.name + " (" +
-                featureMessages.join(", ") + ")");
-});
+
+        hydra.registerPluginObject(plugin);
+    });
+
+    return hydra;
+}
 
 function stringForLog(req, res) {
     var remoteAddr = req.socket && req.socket.remoteAddress || "-";
