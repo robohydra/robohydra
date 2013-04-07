@@ -86,19 +86,19 @@ robohydraConfig.plugins.forEach(function(pluginDef) {
     hydra.registerPluginObject(plugin);
 
     var featureMessages = [];
-    if (typeof pluginObject.heads === 'object') {
-        featureMessages.push(pluginObject.heads.length + " head(s)");
+    if (typeof plugin.heads === 'object') {
+        featureMessages.push(plugin.heads.length + " head(s)");
     }
-    if (typeof pluginObject.tests === 'object') {
+    if (typeof plugin.tests === 'object') {
         var testCount = 0;
-        for (var test in pluginObject.tests) {
-            if (pluginObject.tests.hasOwnProperty(test)) {
+        for (var test in plugin.tests) {
+            if (plugin.tests.hasOwnProperty(test)) {
                 testCount++;
             }
         }
         featureMessages.push(testCount + " test(s)");
     }
-    console.log("Registering RoboHydra plugin " + pluginObject.name + " (" +
+    console.log("Registering RoboHydra plugin " + plugin.name + " (" +
                 featureMessages.join(", ") + ")");
 });
 
