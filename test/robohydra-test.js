@@ -493,7 +493,6 @@ describe("RoboHydras", function() {
 
     it("throw an exception if the 'next' function is called without parameters", function(done) {
         var hydra = new RoboHydra();
-        var finalRes;
         var headCallingNext = new RoboHydraHead({
             path: '/foo',
             handler: function(req, res, next) {
