@@ -34,6 +34,65 @@ function showHelpAndDie(message) {
 }
 
 
+function MultiHydra(extraVars, extraPluginLoadpath, pluginList) {
+    this.extraVars = extraVars;
+    this.extraPluginLoadpath = extraPluginLoadpath;
+    this.pluginList = pluginList;
+    this.hydras = {};
+}
+
+MultiHydra.prototype.getHydra = function(username) {
+    if (! (username in this.hydras)) {
+        console.log("Creating Hydra for " + username);
+        this.hydras[username] = this._createHydra(username);
+    }
+
+    return this.hydras[username];
+};
+
+MultiHydra.prototype._createHydra = function(username) {
+    var hydra = new RoboHydra(this.extraVars);
+    if (this.extraPluginLoadpath) {
+        hydra.addPluginLoadPath(this.extraPluginLoadpath);
+    }
+
+    this.pluginList.forEach(function(pluginNameAndConfig) {
+        var pluginName   = pluginNameAndConfig[0],
+            pluginConfig = pluginNameAndConfig[1],
+            plugin;
+
+        try {
+            plugin = hydra.requirePlugin(pluginName, pluginConfig);
+        } catch(e) {
+            if (e instanceof RoboHydraPluginNotFoundException) {
+                console.log("Could not find or load plugin '"+pluginName+"'");
+            } else {
+                console.log("Unknown error loading plugin '"+pluginConfig+"'");
+            }
+            process.exit(1);
+        }
+
+        hydra.registerPluginObject(plugin);
+    });
+
+    return hydra;
+};
+
+function getCurrentUser(req) {
+    if ('cookie' in req.headers) {
+        // TODO: what about cookies that contain a ";"?
+        var cookies = req.headers.cookie.split(/;\s*/);
+        for (var i = 0, len = cookies.length; i < len; i++) {
+            var nameAndValue = cookies[i].split('=');
+            if (nameAndValue[0] === 'user') {
+                return nameAndValue[1];
+            }
+        }
+    }
+    return "*default*";
+}
+
+
 // Process the options
 var extraPluginLoadpath;
 if (commander.I) {
@@ -75,32 +134,11 @@ var pluginList = robohydraConfig.plugins.map(function(pluginDef) {
     return [pluginName, pluginConfig];
 });
 
-var hydra = createHydra(extraVars, extraPluginLoadpath, pluginList);
-
-function createHydra(extraVars, extraPluginLoadpath, pluginList) {
-    var hydra = new RoboHydra(extraVars);
-    if (extraPluginLoadpath) { hydra.addPluginLoadPath(extraPluginLoadpath); }
-
-    pluginList.forEach(function(pluginNameAndConfig) {
-        var plugin;
-        try {
-            plugin = hydra.requirePlugin(pluginNameAndConfig[0],
-                                         pluginNameAndConfig[1]);
-        } catch(e) {
-            if (e instanceof RoboHydraPluginNotFoundException) {
-                console.log("Could not find or load plugin '" + pluginName + "'");
-                process.exit(1);
-            } else {
-                console.log("Unknown error loading plugin '" + pluginName + "'");
-                throw e;
-            }
-        }
-
-        hydra.registerPluginObject(plugin);
-    });
-
-    return hydra;
-}
+var multihydra = new MultiHydra(extraVars, extraPluginLoadpath, pluginList);
+// This merely forces a default Hydra to be created. It's nice because
+// it forces plugins to be loaded, and we get plugin loading errors
+// early
+var hydra = multihydra.getHydra("*default*");
 
 function stringForLog(req, res) {
     var remoteAddr = req.socket && req.socket.remoteAddress || "-";
@@ -138,14 +176,15 @@ var requestHandler = function(nodeReq, nodeRes) {
         req.rawBody = tmp;
     });
     nodeReq.addListener("end", function () {
-        // Try to parse the body...
         try {
             req.bodyParams = qs.parse(req.rawBody.toString());
         } catch(e) {
-            // but it's ok if qs can't handle it
+            // It's ok if qs can't parse the body
         }
-        // When we have a complete request, dispatch it through RoboHydra
-        hydra.handle(req, res);
+
+        var currentUser = getCurrentUser(req);
+        requestHydra = multihydra.getHydra(currentUser);
+        requestHydra.handle(req, res);
     });
 };
 
