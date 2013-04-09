@@ -34,48 +34,90 @@ function showHelpAndDie(message) {
 }
 
 
-function MultiHydra(extraVars, extraPluginLoadpath, pluginList) {
-    this.extraVars = extraVars;
-    this.extraPluginLoadpath = extraPluginLoadpath;
-    this.pluginList = pluginList;
+function MultiHydra(pluginList, opts) {
+    this.extraVars = opts.extraVars || {};
     this.hydras = {};
+    this._pluginLoadPath = ['robohydra/plugins',
+                            '/usr/local/share/robohydra/plugins',
+                            '/usr/share/robohydra/plugins',
+                            __dirname + '/../plugins'];
+    if (opts.extraPluginLoadPath) {
+        this._pluginLoadPath.unshift(opts.extraPluginLoadPath);
+    }
+    this.pluginList = this._initPlugins(pluginList);
 }
-
-MultiHydra.prototype.getHydra = function(username) {
-    if (! (username in this.hydras)) {
-        console.log("Creating Hydra for " + username);
-        this.hydras[username] = this._createHydra(username);
-    }
-
-    return this.hydras[username];
-};
-
-MultiHydra.prototype._createHydra = function(username) {
-    var hydra = new RoboHydra(this.extraVars);
-    if (this.extraPluginLoadpath) {
-        hydra.addPluginLoadPath(this.extraPluginLoadpath);
-    }
-
-    this.pluginList.forEach(function(pluginNameAndConfig) {
+MultiHydra.prototype._initPlugins = function(pluginList) {
+    var self = this;
+    return pluginList.map(function(pluginNameAndConfig) {
         var pluginName   = pluginNameAndConfig[0],
             pluginConfig = pluginNameAndConfig[1],
             plugin;
 
         try {
-            plugin = hydra.requirePlugin(pluginName, pluginConfig);
+            plugin = self.requirePlugin(pluginName);
         } catch(e) {
             if (e instanceof RoboHydraPluginNotFoundException) {
                 console.log("Could not find or load plugin '"+pluginName+"'");
             } else {
-                console.log("Unknown error loading plugin '"+pluginConfig+"'");
+                console.log("Unknown error loading plugin '"+pluginName+"'");
             }
-            process.exit(1);
+            throw e;
         }
 
-        hydra.registerPluginObject(plugin);
+        return {name: pluginName, module: plugin, config: pluginConfig};
+    });
+};
+MultiHydra.prototype.getHydra = function(username) {
+    if (! (username in this.hydras)) {
+        this.hydras[username] = this._createHydra(username);
+    }
+
+    return this.hydras[username];
+};
+MultiHydra.prototype._createHydra = function(username) {
+    var hydra = new RoboHydra(this.extraVars);
+
+    var self = this;
+    this.pluginList.forEach(function(pluginInfo) {
+        hydra.registerPluginObject(pluginInfo.name,
+                                   pluginInfo.module,
+                                   pluginInfo.config);
     });
 
     return hydra;
+};
+// Return an object with keys 'name', 'module' and 'path'. It throws
+// an exception RoboHydraPluginNotFoundException if the plugin could
+// not be found.
+MultiHydra.prototype.requirePlugin = function(name, opts) {
+    opts = opts || {};
+    var rootDir = opts.rootDir ? fs.realpathSync(opts.rootDir) : '';
+    var plugin = {};
+    var stat, fullPath;
+    for (var i = 0, len = this._pluginLoadPath.length; i < len; i++) {
+        try {
+            fullPath = rootDir +
+                (this._pluginLoadPath[i].indexOf('/') !== 0 ?
+                     fs.realpathSync('.') + '/' : '') +
+                this._pluginLoadPath[i] + '/' + name;
+            stat = fs.statSync(fullPath);
+        } catch (e) {
+            // It's ok if the plugin is not in this directory
+            if (e.code !== 'ENOENT') {
+                throw e;
+            }
+        }
+        if (stat && stat.isDirectory()) {
+            plugin.module = require(fullPath);
+            break;
+        }
+    }
+    if (plugin.module) {
+        plugin.path = fullPath;
+        return plugin;
+    } else {
+        throw new RoboHydraPluginNotFoundException(name);
+    }
 };
 
 function getCurrentUser(req) {
@@ -94,9 +136,9 @@ function getCurrentUser(req) {
 
 
 // Process the options
-var extraPluginLoadpath;
+var extraPluginLoadPath;
 if (commander.I) {
-    extraPluginLoadpath = commander.I;
+    extraPluginLoadPath = commander.I;
 }
 // Check parameters and load RoboHydra configuration
 if (commander.args.length < 1) {
@@ -134,7 +176,9 @@ var pluginList = robohydraConfig.plugins.map(function(pluginDef) {
     return [pluginName, pluginConfig];
 });
 
-var multihydra = new MultiHydra(extraVars, extraPluginLoadpath, pluginList);
+var multihydra = new MultiHydra(pluginList,
+                                {extraVars: extraVars,
+                                 extraPluginLoadPath: extraPluginLoadPath});
 // This merely forces a default Hydra to be created. It's nice because
 // it forces plugins to be loaded, and we get plugin loading errors
 // early
