@@ -10,7 +10,8 @@ var helpers              = require("./helpers"),
     checkRouting         = helpers.checkRouting,
     withResponse         = helpers.withResponse,
     fakeFs               = helpers.fakeFs,
-    fakeHttpCreateClient = helpers.fakeHttpCreateClient;
+    fakeHttpCreateClient = helpers.fakeHttpCreateClient,
+    pluginInfoObject     = helpers.pluginInfoObject;
 
 buster.spec.expose();
 
@@ -33,10 +34,10 @@ describe("Admin RoboHydra UI", function() {
     it("shows the plugin & head names on the front page", function(done) {
         var robohydra = new RoboHydra();
         var pluginName = 'plugin1', headName = 'some-head-name';
-        robohydra.registerPluginObject({
+        robohydra.registerPluginObject(pluginInfoObject({
             name: pluginName,
             heads: [new RoboHydraHeadStatic({name: headName, content: 'foo'})]
-        });
+        }));
 
         var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {

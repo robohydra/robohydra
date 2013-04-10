@@ -1,17 +1,19 @@
-/*global require, describe, it, expect, JSON*/
+/*global require, describe, it, expect, before*/
 
 var buster = require("buster");
-var fs = require("fs");
+var path = require("path");
 var robohydra = require("../lib/robohydra"),
     RoboHydra = robohydra.RoboHydra,
     Response  = robohydra.Response;
 var heads               = require("../lib/heads"),
     RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
     RoboHydraHead       = heads.RoboHydraHead;
-var helpers      = require("./helpers"),
-    simpleReq    = helpers.simpleReq,
-    headWithFail = helpers.headWithFail,
-    headWithPass = helpers.headWithPass;
+var helpers              = require("./helpers"),
+    simpleReq            = helpers.simpleReq,
+    headWithFail         = helpers.headWithFail,
+    headWithPass         = helpers.headWithPass,
+    pluginInfoObject     = helpers.pluginInfoObject,
+    pluginObjectFromPath = helpers.pluginObjectFromPath;
 
 buster.spec.expose();
 
@@ -64,6 +66,8 @@ function simpleRoboHydraHead(path, content, name) {
 }
 
 describe("RoboHydras", function() {
+    "use strict";
+
     it("can be created", function() {
         expect(new RoboHydra()).toBeDefined();
     });
@@ -71,14 +75,17 @@ describe("RoboHydras", function() {
     it("can't register plugins without heads or tests", function() {
         var hydra = new RoboHydra();
         expect(function() {
-            hydra.registerPluginObject({heads: []});
+            hydra.registerPluginObject(pluginInfoObject({heads: []}));
         }).toThrow("InvalidRoboHydraPluginException");
     });
 
     it("can't register plugins without name", function() {
         var hydra = new RoboHydra();
         expect(function() {
-            hydra.registerPluginObject({heads: [new RoboHydraHeadStatic({content: 'foo'})]});
+            hydra.registerPluginObject(pluginInfoObject({
+                name: undefined,
+                heads: [new RoboHydraHeadStatic({content: 'foo'})]
+            }));
         }).toThrow("InvalidRoboHydraPluginException");
     });
 
@@ -88,24 +95,38 @@ describe("RoboHydras", function() {
 
         ['', ' ', '..', 'foo.bar', 'foo/bar'].forEach(function(v) {
             expect(function() {
-                hydra.registerPluginObject({name: v,
-                                            heads: heads});
+                hydra.registerPluginObject(pluginInfoObject({name: v,
+                                                             heads: heads}));
             }).toThrow("InvalidRoboHydraPluginException");
         });
     });
 
     it("can register plugins with one head", function() {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({name: 'simple_plugin',
-                                    heads: [simpleRoboHydraHead()]});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'simple_plugin',
+            heads: [simpleRoboHydraHead()]
+        }));
         expect(hydra).toHavePluginList(['simple_plugin']);
         expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
     });
 
     it("can register plugins with one test", function() {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({name: 'simple_plugin',
-                                    tests: {simpleTest:{}}});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'simple_plugin',
+            tests: {simpleTest:{}}
+        }));
+        expect(hydra).toHavePluginList(['simple_plugin']);
+    });
+
+    it("can register plugins with one head and one test", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'simple_plugin',
+            heads: [simpleRoboHydraHead()],
+            tests: {simpleTest:{}}
+        }));
         expect(hydra).toHavePluginList(['simple_plugin']);
     });
 
@@ -115,12 +136,12 @@ describe("RoboHydras", function() {
                        heads: [simpleRoboHydraHead('/', 'foo')]};
         var plugin2 = {name: 'simple_plugin',
                        heads: [simpleRoboHydraHead('/.*', 'bar')]};
-        hydra.registerPluginObject(plugin1);
+        hydra.registerPluginObject(pluginInfoObject(plugin1));
         expect(hydra).toHavePluginList(['simple_plugin']);
         expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
         expect(function() {
-            hydra.registerPluginObject(plugin2);
-        }).toThrow("DuplicateRoboHydraPluginException");
+            hydra.registerPluginObject(pluginInfoObject(plugin2));
+        }).toThrow("InvalidRoboHydraConfigurationException");
     });
 
     it("can register several plugins", function() {
@@ -130,10 +151,10 @@ describe("RoboHydras", function() {
                                                'RoboHydra Admin UI')]};
         var plugin2 = {name: 'plugin2',
                        heads: [simpleRoboHydraHead('/.*', 'Not Found')]};
-        hydra.registerPluginObject(plugin1);
+        hydra.registerPluginObject(pluginInfoObject(plugin1));
         expect(hydra).toHavePluginList(['plugin1']);
         expect(hydra).toHavePluginWithHeadcount('plugin1', 1);
-        hydra.registerPluginObject(plugin2);
+        hydra.registerPluginObject(pluginInfoObject(plugin2));
         expect(hydra).toHavePluginList(['plugin1', 'plugin2']);
         expect(hydra).toHavePluginWithHeadcount('plugin1', 1);
         expect(hydra).toHavePluginWithHeadcount('plugin2', 1);
@@ -143,7 +164,7 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var plugin1 = {name: 'plugin1',
                        heads: [simpleRoboHydraHead('/.*', 'Not Found')]};
-        hydra.registerPluginObject(plugin1);
+        hydra.registerPluginObject(pluginInfoObject(plugin1));
         var p = hydra.getPlugin('plugin1');
         expect(p.name).toEqual('plugin1');
     });
@@ -152,7 +173,7 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var plugin1 = {name: 'plugin1',
                        heads: [simpleRoboHydraHead('/.*', 'Not Found')]};
-        hydra.registerPluginObject(plugin1);
+        hydra.registerPluginObject(pluginInfoObject(plugin1));
         expect(function() {
             hydra.getPlugin("plugin11");
         }).toThrow("RoboHydraPluginNotFoundException");
@@ -171,7 +192,8 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var content = 'It works!';
         var heads = [simpleRoboHydraHead('/.*', content)];
-        hydra.registerPluginObject({name: 'plugin1', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
+                                                     heads: heads}));
         hydra.handle(simpleReq('/'),
                      new Response(function() {
                          expect(this.statusCode).toEqual(200);
@@ -184,7 +206,8 @@ describe("RoboHydras", function() {
         var content = 'It works!';
         var heads = [simpleRoboHydraHead('/', content),
                      simpleRoboHydraHead('/.*', 'Fail!')];
-        hydra.registerPluginObject({name: 'plugin1', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
+                                                     heads: heads}));
         hydra.handle(simpleReq('/'),
                      new Response(function() {
                          expect(this.statusCode).toEqual(200);
@@ -195,7 +218,10 @@ describe("RoboHydras", function() {
     it("deliver 404 when there are routes, but none match", function() {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo'), simpleRoboHydraHead('/bar')];
-        hydra.registerPluginObject({name: 'plugin1', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin1',
+            heads: heads
+        }));
         ['/', '/qux', '/foobar', '/foo/bar'].forEach(function(path) {
             hydra.handle(simpleReq(path),
                          new Response(function() {
@@ -207,7 +233,8 @@ describe("RoboHydras", function() {
     it("respond correctly with a 404 when no routes match", function(done) {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo')];
-        hydra.registerPluginObject({name: 'plugin1', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
+                                                     heads: heads}));
         hydra.handle(simpleReq('/'), new Response(function() {
                                        expect(this.statusCode).toEqual(404);
                                        done();
@@ -219,7 +246,8 @@ describe("RoboHydras", function() {
         var heads = [simpleRoboHydraHead('/foo', 'dummy name', 'name'),
                      simpleRoboHydraHead('/bar', 'dummy name', 'name')];
         expect(function() {
-            hydra.registerPluginObject({name: 'plugin1', heads: heads});
+            hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
+                                                         heads: heads}));
         }).toThrow("DuplicateRoboHydraHeadNameException");
         expect(hydra).toHavePluginList([]);
     });
@@ -230,8 +258,10 @@ describe("RoboHydras", function() {
                             simpleRoboHydraHead('/bar', 'content', 'head2')];
         var headsPlugin2 = [simpleRoboHydraHead('/foo', 'content', 'head1'),
                             simpleRoboHydraHead('/bar', 'content', 'head2')];
-        hydra.registerPluginObject({name: 'plugin1', heads: headsPlugin1});
-        hydra.registerPluginObject({name: 'plugin2', heads: headsPlugin2});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
+                                                     heads: headsPlugin1}));
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin2',
+                                                     heads: headsPlugin2}));
         expect(hydra).toHavePluginList(['plugin1', 'plugin2']);
         expect(hydra).toHavePluginWithHeadcount('plugin1', 2);
         expect(hydra).toHavePluginWithHeadcount('plugin2', 2);
@@ -241,7 +271,8 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo', 'foo path',  'head1'),
                      simpleRoboHydraHead('/.*',  'catch-all', 'head2')];
-        hydra.registerPluginObject({name: 'plugin', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
+                                                     heads: heads}));
 
         expect(hydra.findHead('plugin', 'head1').name).toEqual('head1');
         expect(hydra.findHead('plugin', 'head2').name).toEqual('head2');
@@ -251,7 +282,8 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo', 'foo path',  'head1'),
                      simpleRoboHydraHead('/.*',  'catch-all', 'head2')];
-        hydra.registerPluginObject({name: 'plugin', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
+                                                     heads: heads}));
 
         expect(function() {
             hydra.findHead('plugin1', 'head1');
@@ -270,7 +302,8 @@ describe("RoboHydras", function() {
     it("allow attaching and detaching heads", function() {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo', 'foo path', 'head1')];
-        hydra.registerPluginObject({name: 'plugin', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
+                                                     heads: heads}));
 
         hydra.detachHead('plugin', 'head1');
         expect(hydra).not.toHaveHeadAttached('plugin', 'head1');
@@ -281,7 +314,8 @@ describe("RoboHydras", function() {
     it("throw an error when attaching/detaching non-existing heads", function() {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo', 'foo path', 'head1')];
-        hydra.registerPluginObject({name: 'plugin', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
+                                                     heads: heads}));
 
         expect(function() {
             hydra.detachHead('plugin', 'head2');
@@ -297,7 +331,8 @@ describe("RoboHydras", function() {
     it("throw an error when attaching/detaching already attached/detached heads", function() {
         var hydra = new RoboHydra();
         var heads = [simpleRoboHydraHead('/foo', 'foo path', 'head1')];
-        hydra.registerPluginObject({name: 'plugin', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
+                                                     heads: heads}));
 
         expect(function() {
             hydra.attachHead('plugin', 'head1');
@@ -313,7 +348,8 @@ describe("RoboHydras", function() {
         var path = '/foo';
         var heads = [simpleRoboHydraHead(path,   'foo path', 'head1'),
                      simpleRoboHydraHead('/.*',  'catch-all', 'head2')];
-        hydra.registerPluginObject({name: 'plugin', heads: heads});
+        hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
+                                                     heads: heads}));
         hydra.handle(simpleReq(path), new Response(function() {
             expect(this.statusCode).toEqual(200);
             expect(this.body).toEqual('foo path');
@@ -428,9 +464,11 @@ describe("RoboHydras", function() {
                 resultList.push('headBeingCalled');
                 res.end();
             }});
-        hydra.registerPluginObject({name: 'plugin',
-                                    heads: [headCallingNext,
-                                            headBeingCalled]});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [headCallingNext,
+                    headBeingCalled]
+        }));
         hydra.handle(simpleReq('/foo'), new Response(function() {
             expect(resultList).toEqual(['headCallingNext', 'headBeingCalled']);
             done();
@@ -461,10 +499,12 @@ describe("RoboHydras", function() {
                 resultList.push('headBeingCalledLast');
                 res.end();
             }});
-        hydra.registerPluginObject({name: 'plugin',
-                                    heads: [headCallingNext,
-                                            headBeingCalled,
-                                            headBeingCalledLast]});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [headCallingNext,
+                    headBeingCalled,
+                    headBeingCalledLast]
+        }));
         hydra.handle(simpleReq('/foo'), new Response(function() {
             expect(resultList).toEqual(['headCallingNext',
                                         'headBeingCalled',
@@ -484,7 +524,10 @@ describe("RoboHydras", function() {
                               res.end();
                           }));
             }});
-        hydra.registerPluginObject({name: 'plugin', heads: [headCallingNext]});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [headCallingNext]
+        }));
         hydra.handle(simpleReq('/foo'), new Response(function() {
             expect(finalRes.statusCode).toEqual(404);
             done();
@@ -523,116 +566,49 @@ describe("RoboHydras", function() {
     });
 });
 
-describe("Plugin loader", function() {
-    it("fail when loading non-existent plugins", function() {
-        var hydra = new RoboHydra();
-        expect(function() {
-            hydra.requirePlugin('i-dont-exist',
-                                {},
-                                {rootDir: __dirname + '/plugin-fs'});
-        }).toThrow('RoboHydraPluginNotFoundException');
-    });
-
-    it("can load a simple plugin", function() {
-        var configKeyValue = 'config value';
-        var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('simple',
-                                         {configKey: configKeyValue},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/usr/share/robohydra/plugins/simple');
-        expect(plugin.heads[1].name).toEqual(configKeyValue);
-    });
-
-    it("loads plugins in the right order of preference", function() {
-        var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('definedtwice',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
-    });
-
-    it("can define own load path, and takes precedence", function() {
-        var hydra = new RoboHydra();
-        hydra.addPluginLoadPath('/opt/robohydra/plugins');
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('definedtwice',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/opt/robohydra/plugins/definedtwice');
-    });
-
-    it("can define more than one load path, latest has precedence", function() {
-        var hydra = new RoboHydra();
-        hydra.addPluginLoadPath('/opt/robohydra/plugins');
-        hydra.addPluginLoadPath('/opt/project/robohydra-plugins');
-
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('definedtwice',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/opt/project/robohydra-plugins/definedtwice');
-    });
-
-    it("can define more than one load path, first is still valid", function() {
-        var hydra = new RoboHydra();
-        hydra.addPluginLoadPath('/opt/robohydra/plugins');
-        hydra.addPluginLoadPath('/opt/project/robohydra-plugins');
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('customloadpath',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(plugin.heads[0].name).toEqual(
-            rootDir + '/opt/robohydra/plugins/customloadpath');
-    });
+describe("RoboHydra plugin load system", function() {
+    "use strict";
 
     it("can load test from external files", function() {
         var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('external-tests-simple',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(Object.keys(plugin.tests)).toEqual(['firstTest']);
+        var pluginName = 'external-tests-simple';
+        var pluginPath = path.join(__dirname, 'plugins', pluginName);
+        hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
+        expect(Object.keys(hydra.getPlugin(pluginName).tests)).toEqual(
+            ['firstTest']);
     });
 
     it("can load tests from both external files and main file", function() {
         var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('external-tests-mixed',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(Object.keys(plugin.tests).sort()).toEqual(['external',
-                                                          'internal']);
+        var pluginName = 'external-tests-mixed';
+        var pluginPath = path.join(__dirname, 'plugins', pluginName);
+        hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
+        expect(Object.keys(hydra.getPlugin(pluginName).tests).sort()).toEqual(
+            ['external', 'internal']);
     });
 
     it("can load a plugin without heads, and with only external tests", function() {
         var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
-        var plugin = hydra.requirePlugin('external-tests-headless',
-                                         {},
-                                         {rootDir: rootDir});
-        expect(Object.keys(plugin.tests).sort()).toEqual(['firstTest',
-                                                          'secondTest']);
+        var pluginName = 'external-tests-headless';
+        var pluginPath = path.join(__dirname, 'plugins', pluginName);
+        hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
+        expect(Object.keys(hydra.getPlugin(pluginName).tests).sort()).toEqual(
+            ['firstTest', 'secondTest']);
     });
 
     it("doesn't allow internal and external tests with the same name", function() {
         var hydra = new RoboHydra();
-        var rootDir = __dirname + '/plugin-fs';
+        var pluginName = 'external-tests-conflicting-names';
+        var pluginPath = path.join(__dirname, 'plugins', pluginName);
         expect(function() {
-            hydra.requirePlugin('external-tests-conflicting-names',
-                                {},
-                                {rootDir: rootDir});
+            hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
         }).toThrow('InvalidRoboHydraPluginException');
     });
 });
 
-
 describe("RoboHydra test system", function() {
+    "use strict";
+
     it("has '*default*' as the default test", function() {
         var hydra = new RoboHydra();
         expect(hydra.currentTest).toEqual({plugin: '*default*',
@@ -641,12 +617,14 @@ describe("RoboHydra test system", function() {
 
     it("can start tests", function() {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        simpleTest: {
-                                            heads: [simpleRoboHydraHead()]
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
         hydra.startTest('plugin', 'simpleTest');
         expect(hydra.currentTest).toEqual({plugin: 'plugin',
                                            test: 'simpleTest'});
@@ -661,12 +639,14 @@ describe("RoboHydra test system", function() {
 
     it("can stop tests", function() {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        simpleTest: {
-                                            heads: [simpleRoboHydraHead()]
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
         hydra.startTest('plugin', 'simpleTest');
         hydra.stopTest();
         expect(hydra.currentTest).toEqual({plugin: '*default*',
@@ -675,18 +655,22 @@ describe("RoboHydra test system", function() {
 
     it("stops the previous test when starting a new one", function() {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        simpleTest: {
-                                            heads: [simpleRoboHydraHead()]
-                                        }
-                                    }});
-        hydra.registerPluginObject({name: 'plugin2',
-                                    tests: {
-                                        anotherSimpleTest: {
-                                            heads: [simpleRoboHydraHead()]
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin2',
+            tests: {
+                anotherSimpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
         hydra.startTest('plugin', 'simpleTest');
         hydra.startTest('plugin2', 'anotherSimpleTest');
         expect(hydra.currentTest).toEqual({plugin: 'plugin2',
@@ -696,12 +680,14 @@ describe("RoboHydra test system", function() {
     it("doesn't activate test heads if no test is active", function(done) {
         var hydra = new RoboHydra();
         var path  = '/foo';
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        simpleTest: {
-                                            heads: [simpleRoboHydraHead(path)]
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead(path)]
+                }
+            }
+        }));
         hydra.handle(simpleReq(path), new Response(function() {
             expect(this.statusCode).toEqual(404);
             done();
@@ -712,12 +698,14 @@ describe("RoboHydra test system", function() {
         var hydra = new RoboHydra();
         var path = '/foo';
         var testHeads = [simpleRoboHydraHead(path)];
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        someTest: {
-                                            heads: testHeads
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                someTest: {
+                    heads: testHeads
+                }
+            }
+        }));
         hydra.startTest('plugin', 'someTest');
         hydra.handle(simpleReq(path), new Response(function() {
             expect(this.statusCode).toEqual(200);
@@ -728,12 +716,14 @@ describe("RoboHydra test system", function() {
     it("deactivates test heads when a test is stopped", function(done) {
         var hydra = new RoboHydra();
         var path = '/foo';
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        someTest: {
-                                            heads: [simpleRoboHydraHead(path)]
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                someTest: {
+                    heads: [simpleRoboHydraHead(path)]
+                }
+            }
+        }));
         hydra.startTest('plugin', 'someTest');
         hydra.stopTest();
         hydra.handle(simpleReq(path), new Response(function() {
@@ -745,15 +735,17 @@ describe("RoboHydra test system", function() {
     it("deactivates test heads when a new test is started", function(done) {
         var hydra = new RoboHydra();
         var path = '/foo', path2 = '/bar';
-        hydra.registerPluginObject({name: 'plugin',
-                                    tests: {
-                                        someTest: {
-                                            heads: [simpleRoboHydraHead(path)]
-                                        },
-                                        anotherTest: {
-                                            heads: [simpleRoboHydraHead(path2)]
-                                        }
-                                    }});
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            tests: {
+                someTest: {
+                    heads: [simpleRoboHydraHead(path)]
+                },
+                anotherTest: {
+                    heads: [simpleRoboHydraHead(path2)]
+                }
+            }
+        }));
         hydra.startTest('plugin', 'someTest');
         hydra.startTest('plugin', 'anotherTest');
         var res = new Response(function() {
@@ -770,11 +762,12 @@ describe("RoboHydra test system", function() {
 
     it("has an empty result when starting a test", function() {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: { testWithAssertion: {heads: [
                 headWithFail('/f', hydra.getModulesObject(), "some message")
-            ]}}});
+            ]}}
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         expect(hydra).toHaveTestResult('plugin',
                                        'testWithAssertion',
@@ -786,14 +779,15 @@ describe("RoboHydra test system", function() {
     it("can execute and count a passing assertion", function(done) {
         var assertionMessage = "should do something simple but useful";
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: {
                 testWithAssertion: {
                     heads: [headWithPass('/', hydra.getModulesObject(),
                                          assertionMessage)]
                 }
-            }});
+            }
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/'),
@@ -810,13 +804,13 @@ describe("RoboHydra test system", function() {
     it("can execute and count a failing assertion", function(done) {
         var hydra = new RoboHydra();
         var assertionMessage = "should have this and that";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: { testWithAssertion: {
                 heads: [headWithFail('/', hydra.getModulesObject(),
                                      assertionMessage)]
             }}
-        });
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/'),
@@ -835,12 +829,12 @@ describe("RoboHydra test system", function() {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
         var failMessage = "should have this and that (and didn't)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: { testWithAssertion: {heads: [
                 headWithFail('/f', hydra.getModulesObject(), failMessage),
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
-            ]}}});
+            ]}}}));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/f'),
@@ -866,12 +860,13 @@ describe("RoboHydra test system", function() {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
         var failMessage = "should have this and that (and didn't)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: { testWithAssertion: {heads: [
                 headWithFail('/f', hydra.getModulesObject(), failMessage),
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
-            ]}}});
+            ]}}
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/f'),
@@ -895,11 +890,12 @@ describe("RoboHydra test system", function() {
     it("counts assertions without having run tests as *default*", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
-            ]});
+            ]
+        }));
         hydra.handle(
             simpleReq('/p'),
             new Response(function() {
@@ -916,12 +912,13 @@ describe("RoboHydra test system", function() {
     it("counts assertions after stopping tests as *default*", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
-            tests: {testWithAssertion: {heads: []}}});
+            tests: {testWithAssertion: {heads: []}}
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.stopTest();
         hydra.handle(
@@ -940,12 +937,13 @@ describe("RoboHydra test system", function() {
     it("counts assertions in non-test heads as in the current test", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
-            tests: {testWithAssertion: {heads: []}}});
+            tests: {testWithAssertion: {heads: []}}
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/p'),
@@ -963,12 +961,13 @@ describe("RoboHydra test system", function() {
     it("stopping a test doesn't erase previous results", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
-            tests: {testWithAssertion: {heads: []}}});
+            tests: {testWithAssertion: {heads: []}}
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/p'),
@@ -987,13 +986,14 @@ describe("RoboHydra test system", function() {
     it("doesn't erase the previous test's results when starting a new one", function(done) {
         var hydra = new RoboHydra();
         var passMessage = "should have this and that (and did)";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 headWithPass('/p', hydra.getModulesObject(), passMessage)
             ],
             tests: {testWithAssertion: {heads: []},
-                    anotherTest:       {heads: []}}});
+                    anotherTest:       {heads: []}}
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/p'),
@@ -1011,9 +1011,8 @@ describe("RoboHydra test system", function() {
 
     it("simply returns false on assertion failure", function(done) {
         var hydra = new RoboHydra();
-        var passMessage = "should have this and that (and did NOT)";
         var executesAfterAssertion = false, testResult = null;
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 new RoboHydraHead({
@@ -1025,7 +1024,8 @@ describe("RoboHydra test system", function() {
                         res.end();
                     }
                 })
-            ]});
+            ]
+        }));
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
@@ -1038,9 +1038,8 @@ describe("RoboHydra test system", function() {
 
     it("returns true on assertion pass", function(done) {
         var hydra = new RoboHydra();
-        var passMessage = "should have this and that (and did)";
         var executesAfterAssertion = false, testResult = null;
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             heads: [
                 new RoboHydraHead({
@@ -1052,7 +1051,8 @@ describe("RoboHydra test system", function() {
                         res.end();
                     }
                 })
-            ]});
+            ]
+        }));
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
@@ -1065,7 +1065,7 @@ describe("RoboHydra test system", function() {
 
     it("gives a default assertion message to those that don't have one", function(done) {
         var hydra = new RoboHydra();
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: {
                 testWithAssertion: {heads: [
@@ -1077,7 +1077,8 @@ describe("RoboHydra test system", function() {
                         }
                     })
                 ]}
-            }});
+            }
+        }));
         hydra.startTest('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/'),
@@ -1096,26 +1097,30 @@ describe("RoboHydra test system", function() {
     it("can access a test instructions", function() {
         var hydra = new RoboHydra();
         var instructions = "Click here, then there";
-        hydra.registerPluginObject({
+        hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
             tests: {
                 testWithInstructions: {
                     heads: [],
                     instructions: instructions
                 }
-            }});
-       expect(hydra.getPlugin('plugin').tests.testWithInstructions.instructions).toEqual(instructions);
+            }
+        }));
+        expect(hydra.getPlugin('plugin').tests.testWithInstructions.instructions).toEqual(instructions);
     });
 });
 
 describe("Fixture system", function() {
+    "use strict";
+
     before(function() {
         this.hydra = new RoboHydra();
-        var rootDir = __dirname + '/fixture-module-fs';
-        var plugin = this.hydra.requirePlugin('simple-fixtures',
-                                              {},
-                                              {rootDir: rootDir});
-        this.hydra.registerPluginObject(plugin);
+        var rootDir = __dirname + '/plugins/simple-fixtures';
+        this.hydra.registerPluginObject({
+            name: 'simple-fixtures',
+            path: rootDir,
+            module: require(path.join(rootDir, 'index.js'))
+        });
     });
 
     it("can load basic fixtures", function(done) {
@@ -1175,6 +1180,8 @@ describe("Fixture system", function() {
 
 
 describe("Response object", function() {
+    "use strict";
+
     it("can't be used without an 'end' handler", function() {
         var r = new Response();
         expect(function() {
