@@ -50,22 +50,39 @@ describe("RoboHydra picking system", function() {
             [{name: 'right-robohydra-test', config: {}}],
             {rootDir: __dirname + '/plugin-fs'}
         );
+
         var hydra1 = summoner.summonRoboHydraForRequest(new Request({
             url: '/?user=user1'
         }));
-        hydra1.randomProperty = 'user 1';
         hydra1.startTest('right-robohydra-test', 'robohydra1');
+        hydra1.randomProperty = 'user 1';
+
         var hydra2 = summoner.summonRoboHydraForRequest(new Request({
             url: '/?user=user2'
         }));
-        expect(hydra2.randomProperty).not.toBeDefined();
-        hydra2.randomProperty = 'user2';
         hydra2.startTest('right-robohydra-test', 'robohydra2');
+
+        expect(hydra2.randomProperty).not.toBeDefined();
         expect(hydra1.currentTest.test).toEqual('robohydra1');
         expect(hydra2.currentTest.test).toEqual('robohydra2');
     });
 
-    // Hydras know their own name (through the module system?)
+    it("Hydras know their own name", function() {
+        var summoner = new RoboHydraSummoner(
+            [{name: 'right-robohydra-test', config: {}}],
+            {rootDir: __dirname + '/plugin-fs'}
+        );
+
+        var hydra1 = summoner.summonRoboHydraForRequest(new Request({
+            url: '/?user=user1'
+        }));
+        var hydra2 = summoner.summonRoboHydraForRequest(new Request({
+            url: '/?user=user2'
+        }));
+
+        expect(hydra1.name).toEqual('user1');
+        expect(hydra2.name).toEqual('user2');
+    });
 });
 
 describe("Plugin loader", function() {
