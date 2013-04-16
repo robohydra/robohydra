@@ -10,9 +10,10 @@ var http      = require('http'),
     fs        = require('fs'),
     qs        = require('qs'),
     commander = require('commander');
-var robohydra = require('../lib/robohydra'),
-    Request   = robohydra.Request,
-    Response  = robohydra.Response;
+var robohydra    = require('../lib/robohydra'),
+    Request      = robohydra.Request,
+    Response     = robohydra.Response,
+    stringForLog = robohydra.stringForLog;
 var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
 
@@ -71,22 +72,6 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
     // it forces plugins to be loaded, and we get plugin loading errors
     // early
     summoner.summonRoboHydraForRequest(new Request({url: '/'}));
-
-    function stringForLog(req, res) {
-        var remoteAddr = req.socket && req.socket.remoteAddress || "-";
-        var date = new Date().toUTCString();
-        var method = req.method;
-        var url = req.url;
-        var httpVersion = req.httpVersionMajor + '.' + req.httpVersionMinor;
-        var status = res.statusCode;
-        var resContentLength = res.headers['content-length'] || "-";
-        var referrer = req.headers.referer || req.headers.referrer || "-";
-        var userAgent = req.headers['user-agent'] || "-";
-
-        return remoteAddr + " - - [" + date + "] \"" + method + " " +
-            url + " HTTP/" + httpVersion + "\" " + status + " " +
-            resContentLength + " \"" + referrer + "\" \"" + userAgent + "\"";
-    }
 
     // Routes are all dynamic, so we only need a catch-all here
     var requestHandler = function(nodeReq, nodeRes) {

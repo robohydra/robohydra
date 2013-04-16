@@ -19,6 +19,7 @@ buster.spec.expose();
 
 buster.assertions.add("hasHeadAttached", {
     assert: function (actual, pluginName, headName) {
+        "use strict";
         return actual.isHeadAttached(pluginName, headName);
     },
     assertMessage: "Expected ${0} to have a head '${1}/${2}' attached!",
@@ -28,6 +29,7 @@ buster.assertions.add("hasHeadAttached", {
 
 buster.assertions.add("isARoboHydraHead", {
     assert: function (actual) {
+        "use strict";
         return typeof(actual.attach) === 'function';
     },
     assertMessage: "Expected ${0} to be a hydra head!",
@@ -37,6 +39,7 @@ buster.assertions.add("isARoboHydraHead", {
 
 buster.assertions.add("hasPluginList", {
     assert: function (actual, expectedPluginList) {
+        "use strict";
         var list = this.actualPluginList = actual.getPluginNames();
         this.countSpecialPlugins = !!arguments[2];
         if (! this.countSpecialPlugins) {
@@ -51,6 +54,7 @@ buster.assertions.add("hasPluginList", {
 
 buster.assertions.add("hasPluginWithHeadcount", {
     assert: function (actual, pluginName, expectedHeadcount) {
+        "use strict";
         return actual.getPlugin(pluginName).heads.length === expectedHeadcount;
     },
     assertMessage: "Expected hydra to have headcount ${2} in plugin ${1}!",
@@ -59,6 +63,7 @@ buster.assertions.add("hasPluginWithHeadcount", {
 });
 
 function simpleRoboHydraHead(path, content, name) {
+    "use strict";
     var props = {path:    path    || '/.*',
                  content: content || 'foo'};
     if (name) { props.name = name; }
