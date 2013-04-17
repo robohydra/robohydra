@@ -109,6 +109,39 @@ describe("Plugin loader", function() {
         expect(lair.pluginInfoList[0].config.configKey).toEqual(configKeyValue);
     });
 
+    it("can load plugins with the simplified syntax", function() {
+        var rootDir = __dirname + '/plugin-fs';
+        var lair = new RoboHydraSummoner(["simple"], {rootDir: rootDir});
+        expect(lair.pluginInfoList[0].path).toEqual(
+            rootDir + '/usr/share/robohydra/plugins/simple');
+    });
+
+    it("considers extraVars for all plugins", function() {
+        var configKeyValue = 'config value',
+            overridenConfigKeyValue = 'overriden value',
+            newConfigKeyValue = 'new value';
+        var rootDir = __dirname + '/plugin-fs';
+        var lair = new RoboHydraSummoner(
+            [{name: 'simple', config: {configKey: configKeyValue}},
+             "definedtwice"],
+            {rootDir: rootDir,
+             extraVars: {configKey: overridenConfigKeyValue,
+                         newConfigKey: newConfigKeyValue}}
+        );
+
+        expect(lair.pluginInfoList[0].path).toEqual(
+            rootDir + '/usr/share/robohydra/plugins/simple');
+        expect(lair.pluginInfoList[0].config.configKey).toEqual(
+            overridenConfigKeyValue);
+        expect(lair.pluginInfoList[0].config.newConfigKey).toEqual(
+            newConfigKeyValue);
+
+        expect(lair.pluginInfoList[1].config.configKey).toEqual(
+            overridenConfigKeyValue);
+        expect(lair.pluginInfoList[1].config.newConfigKey).toEqual(
+            newConfigKeyValue);
+    });
+
     it("loads plugins in the right order of preference", function() {
         var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(

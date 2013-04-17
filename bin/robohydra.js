@@ -63,23 +63,8 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         }
     }
 
-
-    var pluginList = robohydraConfig.plugins.map(function(pluginDef) {
-        var pluginName = typeof pluginDef === 'string' ? pluginDef : pluginDef.name;
-        var pluginSpecificConfig = pluginDef.config || {};
-        var p, pluginConfig = {};
-        for (p in pluginSpecificConfig) {
-            pluginConfig[p] = pluginSpecificConfig[p];
-        }
-        for (p in extraVars) {
-            pluginConfig[p] = extraVars[p];
-        }
-
-        return {name: pluginName, config: pluginConfig};
-    });
-
     var summoner = new RoboHydraSummoner(
-        pluginList,
+        robohydraConfig.plugins,
         {extraVars: extraVars, extraPluginLoadPaths: extraPluginLoadPath}
     );
     // This merely forces a default Hydra to be created. It's nice because
