@@ -473,6 +473,18 @@ describe("Filesystem RoboHydra heads", function() {
         ], done);
     });
 
+    it("serve files from the file system with URL parameters", function(done) {
+        var fileContents = "file contents";
+        var head = new RoboHydraHeadFilesystem({mountPath: '/foobar/',
+                                                documentRoot: '/var/www/',
+                                                fs: fakeFs({'/var/www/file.txt':
+                                                            fileContents})});
+
+        checkRouting(head, [
+            ['/foobar/file.txt?foo=bar', fileContents]
+        ], done);
+    });
+
     it("know which paths they can dispatch", function() {
         var validPaths = ['/foobar', '/foobar/', '/foobar/..', '/foobar/.file',
                           '/foobar/dir/file', '/foobar/dir/file.txt'];
