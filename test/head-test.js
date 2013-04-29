@@ -481,7 +481,9 @@ describe("Filesystem RoboHydra heads", function() {
                                                             fileContents})});
 
         checkRouting(head, [
-            ['/foobar/file.txt?foo=bar', fileContents]
+            ['/foobar/file.txt?', fileContents],
+            ['/foobar/file.txt?foo=bar', fileContents],
+            ['/foobar/file.txt?foo=bar&qux=tux', fileContents]
         ], done);
     });
 
@@ -534,12 +536,24 @@ describe("Filesystem RoboHydra heads", function() {
     it("sets the correct Content-Type for the served files", function(done) {
         var head = new RoboHydraHeadFilesystem({
             documentRoot: '/var/www',
-            fs: fakeFs({'/var/www/json.txt': 'foobar'}),
-            mime: {lookup: function(path) { return "text/x-fake"; }}
+            fs: fakeFs({'/var/www/json.txt': 'foobar',
+                        '/var/www/json.nottxt': 'this is not a text file'}),
+            mime: {
+                lookup: function(path) {
+                    console.log("Checking " + path + ", " + (/\.txt$/).test(path) + ", results in " + ((/\.txt$/).test(path) ? "text/plain" : "text/x-fake"));
+                    return (/\.txt$/).test(path) ? "text/plain" : "text/x-fake";
+                }
+            }
         });
         withResponse(head, '/json.txt', function(res) {
-            expect(res.headers['content-type']).toEqual("text/x-fake");
-            done();
+            expect(res.headers['content-type']).toEqual("text/plain");
+            withResponse(head, '/json.txt?var=val', function(res3) {
+                expect(res3.headers['content-type']).toEqual("text/plain");
+                withResponse(head, '/json.nottxt', function(res2) {
+                    expect(res2.headers['content-type']).toEqual("text/x-fake");
+                    done();
+                });
+            });
         });
     });
 
