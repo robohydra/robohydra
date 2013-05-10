@@ -66,6 +66,7 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
     var summoner = new RoboHydraSummoner(
         robohydraConfig.plugins,
+        robohydraConfig.summoner,
         {extraVars: extraVars, extraPluginLoadPaths: extraPluginLoadPath}
     );
     // This merely forces a default Hydra to be created. It's nice because

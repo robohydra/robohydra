@@ -14,6 +14,41 @@ describe("RoboHydra picking system", function() {
             new RoboHydraSummoner(
                 [{name: 'simple-authenticator', config: {}},
                  {name: 'url-query-authenticator', config: {}}],
+                {},
+                {rootDir: __dirname + '/plugin-fs'}
+            );
+        }).toThrow('InvalidRoboHydraConfigurationException');
+    });
+
+    it("can specify a picking function when there are multiple", function() {
+        var summoner = new RoboHydraSummoner(
+            [{name: 'simple-authenticator', config: {}},
+             {name: 'url-query-authenticator', config: {}}],
+            {robohydraPickerPlugin: 'simple-authenticator'},
+            {rootDir: __dirname + '/plugin-fs'}
+        );
+        var h = summoner.summonRoboHydraForRequest(new Request({url: '/'}));
+        expect(h.name).toEqual('simple-authenticator-fixed-user');
+    });
+
+    it("detects non-existent, specified picking functions", function() {
+        expect(function() {
+            new RoboHydraSummoner(
+                [{name: 'simple-authenticator', config: {}},
+                 {name: 'url-query-authenticator', config: {}}],
+                {robohydraPickerPlugin: 'another-plugin'},
+                {rootDir: __dirname + '/plugin-fs'}
+            );
+        }).toThrow('InvalidRoboHydraConfigurationException');
+    });
+
+    it("detects specified picking plugins without a picker function", function() {
+        expect(function() {
+            new RoboHydraSummoner(
+                [{name: 'simple-authenticator', config: {}},
+                 {name: 'url-query-authenticator', config: {}},
+                 {name: 'definedtwice', config: {}}],
+                {robohydraPickerPlugin: 'definedtwice'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
         }).toThrow('InvalidRoboHydraConfigurationException');
@@ -22,6 +57,7 @@ describe("RoboHydra picking system", function() {
     it("has a default picker function", function() {
         var summoner = new RoboHydraSummoner(
             [{name: 'simple', config: {}}],
+            {},
             {rootDir: __dirname + '/plugin-fs'}
         );
         var seen = 'seen!';
@@ -39,6 +75,7 @@ describe("RoboHydra picking system", function() {
         expect(function() {
             var summoner = new RoboHydraSummoner(
                 [{name: 'wrong-fixed-picker', config: {}}],
+                {},
                 {rootDir: __dirname + '/plugin-fs'}
             );
             summoner.summonRoboHydraForRequest(new Request({url: '/'}));
@@ -48,6 +85,7 @@ describe("RoboHydra picking system", function() {
     it("picks the right RoboHydra", function() {
         var summoner = new RoboHydraSummoner(
             [{name: 'right-robohydra-test', config: {}}],
+            {},
             {rootDir: __dirname + '/plugin-fs'}
         );
 
@@ -70,6 +108,7 @@ describe("RoboHydra picking system", function() {
     it("Hydras know their own name", function() {
         var summoner = new RoboHydraSummoner(
             [{name: 'right-robohydra-test', config: {}}],
+            {},
             {rootDir: __dirname + '/plugin-fs'}
         );
 
@@ -92,6 +131,7 @@ describe("Plugin loader", function() {
         expect(function() {
             new RoboHydraSummoner(
                 [{name: 'i-dont-exist', config: {}}],
+                {},
                 {rootDir: __dirname + '/plugin-fs'}
             );
         }).toThrow('RoboHydraPluginNotFoundException');
@@ -102,6 +142,7 @@ describe("Plugin loader", function() {
         var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'simple', config: {configKey: configKeyValue}}],
+            {},
             {rootDir: rootDir}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
@@ -111,7 +152,7 @@ describe("Plugin loader", function() {
 
     it("can load plugins with the simplified syntax", function() {
         var rootDir = __dirname + '/plugin-fs';
-        var lair = new RoboHydraSummoner(["simple"], {rootDir: rootDir});
+        var lair = new RoboHydraSummoner(["simple"], {}, {rootDir: rootDir});
         expect(lair.pluginInfoList[0].path).toEqual(
             rootDir + '/usr/share/robohydra/plugins/simple');
     });
@@ -124,6 +165,7 @@ describe("Plugin loader", function() {
         var lair = new RoboHydraSummoner(
             [{name: 'simple', config: {configKey: configKeyValue}},
              "definedtwice"],
+            {},
             {rootDir: rootDir,
              extraVars: {configKey: overridenConfigKeyValue,
                          newConfigKey: newConfigKeyValue}}
@@ -146,6 +188,7 @@ describe("Plugin loader", function() {
         var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'definedtwice', config: {}}],
+            {},
             {rootDir: rootDir}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
@@ -156,6 +199,7 @@ describe("Plugin loader", function() {
         var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'definedtwice', config: {}}],
+            {},
             {rootDir: rootDir,
              extraPluginLoadPaths: ['/opt/robohydra/plugins']}
         );
@@ -167,6 +211,7 @@ describe("Plugin loader", function() {
         var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'definedtwice', config: {}}],
+            {},
             {rootDir: rootDir,
              extraPluginLoadPaths: ['/opt/robohydra/plugins',
                                     '/opt/project/robohydra-plugins']}
@@ -179,6 +224,7 @@ describe("Plugin loader", function() {
         var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'customloadpath', config: {}}],
+            {},
             {rootDir: rootDir,
              extraPluginLoadPaths: ['/opt/robohydra/plugins',
                                     '/opt/project/robohydra-plugins']}
