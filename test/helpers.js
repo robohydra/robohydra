@@ -233,6 +233,11 @@ var robohydra = require("../lib/robohydra"),
         if (info.tests) {
             bodyParts.tests = info.tests;
         }
+        if (info.extraProps) {
+            for (var p in info.extraProps) {
+                bodyParts[p] = info.extraProps[p];
+            }
+        }
 
         return {
             name: name,

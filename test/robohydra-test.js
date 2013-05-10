@@ -77,10 +77,12 @@ describe("RoboHydras", function() {
         expect(new RoboHydra()).toBeDefined();
     });
 
-    it("can't register plugins without heads or tests", function() {
+    it("can't have unknown/mistyped properties", function() {
         var hydra = new RoboHydra();
         expect(function() {
-            hydra.registerPluginObject(pluginInfoObject({heads: []}));
+            hydra.registerPluginObject(pluginInfoObject({
+                extraProps: {heds: []}
+            }));
         }).toThrow("InvalidRoboHydraPluginException");
     });
 

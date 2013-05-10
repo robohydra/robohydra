@@ -546,7 +546,6 @@ describe("Filesystem RoboHydra heads", function() {
                         '/var/www/json.nottxt': 'this is not a text file'}),
             mime: {
                 lookup: function(path) {
-                    console.log("Checking " + path + ", " + (/\.txt$/).test(path) + ", results in " + ((/\.txt$/).test(path) ? "text/plain" : "text/x-fake"));
                     return (/\.txt$/).test(path) ? "text/plain" : "text/x-fake";
                 }
             }
