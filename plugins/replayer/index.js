@@ -5,6 +5,8 @@ var robohydra          = require('robohydra'),
     Response           = robohydra.Response;
 
 exports.getBodyParts = function(config) {
+    "use strict";
+
     var proxyToUrl = config.replayerurl || 'http://robohydra.org';
     // Initialise the log file on RoboHydra start
     var trafficFilePath = config.trafficFilePath || 'robohydra-replayer.json';

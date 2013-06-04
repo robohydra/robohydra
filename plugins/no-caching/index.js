@@ -2,6 +2,8 @@ var robohydra           = require('robohydra'),
     RoboHydraHead       = robohydra.heads.RoboHydraHead;
 
 function getBodyParts(config) {
+    "use strict";
+
     var noCachingPath = config.nocachingpath || '/.*';
 
     return {heads: [new RoboHydraHead({

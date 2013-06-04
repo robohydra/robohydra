@@ -21,13 +21,15 @@ var heads                   = require("../lib/heads"),
 buster.spec.expose();
 
 describe("Generic RoboHydra heads", function() {
+    "use strict";
+
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new RoboHydraHead({path: '/'});
+            new RoboHydraHead({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            var head = new RoboHydraHead({handler: function() {}});
+            new RoboHydraHead({handler: function() {}});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
@@ -186,19 +188,21 @@ describe("Generic RoboHydra heads", function() {
 });
 
 describe("Static content RoboHydra heads", function() {
+    "use strict";
+
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new RoboHydraHeadStatic({});
+            new RoboHydraHeadStatic({});
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
-            var head = new RoboHydraHeadStatic({path: '/'});
+            new RoboHydraHeadStatic({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can't be created with extra, unknown properties", function() {
         expect(function() {
-            var head = new RoboHydraHeadStatic({madeUpProperty: true});
+            new RoboHydraHeadStatic({madeUpProperty: true});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
@@ -231,7 +235,7 @@ describe("Static content RoboHydra heads", function() {
 
     it("cannot be created with an empty response array", function() {
         expect(function() {
-            var head = new RoboHydraHeadStatic({responses: []});
+            new RoboHydraHeadStatic({responses: []});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
@@ -385,9 +389,11 @@ describe("Static content RoboHydra heads", function() {
 });
 
 describe("Filesystem RoboHydra heads", function() {
+    "use strict";
+
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new RoboHydraHeadFilesystem({mountPath: '/'});
+            new RoboHydraHeadFilesystem({mountPath: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
@@ -547,10 +553,10 @@ describe("Filesystem RoboHydra heads", function() {
         });
         withResponse(head, '/json.txt', function(res) {
             expect(res.headers['content-type']).toEqual("text/plain");
-            withResponse(head, '/json.txt?var=val', function(res3) {
-                expect(res3.headers['content-type']).toEqual("text/plain");
-                withResponse(head, '/json.nottxt', function(res2) {
-                    expect(res2.headers['content-type']).toEqual("text/x-fake");
+            withResponse(head, '/json.txt?var=val', function(res2) {
+                expect(res2.headers['content-type']).toEqual("text/plain");
+                withResponse(head, '/json.nottxt', function(res3) {
+                    expect(res3.headers['content-type']).toEqual("text/x-fake");
                     done();
                 });
             });
@@ -705,14 +711,16 @@ describe("Filesystem RoboHydra heads", function() {
 });
 
 describe("Proxying RoboHydra heads", function() {
+    "use strict";
+
     it("can't be created without necessary properties", function() {
         expect(function() {
-            var head = new RoboHydraHeadProxy({mountPath: '/'});
+            new RoboHydraHeadProxy({mountPath: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("proxy from default mountPath = /", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p/*, h*/) {
             return "Proxied " + m + " response for " + p;
         });
         var head = new RoboHydraHeadProxy({
@@ -727,7 +735,7 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy simple GET requests", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p/*, h*/) {
             return "Proxied " + m + " response for " + p;
         });
         var head = new RoboHydraHeadProxy({
@@ -755,7 +763,7 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy GET requests with parameters", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p/*, h*/) {
             return "Proxied " + m + " response for " + p;
         });
         var head = new RoboHydraHeadProxy({
@@ -770,7 +778,7 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can proxy simple GET requests to a site's root path", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(m, p, h) {
+        var fakeHttpR = fakeHttpRequest(function(m, p/*, h*/) {
             return "Proxied " + m + " response for " + p;
         });
         var head = new RoboHydraHeadProxy({
@@ -958,11 +966,11 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can connect using HTTPS", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
+        var fakeHttpR = fakeHttpRequest(function(method, path/*, headers*/) {
             return "WRONG, CONNECTION THROUGH HTTP";
         });
         var sslMessage = "SSL connection (HTTPS) to ";
-        var fakeHttpsR = fakeHttpRequest(function(method, path, headers) {
+        var fakeHttpsR = fakeHttpRequest(function(method, path/*, headers*/) {
             return sslMessage + path;
         });
 
@@ -979,21 +987,23 @@ describe("Proxying RoboHydra heads", function() {
 });
 
 describe("RoboHydra filtering heads", function() {
+    "use strict";
+
     it("cannot be created without the 'filter' property", function() {
         expect(function() {
-            var head = new RoboHydraHeadFilter({path: '/.*'});
+            new RoboHydraHeadFilter({path: '/.*'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("cannot be created with a non-function 'filter' property", function() {
         expect(function() {
-            var head = new RoboHydraHeadFilter({filter: ''});
+            new RoboHydraHeadFilter({filter: ''});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can be created with only the 'filter' property", function() {
         expect(function() {
-            var head = new RoboHydraHeadFilter({filter: '/.*'});
+            new RoboHydraHeadFilter({filter: '/.*'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
@@ -1164,7 +1174,7 @@ describe("RoboHydra filtering heads", function() {
 
     it("break if the filter function doesn't return anything", function(done) {
         var head = new RoboHydraHeadFilter({
-            filter: function(r) { "Forgot the return statement :'("; }
+            filter: function() { "Forgot the return statement :'("; }
         });
         var next = function(_, res) { res.send(new Buffer("foobar")); };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
@@ -1175,9 +1185,11 @@ describe("RoboHydra filtering heads", function() {
 });
 
 describe("RoboHydra watchdog heads", function() {
+    "use strict";
+
     it("can't be created without a watcher", function() {
         expect(function() {
-            var head = new RoboHydraHeadWatchdog({
+            new RoboHydraHeadWatchdog({
                 path: '/.*'
             });
         }).toThrow("InvalidRoboHydraHeadException");
@@ -1185,7 +1197,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("can be created without a reporter", function() {
         expect(function() {
-            var head = new RoboHydraHeadWatchdog({
+            new RoboHydraHeadWatchdog({
                 watcher: function() { return true; }
             });
         }).not.toThrow();
@@ -1193,7 +1205,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("complain if watcher is not a function", function() {
         expect(function() {
-            var head = new RoboHydraHeadWatchdog({
+            new RoboHydraHeadWatchdog({
                 watcher: 'not a function'
             });
         }).toThrow("InvalidRoboHydraHeadException");
@@ -1201,7 +1213,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("complain if reporter is there but is not a function", function() {
         expect(function() {
-            var head = new RoboHydraHeadWatchdog({
+            new RoboHydraHeadWatchdog({
                 watcher: function() {},
                 reporter: 'not a function'
             });
@@ -1229,7 +1241,7 @@ describe("RoboHydra watchdog heads", function() {
             watcher: function() { return false; }
         });
 
-        var fakeRes = new Response().on('end', function(evt) {
+        var fakeRes = new Response().on('end', function(/*evt*/) {
             expect(head.reporter).toBeFunction();
             done();
         });
@@ -1351,7 +1363,7 @@ describe("RoboHydra watchdog heads", function() {
             if (err) { throw new Error("WTF DUDE"); }
 
             var head = new RoboHydraHeadWatchdog({
-                watcher: function(req, res) { return true; },
+                watcher: function(/*req, res*/) { return true; },
                 reporter: function(req, res) {
                     expect(req.url).toEqual(path);
                     expect(res.body.toString()).toEqual(content);

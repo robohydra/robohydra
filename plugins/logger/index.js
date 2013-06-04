@@ -7,6 +7,8 @@ var robohydra           = require('robohydra'),
 
 
 function printResponseBody(logFileFd, responseBody) {
+    "use strict";
+
     var bodyString = responseBody.toString();
     var truncatedBodyString =
         bodyString.slice(0, Math.min(1000, responseBody.length));
@@ -17,6 +19,8 @@ function printResponseBody(logFileFd, responseBody) {
 }
 
 function logRequestResponse(logFileFd, req, res, cb) {
+    "use strict";
+
     fs.writeSync(logFileFd, "============================================\n");
 
     fs.writeSync(logFileFd, req.method + " " + req.url + "\n");
@@ -82,6 +86,8 @@ function logRequestResponse(logFileFd, req, res, cb) {
 }
 
 function getBodyParts(config) {
+    "use strict";
+
     // Initialise the log file on RoboHydra start
     var logFilePath = config.logFilePath || 'robohydra.log';
     var logFileFd = fs.openSync(logFilePath, 'w+');
