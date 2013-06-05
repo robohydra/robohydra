@@ -1,6 +1,8 @@
 var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic;
 
 exports.getBodyParts = function() {
+    "use strict";
+
     return {
         heads: [
             new RoboHydraHeadStatic({
@@ -9,7 +11,7 @@ exports.getBodyParts = function() {
             })
         ],
 
-        tests: {
+        scenarios: {
             duplicateTestName: {
                 heads: [
                     new RoboHydraHeadStatic({

@@ -127,12 +127,31 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginList(['simple_plugin']);
     });
 
+    it("can register plugins with one scenario", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'simple_plugin',
+            scenarios: {simpleScenario:{}}
+        }));
+        expect(hydra).toHavePluginList(['simple_plugin']);
+    });
+
     it("can register plugins with one head and one test", function() {
         var hydra = new RoboHydra();
         hydra.registerPluginObject(pluginInfoObject({
             name: 'simple_plugin',
             heads: [simpleRoboHydraHead()],
             tests: {simpleTest:{}}
+        }));
+        expect(hydra).toHavePluginList(['simple_plugin']);
+    });
+
+    it("can register plugins with one head and one scenario", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'simple_plugin',
+            heads: [simpleRoboHydraHead()],
+            scenarios: {simpleScenario:{}}
         }));
         expect(hydra).toHavePluginList(['simple_plugin']);
     });
@@ -576,36 +595,36 @@ describe("RoboHydras", function() {
 describe("RoboHydra plugin load system", function() {
     "use strict";
 
-    it("can load test from external files", function() {
+    it("can load scenarios from external files", function() {
         var hydra = new RoboHydra();
-        var pluginName = 'external-tests-simple';
+        var pluginName = 'external-scenarios-simple';
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        expect(Object.keys(hydra.getPlugin(pluginName).tests)).toEqual(
-            ['firstTest']);
+        expect(Object.keys(hydra.getPlugin(pluginName).scenarios)).toEqual(
+            ['firstScenario']);
     });
 
-    it("can load tests from both external files and main file", function() {
+    it("can load scenarios from both external files and main file", function() {
         var hydra = new RoboHydra();
-        var pluginName = 'external-tests-mixed';
+        var pluginName = 'external-scenarios-mixed';
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        expect(Object.keys(hydra.getPlugin(pluginName).tests).sort()).toEqual(
+        expect(Object.keys(hydra.getPlugin(pluginName).scenarios).sort()).toEqual(
             ['external', 'internal']);
     });
 
-    it("can load a plugin without heads, and with only external tests", function() {
+    it("can load a plugin without heads, and with only external scenarios", function() {
         var hydra = new RoboHydra();
-        var pluginName = 'external-tests-headless';
+        var pluginName = 'external-scenarios-headless';
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        expect(Object.keys(hydra.getPlugin(pluginName).tests).sort()).toEqual(
-            ['firstTest', 'secondTest']);
+        var scenarios = Object.keys(hydra.getPlugin(pluginName).scenarios);
+        expect(scenarios.sort()).toEqual(['firstTest', 'secondTest']);
     });
 
-    it("doesn't allow internal and external tests with the same name", function() {
+    it("doesn't allow internal and external scenarios with the same name", function() {
         var hydra = new RoboHydra();
-        var pluginName = 'external-tests-conflicting-names';
+        var pluginName = 'external-scenarios-conflicting-names';
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         expect(function() {
             hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
@@ -1175,7 +1194,7 @@ describe("Fixture system", function() {
     });
 
     it("works from external tests", function(done) {
-        this.hydra.startTest('simple-fixtures', 'fixtureLoader');
+        this.hydra.startScenario('simple-fixtures', 'fixtureLoader');
         this.hydra.handle(simpleReq('/external-test-fixture'),
                           new Response(function() {
                               expect(this.body.toString()).toEqual(
