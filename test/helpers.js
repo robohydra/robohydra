@@ -69,6 +69,17 @@ var robohydra = require("../lib/robohydra"),
         expectation: "toHaveTestResult"
     });
 
+    buster.assertions.add("hasScenarioTestResult", {
+        assert: function(actual, plugin, scenario, expectedResult) {
+            this.testResults = actual.testResults;
+            return buster.assertions.deepEqual(this.testResults[plugin][scenario],
+                                               expectedResult);
+        },
+        assertMessage: "Expected RoboHydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
+        refuteMessage: "Expected RoboHydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
+        expectation: "toHaveTestResult"
+    });
+
     function withResponse(head, pathOrObject, cb) {
         if (typeof(pathOrObject) === 'string') {
             pathOrObject = {path: pathOrObject};

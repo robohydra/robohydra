@@ -118,7 +118,7 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
     });
 
-    it("can register plugins with one test", function() {
+    it("can register plugins with one test (deprecated)", function() {
         var hydra = new RoboHydra();
         hydra.registerPluginObject(pluginInfoObject({
             name: 'simple_plugin',
@@ -136,7 +136,7 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginList(['simple_plugin']);
     });
 
-    it("can register plugins with one head and one test", function() {
+    it("can register plugins with one head and one test (deprecated)", function() {
         var hydra = new RoboHydra();
         hydra.registerPluginObject(pluginInfoObject({
             name: 'simple_plugin',
@@ -632,7 +632,7 @@ describe("RoboHydra plugin load system", function() {
     });
 });
 
-describe("RoboHydra test system", function() {
+describe("RoboHydra test system (deprecated)", function() {
     "use strict";
 
     it("has '*default*' as the default test", function() {
@@ -660,7 +660,7 @@ describe("RoboHydra test system", function() {
         var hydra = new RoboHydra();
         expect(function() {
             hydra.startTest('plugin', 'simpleTest');
-        }).toThrow("InvalidRoboHydraTestException");
+        }).toThrow("InvalidRoboHydraScenarioException");
     });
 
     it("can stop tests", function() {
@@ -1133,6 +1133,510 @@ describe("RoboHydra test system", function() {
             }
         }));
         expect(hydra.getPlugin('plugin').tests.testWithInstructions.instructions).toEqual(instructions);
+    });
+});
+
+describe("RoboHydra scenario system", function() {
+    "use strict";
+
+    it("has '*default*' as the default scenario", function() {
+        var hydra = new RoboHydra();
+        expect(hydra.currentScenario).toEqual({plugin: '*default*',
+                                               scenario: '*default*'});
+    });
+
+    it("can start scenarios", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'simpleTest');
+        expect(hydra.currentScenario).toEqual({plugin: 'plugin',
+                                               scenario: 'simpleTest'});
+    });
+
+    it("throws an exception when starting non-existent scenarios", function() {
+        var hydra = new RoboHydra();
+        expect(function() {
+            hydra.startScenario('plugin', 'simpleTest');
+        }).toThrow("InvalidRoboHydraScenarioException");
+    });
+
+    it("can stop scenarios", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'simpleTest');
+        hydra.stopScenario();
+        expect(hydra.currentScenario).toEqual({plugin:   '*default*',
+                                               scenario: '*default*'});
+    });
+
+    it("stops the previous scenario when starting a new one", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin2',
+            scenarios: {
+                anotherSimpleTest: {
+                    heads: [simpleRoboHydraHead()]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'simpleTest');
+        hydra.startScenario('plugin2', 'anotherSimpleTest');
+        expect(hydra.currentScenario).toEqual({plugin:   'plugin2',
+                                               scenario: 'anotherSimpleTest'});
+    });
+
+    it("doesn't activate scenario heads if no scenario is active", function(done) {
+        var hydra = new RoboHydra();
+        var path  = '/foo';
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                simpleTest: {
+                    heads: [simpleRoboHydraHead(path)]
+                }
+            }
+        }));
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.statusCode).toEqual(404);
+            done();
+        }));
+    });
+
+    it("activates scenario heads when scenario is active", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo';
+        var scenarioHeads = [simpleRoboHydraHead(path)];
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                someTest: {
+                    heads: scenarioHeads
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'someTest');
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.statusCode).toEqual(200);
+            done();
+        }));
+    });
+
+    it("deactivates scenario heads when a scenario is stopped", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo';
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                someTest: {
+                    heads: [simpleRoboHydraHead(path)]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'someTest');
+        hydra.stopScenario();
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.statusCode).toEqual(404);
+            done();
+        }));
+    });
+
+    it("deactivates scenario heads when a new scenario is started", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo', path2 = '/bar';
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                someTest: {
+                    heads: [simpleRoboHydraHead(path)]
+                },
+                anotherTest: {
+                    heads: [simpleRoboHydraHead(path2)]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'someTest');
+        hydra.startScenario('plugin', 'anotherTest');
+        var res = new Response(function() {
+                      expect(res.statusCode).toEqual(404);
+
+                      var res2 = new Response(function() {
+                                     expect(res2.statusCode).toEqual(200);
+                                     done();
+                                 });
+                      hydra.handle({url: path2}, res2);
+                  });
+        hydra.handle(simpleReq(path), res);
+    });
+
+    it("has an empty test result when starting a scenario", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: { testWithAssertion: {heads: [
+                headWithFail('/f', hydra.getModulesObject(), "some message")
+            ]}}
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        expect(hydra).toHaveTestResult('plugin',
+                                       'testWithAssertion',
+                                       {result: undefined,
+                                        passes: [],
+                                        failures: []});
+    });
+
+    it("can execute and count a passing assertion", function(done) {
+        var assertionMessage = "should do something simple but useful";
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                testWithAssertion: {
+                    heads: [headWithPass('/', hydra.getModulesObject(),
+                                         assertionMessage)]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin', 'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [assertionMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("can execute and count a failing assertion", function(done) {
+        var hydra = new RoboHydra();
+        var assertionMessage = "should have this and that";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: { testWithAssertion: {
+                heads: [headWithFail('/', hydra.getModulesObject(),
+                                     assertionMessage)]
+            }}
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'fail',
+                                                passes: [],
+                                                failures: [assertionMessage]});
+                done();
+            })
+        );
+    });
+
+    it("can save more than one test result", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        var failMessage = "should have this and that (and didn't)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: { testWithAssertion: {heads: [
+                headWithFail('/f', hydra.getModulesObject(), failMessage),
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ]}}}));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/f'),
+            new Response(function() {
+                hydra.handle(
+                    simpleReq('/p'),
+                    new Response(function() {
+                        expect(hydra).toHaveTestResult(
+                            'plugin',
+                            'testWithAssertion',
+                            {result: 'fail',
+                             passes: [passMessage],
+                             failures: [failMessage]}
+                        );
+                        done();
+                    })
+                );
+            })
+        );
+    });
+
+    it("resets test results after re-starting a scenario", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        var failMessage = "should have this and that (and didn't)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: { testWithAssertion: {heads: [
+                headWithFail('/f', hydra.getModulesObject(), failMessage),
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ]}}
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/f'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'fail',
+                                                passes: [],
+                                                failures: [failMessage]});
+                hydra.startScenario('plugin', 'testWithAssertion');
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: undefined,
+                                                passes: [],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("counts scenario-less assertions as *default*", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ]
+        }));
+        hydra.handle(
+            simpleReq('/p'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('*default*',
+                                               '*default*',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("counts assertions after stopping scenarios as *default*", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ],
+            scenarios: {testWithAssertion: {heads: []}}
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.stopScenario();
+        hydra.handle(
+            simpleReq('/p'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('*default*',
+                                               '*default*',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("counts assertions in non-scenario heads as in the current scenario", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ],
+            scenarios: {testWithAssertion: {heads: []}}
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/p'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("stopping a scenario doesn't erase previous results", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ],
+            scenarios: {testWithAssertion: {heads: []}}
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/p'),
+            new Response(function() {
+                hydra.stopScenario();
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("doesn't erase the previous test's results when starting a new one", function(done) {
+        var hydra = new RoboHydra();
+        var passMessage = "should have this and that (and did)";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                headWithPass('/p', hydra.getModulesObject(), passMessage)
+            ],
+            tests: {testWithAssertion: {heads: []},
+                    anotherTest:       {heads: []}}
+        }));
+        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/p'),
+            new Response(function() {
+                hydra.startTest('plugin', 'anotherTest');
+                expect(hydra).toHaveTestResult('plugin',
+                                               'testWithAssertion',
+                                               {result: 'pass',
+                                                passes: [passMessage],
+                                                failures: []});
+                done();
+            })
+        );
+    });
+
+    it("simply returns false on assertion failure", function(done) {
+        var hydra = new RoboHydra();
+        var executesAfterAssertion = false, testResult = null;
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                new RoboHydraHead({
+                    path: '/',
+                    handler: function(req, res) {
+                        testResult =
+                            hydra.getModulesObject().assert.equal(0, 1);
+                        executesAfterAssertion = true;
+                        res.end();
+                    }
+                })
+            ]
+        }));
+        hydra.handle(
+            simpleReq('/'),
+            new Response(function() {
+                expect(executesAfterAssertion).toBeTrue();
+                expect(testResult).toBeFalse();
+                done();
+            })
+        );
+    });
+
+    it("returns true on assertion pass", function(done) {
+        var hydra = new RoboHydra();
+        var executesAfterAssertion = false, testResult = null;
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            heads: [
+                new RoboHydraHead({
+                    path: '/',
+                    handler: function(req, res) {
+                        testResult =
+                            hydra.getModulesObject().assert.equal(1, 1);
+                        executesAfterAssertion = true;
+                        res.end();
+                    }
+                })
+            ]
+        }));
+        hydra.handle(
+            simpleReq('/'),
+            new Response(function() {
+                expect(executesAfterAssertion).toBeTrue();
+                expect(testResult).toBeTrue();
+                done();
+            })
+        );
+    });
+
+    it("gives a default assertion message to those that don't have one", function(done) {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                testWithAssertion: {heads: [
+                    new RoboHydraHead({
+                        path: '/',
+                        handler: function(req, res) {
+                            hydra.getModulesObject().assert.equal("foo", "bar");
+                            res.end();
+                        }
+                    })
+                ]}
+            }
+        }));
+        hydra.startScenario('plugin', 'testWithAssertion');
+        hydra.handle(
+            simpleReq('/'),
+            new Response(function() {
+                expect(hydra).toHaveTestResult(
+                    'plugin',
+                    'testWithAssertion',
+                    {result: 'fail',
+                     passes: [],
+                     failures: ["*unnamed-assertion*"]});
+                done();
+            })
+        );
+    });
+
+    it("can access a scenario instructions", function() {
+        var hydra = new RoboHydra();
+        var instructions = "Click here, then there";
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                testWithInstructions: {
+                    heads: [],
+                    instructions: instructions
+                }
+            }
+        }));
+        expect(hydra.getPlugin('plugin').scenarios.testWithInstructions.instructions).toEqual(instructions);
     });
 });
 
