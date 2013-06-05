@@ -3,10 +3,11 @@ var heads               = require('robohydra').heads,
     RoboHydraHead       = heads.RoboHydraHead;
 
 exports.getBodyParts = function(config, modules) {
+    "use strict";
+
     var assert = modules.assert;
 
     return {
-        name: "testBasic",
         tests: {
             firstTestFoo: {
                 heads: [
