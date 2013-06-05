@@ -7,15 +7,13 @@ var robohydra = require("../lib/robohydra"),
     Response  = robohydra.Response;
 var RoboHydraHeadStatic = require("../lib/heads").RoboHydraHeadStatic;
 var helpers              = require("./helpers"),
-    checkRouting         = helpers.checkRouting,
-    withResponse         = helpers.withResponse,
-    fakeFs               = helpers.fakeFs,
-    fakeHttpCreateClient = helpers.fakeHttpCreateClient,
     pluginInfoObject     = helpers.pluginInfoObject;
 
 buster.spec.expose();
 
 describe("Admin RoboHydra UI", function() {
+    "use strict";
+
     it("shows up by default on /robohydra-admin", function(done) {
         var robohydra = new RoboHydra();
 
