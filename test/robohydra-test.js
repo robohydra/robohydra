@@ -81,7 +81,7 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         expect(function() {
             hydra.registerPluginObject(pluginInfoObject({
-                extraProps: {heds: []}
+                heds: []
             }));
         }).toThrow("InvalidRoboHydraPluginException");
     });

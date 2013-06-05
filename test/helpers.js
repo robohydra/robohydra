@@ -227,15 +227,9 @@ var robohydra = require("../lib/robohydra"),
         var name = ('name' in info) ? info.name : 'test-plugin';
 
         var bodyParts = {};
-        if (info.heads) {
-            bodyParts.heads = info.heads;
-        }
-        if (info.tests) {
-            bodyParts.tests = info.tests;
-        }
-        if (info.extraProps) {
-            for (var p in info.extraProps) {
-                bodyParts[p] = info.extraProps[p];
+        for (var p in info) {
+            if (p !== 'name') {
+                bodyParts[p] = info[p];
             }
         }
 
