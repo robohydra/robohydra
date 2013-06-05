@@ -2,7 +2,6 @@ var zlib = require('zlib'),
     fs   = require('fs');
 var robohydra           = require('robohydra'),
     RoboHydraHead       = robohydra.heads.RoboHydraHead,
-    RoboHydraHeadStatic = robohydra.heads.RoboHydraHeadStatic,
     Response            = robohydra.Response;
 
 
