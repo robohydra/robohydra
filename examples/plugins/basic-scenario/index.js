@@ -9,7 +9,7 @@ exports.getBodyParts = function(config, modules) {
 
     return {
         scenarios: {
-            firstTestFoo: {
+            "simple, assertion-less scenario test": {
                 heads: [
                     new RoboHydraHeadStatic({path: '/foo',
                                              content: "fixed content"}),
@@ -17,7 +17,7 @@ exports.getBodyParts = function(config, modules) {
                 ]
             },
 
-            secondTestBar: {
+            "check user goes to /bar2 instead of /bar": {
                 instructions: "Optional, Markdown format instructions.\n\n" +
                                 "You can go to [/bar](/bar) for a failure, " +
                                 "or to [/bar2](/bar2) for a pass. Then go " +
