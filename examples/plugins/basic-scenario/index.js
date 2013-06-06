@@ -8,7 +8,7 @@ exports.getBodyParts = function(config, modules) {
     var assert = modules.assert;
 
     return {
-        tests: {
+        scenarios: {
             firstTestFoo: {
                 heads: [
                     new RoboHydraHeadStatic({path: '/foo',
@@ -22,8 +22,9 @@ exports.getBodyParts = function(config, modules) {
                                 "You can go to [/bar](/bar) for a failure, " +
                                 "or to [/bar2](/bar2) for a pass. Then go " +
                                 "back to " +
-                                "[/robohydra-admin/tests](/robohydra-admin/tests) " +
-                                "to see the results.",
+                                "[/robohydra-admin/scenarios]" +
+                                "(/robohydra-admin/scenarios) to see the " +
+                                "results.",
 
                 heads: [
                     new RoboHydraHead({
