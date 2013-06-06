@@ -3,6 +3,8 @@ var heads              = require('robohydra').heads,
     RoboHydraHeadProxy = heads.RoboHydraHeadProxy;
 
 exports.getBodyParts = function(config) {
+    "use strict";
+
     var delay = 1000;
     var proxyTo = config.proxyto || 'http://robohydra.org';
 

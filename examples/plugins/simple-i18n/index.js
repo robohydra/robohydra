@@ -5,6 +5,8 @@ var robohydra               = require('robohydra'),
     Response                = robohydra.Response;
 
 function languageBasedUrlDispatcher(langs, req, res, next) {
+    "use strict";
+
     // If there are no languages left, call the next head without
     // tweaking the URL
     if (! langs.length) {
@@ -29,6 +31,8 @@ function languageBasedUrlDispatcher(langs, req, res, next) {
 }
 
 exports.getBodyParts = function(config) {
+    "use strict";
+
     var documentRoot = config.simplei18ndir || 'examples/simple-i18n';
 
     return {

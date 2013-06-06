@@ -2,11 +2,9 @@ var heads               = require('robohydra').heads,
     RoboHydraHeadProxy  = heads.RoboHydraHeadProxy,
     RoboHydraHeadFilter = heads.RoboHydraHeadFilter;
 
-exports.getBodyParts = function(conf) {
-    var RoboHydraHead = heads.RoboHydraHead;
-    var robohydra = require('robohydra');
-    var Response = robohydra.Response;
-    var RoboHydraHeadStatic = heads.RoboHydraHeadStatic;
+exports.getBodyParts = function() {
+    "use strict";
+
     return {
         heads: [
             new RoboHydraHeadFilter({
