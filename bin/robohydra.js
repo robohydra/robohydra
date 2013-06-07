@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/*global require, process, console, JSON, Buffer, __dirname*/
+/*global require, process, console, JSON, Buffer*/
 
 /**
  * Module dependencies.
@@ -23,6 +23,8 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
     commander.version('0.3.0+').
         usage("mysetup.conf [confvar=value confvar2=value2 ...]").
         option('-I <path>', 'Adds a new path in the plugin search path list').
+        option('-P, --plugins <plugin-list>', 'Load plugins at startup').
+        option('-n, --no-config', "Don't read a configuration file").
         option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
         parse(process.argv);
 
@@ -39,24 +41,35 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
 
     // Process the options
-    var extraPluginLoadPath = [];
+    var extraPluginLoadPath = [], plugins = [];
     if (commander.I) {
         extraPluginLoadPath.push(commander.I);
     }
-    // Check parameters and load RoboHydra configuration
-    if (commander.args.length < 1) {
-        showHelpAndDie();
+    if (commander.plugins) {
+        plugins = plugins.concat(commander.plugins.split(/,/));
     }
-    var configPath = commander.args[0];
-    var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
-    var robohydraConfig = JSON.parse(robohydraConfigString);
-    if (! robohydraConfig.plugins) {
-        showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
+    var args = commander.args;
+
+    // Check parameters and load RoboHydra configuration (unless -n)
+    var robohydraConfig = {};
+    if (commander.config) {
+        if (commander.args.length < 1) {
+            showHelpAndDie();
+        }
+        var configPath = args.shift();
+        var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
+        robohydraConfig = JSON.parse(robohydraConfigString);
+        if (! robohydraConfig.plugins) {
+            showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
+        } else {
+            plugins = plugins.concat(robohydraConfig.plugins);
+        }
     }
+
     // After the second parameter, the rest is extra configuration variables
     var extraVars = {};
-    for (var i = 1, len = commander.args.length; i < len; i++) {
-        var varAndValue  = commander.args[i].split('=', 2);
+    for (var i = 0, len = args.length; i < len; i++) {
+        var varAndValue = args[i].split('=', 2);
         if (varAndValue.length !== 2) {
             showHelpAndDie();
         } else {
@@ -65,7 +78,7 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
     }
 
     var summoner = new RoboHydraSummoner(
-        robohydraConfig.plugins,
+        plugins,
         robohydraConfig.summoner,
         {extraVars: extraVars, extraPluginLoadPaths: extraPluginLoadPath}
     );
