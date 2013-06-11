@@ -8,7 +8,6 @@
 var http      = require('http'),
     https     = require('https'),
     fs        = require('fs'),
-    qs        = require('qs'),
     commander = require('commander');
 var robohydra    = require('../lib/robohydra'),
     Request      = robohydra.Request,
@@ -89,11 +88,7 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
     // Routes are all dynamic, so we only need a catch-all here
     var requestHandler = function(nodeReq, nodeRes) {
-        var req = new Request({
-            url: nodeReq.url,
-            method: nodeReq.method,
-            headers: nodeReq.headers
-        });
+        var reqBody = new Buffer("");
         var res = new Response().chain(nodeRes).
             on('end', function(evt) {
                 console.log(stringForLog(nodeReq, evt.response));
@@ -101,18 +96,18 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
         // Fetch POST data if available
         nodeReq.addListener("data", function (chunk) {
-            var tmp = new Buffer(req.rawBody.length + chunk.length);
-            req.rawBody.copy(tmp);
-            chunk.copy(tmp, req.rawBody.length);
-            req.rawBody = tmp;
+            var tmp = new Buffer(reqBody.length + chunk.length);
+            reqBody.copy(tmp);
+            chunk.copy(tmp, reqBody.length);
+            reqBody = tmp;
         });
         nodeReq.addListener("end", function () {
-            try {
-                req.bodyParams = qs.parse(req.rawBody.toString());
-            } catch(e) {
-                // It's ok if qs can't parse the body
-            }
-
+            var req = new Request({
+                url: nodeReq.url,
+                method: nodeReq.method,
+                headers: nodeReq.headers,
+                rawBody: reqBody
+            });
             summoner.summonRoboHydraForRequest(req).handle(req, res);
         });
     };

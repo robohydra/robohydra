@@ -4,6 +4,7 @@ var buster = require("buster");
 var path = require("path");
 var robohydra = require("../lib/robohydra"),
     RoboHydra = robohydra.RoboHydra,
+    Request   = robohydra.Request,
     Response  = robohydra.Response;
 var heads               = require("../lib/heads"),
     RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
@@ -1708,6 +1709,23 @@ describe("Fixture system", function() {
     });
 });
 
+
+describe("Request object", function() {
+    "use strict";
+
+    it("parses the body", function() {
+        var req = new Request({url: '/foo/bar',
+                               rawBody: new Buffer("foo=bar&qux=meh")});
+        expect(req.bodyParams.foo).toEqual("bar");
+        expect(req.bodyParams.qux).toEqual("meh");
+    });
+
+    it("doesn't freak out if there's no body", function() {
+        expect(function() {
+            new Request({url: '/foo/bar'});
+        }).not.toThrow();
+    });
+});
 
 describe("Response object", function() {
     "use strict";
