@@ -6,8 +6,9 @@ var robohydra = require("../lib/robohydra"),
     Request   = robohydra.Request,
     Response  = robohydra.Response;
 var RoboHydraHeadStatic = require("../lib/heads").RoboHydraHeadStatic;
-var helpers             = require("./helpers"),
-    pluginInfoObject    = helpers.pluginInfoObject;
+var helpers          = require("./helpers"),
+    pluginInfoObject = helpers.pluginInfoObject,
+    withResponse     = helpers.withResponse;
 
 buster.spec.expose();
 
@@ -45,5 +46,62 @@ describe("Admin RoboHydra UI", function() {
             done();
         });
         robohydra.handle(req, res);
+    });
+});
+
+
+
+function restUrl(path) {
+    return '/robohydra-admin/rest' + path;
+}
+
+describe("REST API", function() {
+    "use strict";
+
+    it("shows information for the given head", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', headName = 'some-head-name';
+        robohydra.registerPluginObject(pluginInfoObject({
+            name: pluginName,
+            heads: [new RoboHydraHeadStatic({name: headName, content: 'foo'})]
+        }));
+
+        var url = restUrl('/plugins/' + pluginName + '/heads/' + headName);
+        withResponse(robohydra, url, function(resp) {
+            expect(resp.statusCode).toEqual(200);
+            var info = JSON.parse(resp.body.toString());
+            expect(info.plugin).toEqual(pluginName);
+            expect(info.name).toEqual(headName);
+            done();
+        });
+    });
+
+    it("can toggle the state of a head", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', headName = 'some-head-name';
+        robohydra.registerPluginObject(pluginInfoObject({
+            name: pluginName,
+            heads: [new RoboHydraHeadStatic({name: headName, content: 'foo'})]
+        }));
+
+        var headUrl = restUrl('/plugins/' + pluginName + '/heads/' + headName);
+        var detachRequest = {path: headUrl,
+                             method: 'POST',
+                             postData: 'attached=false'};
+        withResponse(robohydra, detachRequest, function(detachResp) {
+            expect(detachResp.statusCode).toEqual(200);
+            var detachInfo = JSON.parse(detachResp.body.toString());
+            expect(detachInfo.plugin).toEqual(pluginName);
+            expect(detachInfo.name).toEqual(headName);
+            expect(detachInfo.attached).toEqual(false);
+
+            withResponse(robohydra, headUrl, function(afterResp) {
+                var afterInfo = JSON.parse(afterResp.body.toString());
+                expect(afterInfo.plugin).toEqual(pluginName);
+                expect(afterInfo.name).toEqual(headName);
+                expect(afterInfo.attached).toEqual(false);
+                done();
+            });
+        });
     });
 });
