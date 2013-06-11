@@ -1725,6 +1725,11 @@ describe("Request object", function() {
             new Request({url: '/foo/bar'});
         }).not.toThrow();
     });
+
+    it("normalises the HTTP method name", function() {
+        var req = new Request({url: '/foo/bar', method: 'PoSt'});
+        expect(req.method).toEqual('POST');
+    });
 });
 
 describe("Response object", function() {
