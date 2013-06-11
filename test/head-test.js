@@ -17,6 +17,8 @@ var heads                   = require("../lib/heads"),
     RoboHydraHeadProxy      = heads.RoboHydraHeadProxy,
     RoboHydraHeadFilter     = heads.RoboHydraHeadFilter,
     RoboHydraHeadWatchdog   = heads.RoboHydraHeadWatchdog;
+var InvalidRoboHydraHeadException =
+        require("../lib/exceptions").InvalidRoboHydraHeadException;
 
 buster.spec.expose();
 
@@ -1180,6 +1182,22 @@ describe("RoboHydra filtering heads", function() {
             expect(res.statusCode).toEqual(500);
             done();
         });
+    });
+
+    it("re-throw exceptions if they were thrown after finishing the response", function() {
+        var responseText = "Completely normal testing response";
+        var head = new RoboHydraHead({
+            path: '/.*',
+            handler: function(req, res) {
+                res.send(responseText);
+            }
+        });
+        expect(function() {
+            head.handle(simpleReq('/'), new Response(function(evt) {
+                expect(evt.response.body.toString()).toEqual(responseText);
+                throw new InvalidRoboHydraHeadException();
+            }));
+        }).toThrow("InvalidRoboHydraHeadException");
     });
 });
 
