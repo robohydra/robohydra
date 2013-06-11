@@ -6,8 +6,8 @@ var robohydra = require("../lib/robohydra"),
     Request   = robohydra.Request,
     Response  = robohydra.Response;
 var RoboHydraHeadStatic = require("../lib/heads").RoboHydraHeadStatic;
-var helpers              = require("./helpers"),
-    pluginInfoObject     = helpers.pluginInfoObject;
+var helpers             = require("./helpers"),
+    pluginInfoObject    = helpers.pluginInfoObject;
 
 buster.spec.expose();
 
@@ -19,13 +19,13 @@ describe("Admin RoboHydra UI", function() {
 
         var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
-                       expect(res.statusCode).toEqual(200);
-                       var res2 = new Response(function() {
-                                      expect(res2.statusCode).toEqual(404);
-                                      done();
-                                  });
-                       robohydra.handle({url: '/blah'}, res2);
-                   });
+            expect(res.statusCode).toEqual(200);
+            var res2 = new Response(function() {
+                expect(res2.statusCode).toEqual(404);
+                done();
+            });
+            robohydra.handle({url: '/blah'}, res2);
+        });
         robohydra.handle(req, res);
     });
 
@@ -39,11 +39,11 @@ describe("Admin RoboHydra UI", function() {
 
         var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
-                      expect(this.body).toMatch(pluginName);
-                      expect(this.body).toMatch(headName);
-                      expect(this.body).toMatch(/RoboHydra Admin/);
-                      done();
-                  });
+            expect(this.body).toMatch(pluginName);
+            expect(this.body).toMatch(headName);
+            expect(this.body).toMatch(/RoboHydra Admin/);
+            done();
+        });
         robohydra.handle(req, res);
     });
 });

@@ -1,7 +1,6 @@
 /*global describe, it, expect*/
 
 var buster = require("buster"),
-    fs     = require("fs"),
     zlib   = require("zlib");
 var helpers         = require("./helpers"),
     checkRouting    = helpers.checkRouting,
@@ -967,7 +966,7 @@ describe("Proxying RoboHydra heads", function() {
     });
 
     it("can connect using HTTPS", function(done) {
-        var fakeHttpR = fakeHttpRequest(function(method, path/*, headers*/) {
+        var fakeHttpR = fakeHttpRequest(function(/*method, path, headers*/) {
             return "WRONG, CONNECTION THROUGH HTTP";
         });
         var sslMessage = "SSL connection (HTTPS) to ";
@@ -1175,7 +1174,7 @@ describe("RoboHydra filtering heads", function() {
 
     it("break if the filter function doesn't return anything", function(done) {
         var head = new RoboHydraHeadFilter({
-            filter: function() { "Forgot the return statement :'("; }
+            filter: function(body) { body.replace(/foo/, "bar"); }
         });
         var next = function(_, res) { res.send(new Buffer("foobar")); };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {

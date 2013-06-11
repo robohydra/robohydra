@@ -80,16 +80,16 @@ var robohydra = require("../lib/robohydra"),
         expectation: "toHaveTestResult"
     });
 
-    function withResponse(head, pathOrObject, cb) {
+    function withResponse(robohydraOrHead, pathOrObject, cb) {
         if (typeof(pathOrObject) === 'string') {
             pathOrObject = {path: pathOrObject};
         }
-        head.handle(simpleReq(pathOrObject.path,
-                              {method:  pathOrObject.method || 'GET',
-                               headers: pathOrObject.headers,
-                               body: pathOrObject.postData}),
-                    new Response(function() { cb(this); }),
-                    pathOrObject.nextFunction);
+        robohydraOrHead.handle(simpleReq(pathOrObject.path,
+                                         {method:  pathOrObject.method || 'GET',
+                                          headers: pathOrObject.headers,
+                                          body: pathOrObject.postData}),
+                               new Response(function() { cb(this); }),
+                               pathOrObject.nextFunction);
     }
 
     function checkRouting(head, list, cb) {
@@ -183,7 +183,7 @@ var robohydra = require("../lib/robohydra"),
                     this.handlers[event] = handler;
                 },
 
-                write: function(data, mode) {
+                write: function(data/*, mode*/) {
                     this.data = data;
                 },
 
