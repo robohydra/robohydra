@@ -14,7 +14,7 @@ buster.spec.expose();
 
 function registerSimplePlugin(robohydra, props) {
     var scenarios = {};
-    props.scenarios.forEach(function(scenarioName) {
+    (props.scenarios || []).forEach(function(scenarioName) {
         scenarios[scenarioName] = {heads: [
             new RoboHydraHeadStatic({
                 name: scenarioName,
@@ -25,7 +25,7 @@ function registerSimplePlugin(robohydra, props) {
 
     robohydra.registerPluginObject(pluginInfoObject({
         name: props.name,
-        heads: props.heads.map(function(headName) {
+        heads: (props.heads || []).map(function(headName) {
             return new RoboHydraHeadStatic({
                 name: headName,
                 content: "Content for " + headName
@@ -197,6 +197,84 @@ describe("REST API", function() {
                 expect(afterInfo.attached).toEqual(false);
                 done();
             });
+        });
+    });
+
+    it("can toggle the state of a scenario", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', scenarioName = 'some-scenario';
+        registerSimplePlugin(robohydra, {
+            name: pluginName,
+            scenarios: [scenarioName]
+        });
+
+        var headUrl = restUrl('/plugins/' + pluginName + '/scenarios/' +
+                                  scenarioName);
+        var startScenarioRequest = {path: headUrl,
+                                    method: 'POST',
+                                    postData: 'active=true'};
+        withResponse(robohydra, startScenarioRequest, function(startResp) {
+            expect(startResp.statusCode).toEqual(200);
+            var startInfo = JSON.parse(startResp.body.toString());
+            expect(startInfo.plugin).toEqual(pluginName);
+            expect(startInfo.name).toEqual(scenarioName);
+            expect(startInfo.active).toEqual(true);
+
+            expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
+            done();
+        });
+    });
+
+    it("doesn't stop any scenario if the given one wasn't the running scenario", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', scenarioName = 'some-scenario',
+            scenarioName2 = 'another-scenario';
+        registerSimplePlugin(robohydra, {
+            name: pluginName,
+            scenarios: [scenarioName, scenarioName2]
+        });
+        robohydra.startScenario(pluginName, scenarioName);
+
+        var scenarioUrl = restUrl('/plugins/' + pluginName + '/scenarios/' +
+                                      scenarioName2);
+        var stopScenarioRequest = {path: scenarioUrl,
+                                   method: 'POST',
+                                   postData: 'active=false'};
+        withResponse(robohydra, stopScenarioRequest, function(stopResp) {
+            expect(stopResp.statusCode).toEqual(200);
+            var stopInfo = JSON.parse(stopResp.body.toString());
+            expect(stopInfo.plugin).toEqual(pluginName);
+            expect(stopInfo.name).toEqual(scenarioName2);
+            expect(stopInfo.active).toEqual(false);
+
+            expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
+            done();
+        });
+    });
+
+    it("doesn't toggle any scenario state if there's no change", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', scenarioName = 'some-scenario';
+        registerSimplePlugin(robohydra, {
+            name: pluginName,
+            scenarios: [scenarioName]
+        });
+        robohydra.startScenario(pluginName, scenarioName);
+
+        var scenarioUrl = restUrl('/plugins/' + pluginName + '/scenarios/' +
+                                      scenarioName);
+        var pointlessRequest = {path: scenarioUrl,
+                                method: 'POST',
+                                postData: 'active=true'};
+        withResponse(robohydra, pointlessRequest, function(pointlessResp) {
+            expect(pointlessResp.statusCode).toEqual(200);
+            var stopInfo = JSON.parse(pointlessResp.body.toString());
+            expect(stopInfo.plugin).toEqual(pluginName);
+            expect(stopInfo.name).toEqual(scenarioName);
+            expect(stopInfo.active).toEqual(true);
+
+            expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
+            done();
         });
     });
 });
