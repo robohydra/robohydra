@@ -5,10 +5,13 @@ var robohydra = require("../lib/robohydra"),
     RoboHydra = robohydra.RoboHydra,
     Request   = robohydra.Request,
     Response  = robohydra.Response;
-var RoboHydraHeadStatic = require("../lib/heads").RoboHydraHeadStatic;
+var heads               = require("../lib/heads"),
+    RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
+    RoboHydraHead       = heads.RoboHydraHead;
 var helpers          = require("./helpers"),
     pluginInfoObject = helpers.pluginInfoObject,
-    withResponse     = helpers.withResponse;
+    withResponse     = helpers.withResponse,
+    headWithFail     = helpers.headWithFail;
 
 buster.spec.expose();
 
@@ -80,6 +83,19 @@ function restUrl(path) {
 
 describe("REST API", function() {
     "use strict";
+
+    it("shows list of plugins", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1';
+        registerSimplePlugin(robohydra, { name: pluginName });
+
+        withResponse(robohydra, restUrl('/plugins'), function(resp) {
+            expect(resp.statusCode).toEqual(200);
+            var info = JSON.parse(resp.body.toString());
+            expect(info.plugins).toEqual([pluginName]);
+            done();
+        });
+    });
 
     it("shows information for the given plugin", function(done) {
         var robohydra = new RoboHydra();
@@ -275,6 +291,40 @@ describe("REST API", function() {
 
             expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
             done();
+        });
+    });
+
+    it("can show test results", function(done) {
+        var robohydra = new RoboHydra();
+        var assertionName = "Some test message";
+        var pluginName = 'plugin1', scenarioName = 'scenarioWithFail',
+            scenarioName2 = 'scenarioWithoutFails';
+        var pluginDef = { name: pluginName, scenarios: {} };
+        pluginDef.scenarios[scenarioName] = {heads: [
+            headWithFail('/', robohydra.getModulesObject(), assertionName)
+        ]};
+        pluginDef.scenarios[scenarioName2] = {heads: [
+            headWithFail('/', robohydra.getModulesObject(), assertionName)
+        ]};
+
+        robohydra.registerPluginObject(pluginInfoObject(pluginDef));
+        // Start both scenarios to make sure we get the results, but
+        // start scenarioName last so that stays as the active scenario
+        robohydra.startScenario(pluginName, scenarioName2);
+        robohydra.startScenario(pluginName, scenarioName);
+
+        withResponse(robohydra, '/', function(requestForFail) {
+            withResponse(robohydra, restUrl('/test-results'), function(resp) {
+                expect(resp.statusCode).toEqual(200);
+                var stopInfo = JSON.parse(resp.body.toString());
+                var results1 = stopInfo[pluginName][scenarioName];
+                expect(results1.passes.length).toEqual(0);
+                expect(results1.failures).toEqual([assertionName]);
+                var results2 = stopInfo[pluginName][scenarioName2];
+                expect(results2.passes.length).toEqual(0);
+                expect(results2.failures.length).toEqual(0);
+                done();
+            });
         });
     });
 });
