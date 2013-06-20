@@ -24,7 +24,7 @@ RoboHydra is written in Javascript, runs under Node and is distributed
 under the Apache 2.0 license. See LICENSE for the full text.
 
 
-Copyright 2012 Esteban Manchado Velázquez
+Copyright 2012,2013 Esteban Manchado Velázquez
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
