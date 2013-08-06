@@ -106,7 +106,9 @@ And then start RoboHydra as `robohydra first.conf`. The end result is
 the same. With a configuration file, however, is easier to change the
 list of plugins to be loaded, and you can configure other things like
 SSL certificates (in the case you want RoboHydra to server HTTPS
-requests).
+requests). See the [configuration file
+documentation](/documentation/next/configuration/) for more
+information.
 
 
 More flexibility in request handling
