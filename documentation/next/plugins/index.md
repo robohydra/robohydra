@@ -29,26 +29,25 @@ that function with two parameters:
   more information).
 
 The `getBodyParts` function must return an object with the following
-optional properties (note that for a plugin with zero heads and zero
-tests is not valid):
+optional properties:
 
 * `heads`: an *array* of `RoboHydraHead` objects.
-* `tests`: an *object* with test names as properties, and an object as
-  values.
+* `scenarios`: an *object* with scenario names as properties, and
+  objects as values.
 
 
-### Defining tests
+### Defining scenarios
 
-Tests define interesting scenarios that allow you to reproduce certain
-situations or bugs in your clients. They are a collection of heads
-that, together, define that scenario. Each test in an object with the
-following properties:
+Scenarios define interesting server behaviours that allow you to
+reproduce certain situations or bugs in your clients. They are a
+collection of heads that, together, define that scenario. Each
+scenario is an object with the following properties:
 
 * `instructions` (optional): a *string* explaining what are the steps
-  to execute the test. If present, it will be shown when activating
-  the test in the web interface.
-* `heads`: an *array* of heads that will be activated when the test is
-  running.
+  to use the scenario (eg. how to execute a client test). If present,
+  it will be shown when activating the scenario in the web interface.
+* `heads`: an *array* of heads that will be activated when the
+  scenario is running.
 
 
 ### The "assert" module
