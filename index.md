@@ -18,8 +18,8 @@ exploratory testing of your client. All these capabilities can _also_
 be combined with proxying in several useful ways.
 
 For more information about the different ways in which you can use
-RoboHydra, have a look at the [use cases](usecases) (now includes a
-comic!).
+RoboHydra, have a look at the [use cases](usecases) (now includes
+comics!).
 
 Documentation
 =============

@@ -4,54 +4,27 @@ layout: documentation
 RoboHydra usage
 ===============
 
-To start a RoboHydra server, you call `robohydra` with a configuration
-file as a parameter. The RoboHydra configuration file is a JSON file
-with the list of plugins to load, and SSL information if you want
-RoboHydra to use the HTTPS protocol when responding to requests. A
-configuration file without any plugins looks like this:
+The normal way to start a RoboHydra is specifying a configuration file
+with the plugins to load, and possibly other settings:
 
-    {"plugins": []}
+    robohydra myconfig.conf
 
-Assuming that file is called `empty.conf` (you have one such file in
-the `examples` directory in the RoboHydra distribution), if you start
-RoboHydra with `robohydra empty.conf` you will get a server that will
-return 404 for every URL except the admin interface (available in
-`/robohydra-admin`).
+That will start a RoboHydra server listening on port 3000, which you
+can kill by hitting Ctrl-C on the console.
 
-Each element in the `plugins` list in the configuration file can be
-one of two things:
+Not specifying a configuration file will normally result in an error,
+but you can specify the `-n` flag to make RoboHydra not try to read
+any configuration file. In that case, you _can_ specify a list plugins
+to be loaded:
 
-* A plain Javascript object with the properties `name` and `config`. The
-former specifies the name of the plugin to load, while the latter
-specifies a Javascript object with the configuration keys and values
-you want to pass to the plugin.
-* A string with the name of the plugin. This is equivalent to setting
-`config` to an empty object.
-
-An example of a RoboHydra configuration file loading a plugin `logger`
-(without special configuration) and a plugin named `my-plugin` with
-the configuration keys `path` and `logLevel` could be:
-
-    {"plugins": ["logger",
-                 {"name": "my-plugin",
-                  "config": {"path": "/var/log/example.log",
-                             "logLevel": "warn"}]}
+    robohydra -n -P logger,replayer
 
 You can load as many plugins as you want. Remember that the order is
 important: the heads declared in the first will catch requests before
 any heads defined in further plugins.
 
-If you want RoboHydra to use the HTTPS protocol, you have to set the
-`secure` property to `true`, and the property `sslOptions` to an
-object with the following two properties: `key` and `cert`, both being
-the paths to the files containing the secret key and the certificate
-for the server. An example configuration file for an HTTPS server
-could be:
-
-    {"secure": true,
-     "sslOptions": {"key":  "my-key.pem",
-                    "cert": "my-cert.pem"},
-     "plugins": ["logger"]}
+Calling the `robohydra` program without any arguments whastoever will
+show the help.
 
 
 Findings plugins
@@ -66,20 +39,19 @@ If you have your plugins in some other directory, you can add
 directories to the RoboHydra load path with the `-I` parameter, like
 so:
 
-    robohydra -I extra-plugins example.conf
+    robohydra -I extra-plugins -n -P my-plugin
 
-If `example.conf` had a reference to a plugin named `my-plugin`, it
-would be searched first under `extra-plugins/my-plugin`, then in the
-rest of the search directories.
+RoboHydra will in that case look for `my-plugin` under
+`extra-plugins/my-plugin`, then in the rest of the search directories.
 
 
-Overriding configuration values
--------------------------------
+Configuration values for plugins
+--------------------------------
 
-Now, let's say you have a configuration file like the above, but for a
-concrete execution of RoboHydra you want to use `tmp/test.log` as the
-log file. In that case, you don't have to modify your configuration
-file. Instead, you can pass the `path` configuration in the
-command-line, like so:
+You can also pass configuration key-value pairs from the command-line,
+like so:
 
     robohydra myapp.conf path=tmp/test.log
+
+This way, the configuration key `path` will be set to `tmp/test.log`
+for *all* plugins, overriding anything the configuration file says.

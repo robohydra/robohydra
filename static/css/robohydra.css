@@ -6,3 +6,13 @@
     vertical-align: text-top;
     margin-right: 5px;
 }
+
+figure img {
+    border: 2px solid black;
+}
+
+figcaption {
+    font-style: italic;
+    color: #777;
+    margin-bottom: 2ex;
+}

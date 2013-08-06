@@ -1,14 +1,14 @@
 ---
 layout: default
 ---
-RoboHydra usecases
-==================
+RoboHydra use cases
+===================
 
 RoboHydra can be used in many different ways. It's closer to a "swiss
 army knife of client testing" than a very specific testing tool with a
 single purpose. Thus, it can be at first hard to tell whether or not
 RoboHydra can help you do what you want. The following is a list of
-usecases and examples of what RoboHydra can do:
+use cases and examples of what RoboHydra can do:
 [testsuites](#testsuites), [exploratory
 testing](#exploratory_testing), [help test race
 conditions](#testing_race_conditions), [help your front-end

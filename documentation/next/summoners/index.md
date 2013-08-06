@@ -4,17 +4,14 @@ layout: documentation
 RoboHydra Summoners
 ===================
 
-Since 0.4, a single RoboHydra server can support multiple users
-simultaneously. In 0.3 and previous versions a RoboHydra server had a
-single RoboHydra request dispatcher, and hence could only keep one set
-of head states (attached/detached), a single active scenario and so
-on.
-
-However, starting from version 0.4, a RoboHydra server can now have
-multiple RoboHydra dispatchers, each with its own set of attached
-heads, active tests and so on. A RoboHydra _summoner_ is the entity
-that decides, for a given request, which RoboHydra dispatcher takes
-care of the request.
+In 0.3 and previous versions a RoboHydra server had a single RoboHydra
+request dispatcher, and hence could only keep one set of head states
+(attached/detached), a single active scenario and so on. However,
+starting from version 0.4, a RoboHydra server can now have multiple
+RoboHydra dispatchers, each with its own set of attached heads, active
+tests and so on, thus supporting multiple simultaneous users. A
+RoboHydra _summoner_ is the entity that decides, for a given request,
+which RoboHydra dispatcher takes care of the request.
 
 Let's see an example: say that we have a summoner that chooses the
 RoboHydra dispatcher based on a cookie `user` in the incoming
@@ -68,11 +65,7 @@ to use for that request. A trivial example of such a plugin could be:
 
 If you load a single plugin with a `robohydraPicker` summoner trait,
 the server will use this RoboHydra picker function to decide how to
-dispatch the different incoming requests.
-
-If you have more than one `robohydraPicker` available, you will have
-to use a configuration file a set the `robohydraPickerPlugin` property
-in `summoner`, like so:
-
-    {"plugins": ["plugin-with-picker", "another-plugin-with-picker", "moar"],
-     "summoner": {"robohydraPickerPlugin": "plugin-with-picker"}}
+dispatch the different incoming requests. If you have more than one
+`robohydraPicker` available, you will have to use a configuration file
+a set the `robohydraPickerPlugin` property in `summoner`. See the
+[configuration section](../configuration) for more information.
