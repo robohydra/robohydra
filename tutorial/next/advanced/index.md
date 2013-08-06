@@ -256,7 +256,7 @@ Let's say we are still testing the client of that search engine in the
 previous section, and we want to make sure we don't have character
 encoding problems. Thus, we'll add a scenario that checks that the
 client sent a correctly formed, UTF-8 search string. We can start by
-adding a new test, `nonAsciiSearchTerm`, with the following
+adding a new scenario, `nonAsciiSearchTerm`, with the following
 definition:
 
     exports.getBodyParts = function(conf, modules) {
