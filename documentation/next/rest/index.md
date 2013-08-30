@@ -6,16 +6,17 @@ HTTP REST Interface
 
 Sometimes it's useful to interact with RoboHydra from an external
 program. The typical usecase would be setting an appropriate scenario
-before running a test, but there are other, interesting
-possibilities. For that reason, RoboHydra offers a simple REST API to
-gather information and change the current state (attach/detach heads,
-start/stop scenarios).
+before running a test and check the results afterwards, but there are
+other interesting possibilities. For that reason, RoboHydra offers a
+simple REST API to gather information about the loaded plugins and
+available heads. It allows allows you to make simple changes
+(attach/detach heads and start/stop scenarios).
 
 Format
 ------
 
-For now, all URLs in the API return always JSON, and don't pay any
-attention to the `Accept` headers. See each URL for specific examples.
+For now, all URLs in the API return JSON. They don't pay any attention
+to the `Accept` headers. See each URL for specific examples.
 
 Plugins
 -------
@@ -104,7 +105,10 @@ This call gives you the information for the given head. Example output
     }
 
 You can also detach/reattach a head by sending a POST request to that
-URL with the new value for the `attached` property, form-encoded.
+URL with the new value for the `attached` property, form-encoded. Eg.:
+
+    $ curl -X POST -d "attached=false" http://localhost:3000/robohydra-admin/rest/plugins/foo/heads/bar
+    {"plugin":"foo","name":"bar","attached":false}
 
 Single scenario
 ---------------
@@ -121,7 +125,11 @@ output (reformatted for readability):
     }
 
 You can also start/stop a scenario by sending a POST request to that
-URL with the new value for the `active` property, form-encoded.
+URL with the new value for the `active` property, form-encoded. Eg.:
+
+    $ curl -X POST -d "active=true" http://localhost:3000/robohydra-admin/rest/plugins/foo/scenarios/testScenario
+    {"plugin":"foo","scenario":"testScenario","active":true}
+
 
 Test results
 ------------

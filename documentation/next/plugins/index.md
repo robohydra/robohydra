@@ -7,7 +7,7 @@ Writing your own plugins
 Most uses of RoboHydra need writing custom plugins for the behaviour
 you want. Writing plugins is easy, as you can use ready-made RoboHydra
 heads that do most common operations. See the
-[tutorial](../../tutorial) to get an idea of what's possible and get
+[tutorial](/tutorial) to get an idea of what's possible and get
 started, and the [head documentation](../heads) for a detailed
 description of the capabilities of each type of head.
 
@@ -40,7 +40,7 @@ optional properties:
 
 Scenarios define interesting server behaviours that allow you to
 reproduce certain situations or bugs in your clients. They are a
-collection of heads that, together, define that scenario. Each
+collection of heads that, together, define that behaviour. Each
 scenario is an object with the following properties:
 
 * `instructions` (optional): a *string* explaining what are the steps
@@ -48,6 +48,15 @@ scenario is an object with the following properties:
   it will be shown when activating the scenario in the web interface.
 * `heads`: an *array* of heads that will be activated when the
   scenario is running.
+
+When you start a RoboHydra server, all scenarios are inactive. You can
+activate any scenario at any time (using the admin web interface, the
+[programmatic API](../api) or the [REST API](../rest)), but only one
+scenario can be active at a given time: activating one will
+automatically deactivate the current active scenario, if there was
+one. When you activate a scenario, both the heads defined in the
+**plugin** `heads` property and the heads defined in the **scenario**
+`heads` property are active, but the scenario heads have preference.
 
 
 ### The "assert" module
@@ -65,3 +74,83 @@ failure, but instead will return `false`. This is much more useful
 because it allows you to easily return a normal response to the client
 (the same or different than the response the client would get if the
 assertion had passed).
+
+
+### Example plugin
+
+This is a relatively small sample plugin with one head and two
+scenarios. Note how the second scenario uses the assert module:
+
+    var heads               = require('robohydra').heads,
+        RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
+        RoboHydraHead       = heads.RoboHydraHead;
+
+    exports.getBodyParts = function(config, modules) {
+        "use strict";
+
+        // This can be passed on the command-line as eg.:
+        //     robohydra foo.conf defNumberResults=10
+        var defNumberResults = parseInt(config.defNumberResults, 10) || 5;
+        var counter = 0;
+        var assert = modules.assert;
+
+        return {
+            heads: [
+                new RoboHydraHead({
+                    path: '/api/search',
+                    handler: function(req, res) {
+                        var searchTerm = req.queryParams.q || '';
+                        var searchResults = [];
+                        if (searchTerm !== '') {
+                            for (var i = 0, len = defNumberResults; i < len; i++) {
+                                searchResults.push({
+                                    id: 'widget' + i,
+                                    name: 'widget with "' + searchTerm + '" in ' +
+                                        'its name'
+                                });
+                            }
+                        }
+
+                        res.send(JSON.stringify(searchResults, null, 2));
+                    }
+                })
+            ],
+
+            scenarios: {
+                "Internal Server Error": {
+                    heads: [
+                        new RoboHydraHeadStatic({
+                            path: '/api/search',
+                            statusCode: 500,
+                            content: "Couldn't connect to the database"
+                        })
+                    ]
+                },
+
+                "The client correctly sends a search for 'foo'": {
+                    heads: [
+                        new RoboHydraHead({
+                            path: '/api/search',
+                            handler: function(req, res) {
+                                var searchTerm = req.queryParams.q;
+                                assert.equal(searchTerm, 'foo',
+                                             'The client should search for "foo"');
+                                res.send(JSON.stringify([{
+                                    id: 123,
+                                    name: 'Bogus search for the search test, ' +
+                                        'searched for "' + searchTerm + '"'
+                                }]));
+                            }
+                        })
+                    ]
+                }
+            }
+        };
+    };
+
+
+See the [example
+plugins](https://github.com/robohydra/robohydra/tree/master/examples/plugins)
+and the [standard plugin
+library](https://github.com/robohydra/robohydra/tree/master/plugins)
+in the repository for more examples.
