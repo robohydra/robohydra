@@ -16,7 +16,9 @@ Plugins
 A basic configuration file with a simple list of plugins looks like
 this:
 
-    {"plugins": ["logger", "replayer"]}
+{% highlight json %}
+{"plugins": ["logger", "replayer"]}
+{% endhighlight %}
 
 Each element in the `plugins` list in the configuration file can be
 one of two things:
@@ -32,10 +34,12 @@ For example, a RoboHydra configuration file loading a plugin `logger`
 without special configuration and a plugin named `my-plugin` with the
 configuration keys `path` and `logLevel` could be:
 
-    {"plugins": ["logger",
-                 {"name": "my-plugin",
-                  "config": {"path": "/var/log/example.log",
-                             "logLevel": "warn"}]}
+{% highlight json %}
+{"plugins": ["logger",
+             {"name": "my-plugin",
+              "config": {"path": "/var/log/example.log",
+                         "logLevel": "warn"}]}
+{% endhighlight %}
 
 SSL configuration
 -----------------
@@ -47,10 +51,12 @@ property `sslOptions` to an object with the properties `key` and
 the server certificate respectively. An example configuration file for
 an HTTPS server could be:
 
-    {"secure": true,
-     "sslOptions": {"key":  "my-key.pem",
-                    "cert": "my-cert.pem"},
-     "plugins": ["logger"]}
+{% highlight json %}
+{"secure": true,
+ "sslOptions": {"key":  "my-key.pem",
+                "cert": "my-cert.pem"},
+ "plugins": ["logger"]}
+{% endhighlight %}
 
 
 Summoners
@@ -63,8 +69,10 @@ configuration file which of the plugins contains the picker to be used
 configuration key `summoner` to an object with the property
 `robohydraPickerPlugin` set to the name of that plugin. For example:
 
-    {"plugins": ["plugin-with-picker", "another-plugin-with-picker", "moar"],
-     "summoner": {"robohydraPickerPlugin": "plugin-with-picker"}}
+{% highlight json %}
+{"plugins": ["plugin-with-picker", "another-plugin-with-picker", "moar"],
+ "summoner": {"robohydraPickerPlugin": "plugin-with-picker"}}
+{% endhighlight %}
 
 Specifying a plugin that doesn't define any picker will result in an
 error. On the other hand, if you only load one plugin that defines a

@@ -81,72 +81,74 @@ assertion had passed).
 This is a relatively small sample plugin with one head and two
 scenarios. Note how the second scenario uses the assert module:
 
-    var heads               = require('robohydra').heads,
-        RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
-        RoboHydraHead       = heads.RoboHydraHead;
+{% highlight javascript %}
+var heads               = require('robohydra').heads,
+    RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
+    RoboHydraHead       = heads.RoboHydraHead;
 
-    exports.getBodyParts = function(config, modules) {
-        "use strict";
+exports.getBodyParts = function(config, modules) {
+    "use strict";
 
-        // This can be passed on the command-line as eg.:
-        //     robohydra foo.conf defNumberResults=10
-        var defNumberResults = parseInt(config.defNumberResults, 10) || 5;
-        var counter = 0;
-        var assert = modules.assert;
+    // This can be passed on the command-line as eg.:
+    //     robohydra foo.conf defNumberResults=10
+    var defNumberResults = parseInt(config.defNumberResults, 10) || 5;
+    var counter = 0;
+    var assert = modules.assert;
 
-        return {
-            heads: [
-                new RoboHydraHead({
-                    path: '/api/search',
-                    handler: function(req, res) {
-                        var searchTerm = req.queryParams.q || '';
-                        var searchResults = [];
-                        if (searchTerm !== '') {
-                            for (var i = 0, len = defNumberResults; i < len; i++) {
-                                searchResults.push({
-                                    id: 'widget' + i,
-                                    name: 'widget with "' + searchTerm + '" in ' +
-                                        'its name'
-                                });
-                            }
+    return {
+        heads: [
+            new RoboHydraHead({
+                path: '/api/search',
+                handler: function(req, res) {
+                    var searchTerm = req.queryParams.q || '';
+                    var searchResults = [];
+                    if (searchTerm !== '') {
+                        for (var i = 0, len = defNumberResults; i < len; i++) {
+                            searchResults.push({
+                                id: 'widget' + i,
+                                name: 'widget with "' + searchTerm + '" in ' +
+                                    'its name'
+                            });
                         }
-
-                        res.send(JSON.stringify(searchResults, null, 2));
                     }
-                })
-            ],
 
-            scenarios: {
-                "Internal Server Error": {
-                    heads: [
-                        new RoboHydraHeadStatic({
-                            path: '/api/search',
-                            statusCode: 500,
-                            content: "Couldn't connect to the database"
-                        })
-                    ]
-                },
-
-                "The client correctly sends a search for 'foo'": {
-                    heads: [
-                        new RoboHydraHead({
-                            path: '/api/search',
-                            handler: function(req, res) {
-                                var searchTerm = req.queryParams.q;
-                                assert.equal(searchTerm, 'foo',
-                                             'The client should search for "foo"');
-                                res.send(JSON.stringify([{
-                                    id: 123,
-                                    name: 'Bogus search for the search test, ' +
-                                        'searched for "' + searchTerm + '"'
-                                }]));
-                            }
-                        })
-                    ]
+                    res.send(JSON.stringify(searchResults, null, 2));
                 }
+            })
+        ],
+
+        scenarios: {
+            "Internal Server Error": {
+                heads: [
+                    new RoboHydraHeadStatic({
+                        path: '/api/search',
+                        statusCode: 500,
+                        content: "Couldn't connect to the database"
+                    })
+                ]
+            },
+
+            "The client correctly sends a search for 'foo'": {
+                heads: [
+                    new RoboHydraHead({
+                        path: '/api/search',
+                        handler: function(req, res) {
+                            var searchTerm = req.queryParams.q;
+                            assert.equal(searchTerm, 'foo',
+                                         'The client should search for "foo"');
+                            res.send(JSON.stringify([{
+                                id: 123,
+                                name: 'Bogus search for the search test, ' +
+                                    'searched for "' + searchTerm + '"'
+                            }]));
+                        }
+                    })
+                ]
             }
-        };
+        }
     };
+};
+{% endhighlight %}
 
 
 See the [example

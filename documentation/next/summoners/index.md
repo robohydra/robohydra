@@ -52,16 +52,18 @@ trait is `robohydraPicker`, a function that receives the request
 object and returns a string with the name of the RoboHydra dispatcher
 to use for that request. A trivial example of such a plugin could be:
 
-    exports.getSummonerTraits = function(config) {
-        return {
-            robohydraPicker: function(req) {
-                if ('user' in req.queryParams) {
-                    return req.queryParams.user;
-                }
-                return "*default*";
-            };
-        }
-    };
+{% highlight javascript %}
+exports.getSummonerTraits = function(config) {
+    return {
+        robohydraPicker: function(req) {
+            if ('user' in req.queryParams) {
+                return req.queryParams.user;
+            }
+            return "*default*";
+        };
+    }
+};
+{% endhighlight %}
 
 If you load a single plugin with a `robohydraPicker` summoner trait,
 the server will use this RoboHydra picker function to decide how to

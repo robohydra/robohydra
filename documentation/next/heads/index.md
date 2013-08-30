@@ -175,23 +175,113 @@ it. The main use cases for doing this are:
 2. Inspecting or tweaking the response of another head before sending
 to the client.
 
-See examples of both in the tutorials. In order to call other heads,
-the `handler` function receives a third parameter, `next`, a function
-that receives two parameters (request and response objects). This
-function, when called, will try to dispatch the given request object
-with any heads below the current one. Naturally, this processing will
-end up with a call to the `end` function in the response object.
+This is akin to a very simple middleware system. In order to call
+other heads, the `handler` function receives a third parameter,
+`next`. This third parameter is a function that receives two
+parameters (request and response objects). This function, when called,
+will try to dispatch the given request object with any heads below the
+current one. Naturally, this processing will end up with a call to the
+`end` function in the response object passed to it.
 
-But note that the head calling the `next` function can decide what is
-being passed as request and response objects (they need not be the
-request and response objects passed to the original head). A common
-thing to do is passing a mock response object: when the second head
-processes the request, the callback function you passed in the
-constructor of the mock response will be called. Thus, you are free to
+The head calling the `next` function (let's call it the "middleware
+head") can decide what is being passed as request and response objects
+(they need *not* be the request and response objects passed to the
+middleware head). A common thing to do is to pass a mock response
+object: when the second head processes the request, the mock
+response's callback function will be called. Thus, you are free to
 pass the response as is (by using the `forward` method), tweak the
 response before sending (eg. modifying it before calling `forward`),
 retry the request with a different URL if you didn't like the
 response, etc.
+
+
+Examples
+--------
+
+This is a simple head that echoes back some of the information from
+the original request (eg. for debugging purposes). It illustrates how
+to access different request data:
+
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/.*',
+    handler: function(req, res) {
+        res.headers['content-type'] = 'text/plain';
+        res.write("URL: " + req.url + "\n");
+        res.write("Method: " + req.method + "\n");
+        res.write("Query params:\n");
+        for (var qParam in req.queryParams) {
+            res.write("  " + qParam + ": " + req.queryParams[qParam] + "\n");
+        }
+        res.write("POST params:\n");
+        for (var bParam in req.bodyParams) {
+            res.write("  " + bParam + ": " + req.bodyParams[bParam] + "\n");
+        }
+        res.write("Headers:\n");
+        for (var h in req.headers) {
+            res.write("  " + h + ": " + req.headers[h] + "\n");
+        }
+        res.end();
+    }
+})
+{% endhighlight %}
+
+This is another head that never closes the connection:
+
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/unfinished',
+    handler: function(req, res) {
+        // Useful to check, for example, how well timeouts work
+        // on the client side
+        res.statusCode = 401;
+        res.write("Write stuff but never calls end()");
+    }
+})
+{% endhighlight %}
+
+This is another head that sets some headers on the response:
+
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/joke',
+    handler: function(req, res) {
+        res.headers['x-bad-joke'] = "The problem with UDP jokes " +
+            "is that you never know if people get them";
+        res.send("There's a joke in here, somewhere...");
+    }
+})
+{% endhighlight %}
+
+And this is an example of how to use the `next` function. Say that we
+have a head that proxies to the development server. If we place the
+following head *before* it, we'll never get 500 pages:
+
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/api/.*',
+    handler: function(req, res, next) {
+        var fakeRes = new Response().on('end', function(evt) {
+            // If we got a reply from whatever head
+            // handled the request, we serve it
+            // normally. If we got code 500, we serve a "Guru
+            // Meditation" message instead.
+            if (evt.response.statusCode === 500) {
+                res.statusCode = 503;
+                res.send("Guru Meditation");
+            } else {
+                res.forward(fakeRes);
+            }
+        });
+
+        // We could tweak the "req" object before calling "next",
+        // but we'll leave it as is in this example
+        next(req, fakeRes);
+    }
+})
+{% endhighlight %}
+
+See the [tutorial](../tutorial) for other uses of the `next` function.
 
 
 Other kinds of heads
@@ -224,6 +314,32 @@ has the following properties:
 * `statusCode` (optional): the status code for the response. By
   default it's 200.
 
+#### Examples
+
+Simple example setting the status code and content:
+
+{% highlight javascript %}
+new RoboHydraHeadStatic({
+    path: '/api/users/list',
+    statusCode: 500,
+    content: '(Fake) Internal Server Error'
+})
+{% endhighlight %}
+
+Another example that round-robins between several responses:
+
+{% highlight javascript %}
+new RoboHydraHeadStatic({
+    path: '/round',
+    responses: [
+        {content: "This fakes an unstable server. Hit F5. (200 OK)"},
+        {content: "Wait for it... (still 200 OK)"},
+        {statusCode: 500,
+         content: "I die every third request :'( (this is 500 ISE)"}
+    ]
+})
+{% endhighlight %}
+
 
 ### RoboHydraHeadFilesystem
 This head serves files from the filesystem. It has the following
@@ -253,16 +369,49 @@ example, a head with `documentRoot = /var/www` and `mountPath =
 /static` that receives a request to `/static/css/main.css` will try to
 serve the file `/var/www/css/main.css`.
 
+#### Examples
+
+This trivial example serves the static files in the local directory
+`staticfiles/` for requests to the URL path `/static`, in such a way
+that the request `http://localhost:3000/static/foo/bar.css` will serve
+the local file `staticfiles/foo/bar.css`. Note how this head uses
+`mountPath`, not `path`, and it's a URL path, not a regular
+expression:
+
+{% highlight javascript %}
+new RoboHydraHeadFilesystem({
+    mountPath: '/static',
+    documentRoot: 'staticfiles'
+})
+{% endhighlight %}
+
+This other example uses `README` and `README.md` as possible index
+pages, instead of the more common `index.html` and such:
+
+{% highlight javascript %}
+new RoboHydraHeadFilesystem({
+    mountPath: '/static/css',
+    documentRoot: 'build/css',
+    indexFiles: ['README', 'README.md']
+})
+{% endhighlight %}
+
 
 ### RoboHydraHeadProxy
-This head proxies request to another URL. It has the following
+This head reverse-proxies request to another URL. It has the following
 properties:
 
 * `proxyTo`: the root URL the requests are going to be proxied to.
 * `mountPath` (optional): the path to "mount" the head in. See the
   documentation for `RoboHydraHeadFilesystem`.
-* `httpCreateClientFunction` (optional): an object that behaves like
+* `setHostHeader` (optional): sets the `Host` header to the hostname
+  of the proxied URL (`proxyTo` property) in the requests to the
+  target URL.
+* `httpRequestFunction` (optional): an object that behaves like
   Node's `http.createClient` function. Useful if you need to fake
+  stuff.
+* `httpsRequestFunction` (optional): an object that behaves like
+  Node's `https.createClient` function. Useful if you need to fake
   stuff.
 
 This head will proxy requests to the given `proxyTo` URL.  For
@@ -270,6 +419,38 @@ example, a head with `proxyTo = http://github.com/operasoftware` and
 `mountPath = /github` that receives a request to `/github/robohydra`
 will proxy the request to the URL
 `http://github.com/operasoftware/robohydra`.
+
+#### Examples
+
+The first example proxies everything to what is presumably an internal
+development server. This is useful for a number of reasons, like (1)
+combined with a filesystem head, frontend files can be served from the
+local filesystem, while the backend of the development server can be
+used; (2) as a logger for the requests that go to the server; or (3)
+to use the development server most of the time, but opening the
+possibility to override certain URL paths temporarily to do
+exploratory testing:
+
+{% highlight javascript %}
+new RoboHydraHeadProxy({
+    mountPath: '/',
+    proxyTo: 'http://develop.example.com/'
+})
+{% endhighlight %}
+
+Note, however, that those requests will be made with the original host
+(ie. probably something like `localhost`). If you want the requests to
+be made with `develop.example.com` as a request host, eg. because the
+server has several virtual hosts, you can set the `setHostHeader`
+property:
+
+{% highlight javascript %}
+new RoboHydraHeadProxy({
+    mountPath: '/',
+    proxyTo: 'http://develop.example.com/',
+    setHostHeader: true
+})
+{% endhighlight %}
 
 
 ### RoboHydraHeadFilter
@@ -290,6 +471,25 @@ documentation). When the response comes back from the next head, the
 given `filter` function (transparently uncompressing and compressing
 back if necessary, and also updating the `Content-Length` header, if
 present) and send that as a response.
+
+#### Examples
+
+This trivial example shows how to turn the whole response body into
+uppercase letters:
+
+{% highlight javascript %}
+new RoboHydraHeadFilter({
+    name: 'filter',
+    path: '/.*',
+    filter: function(body) {
+        return body.toString().toUpperCase();
+    }
+}),
+{% endhighlight %}
+
+Note that the parameter to the `filter` function is a `Buffer`, so you
+can treat binary data, too. Also, if you want to treat it as a string,
+you must call the `toString()` method.
 
 
 ### RoboHydraHeadWatchdog
@@ -312,3 +512,36 @@ some extra output to the console). Note that both these functions will
 receive a special `Response` object that guarantees that its `body`
 property is always uncompressed. If you need the original (whether it
 was compressed or not), you can check the `rawBody` property.
+
+#### Examples
+
+The first example shows how to set a "watchdog" for requests from a
+concrete browser (Opera in this case). By default, when such a request
+is found, RoboHydra will print a warning in the console (together with
+the server log):
+
+{% highlight javascript %}
+new RoboHydraHeadWatchdog({
+    path: '/.*',
+    watcher: function(req, res) {
+        return req.headers['user-agent'].match(/Opera/);
+    }
+})
+{% endhighlight %}
+
+This other example shows how to set a watchdog for requests that
+produced a certain kind of response. It also customises what happens
+when such a request is received:
+
+{% highlight javascript %}
+new RoboHydraHeadWatchdog({
+    path: '/.*',
+    watcher: function(req, res) {
+        return res.body.toString().match(/application/);
+    },
+    reporter: function(req, res) {
+        console.log("XXXXXXXXXXXX Found a request that has 'application' in " +
+                        " the response; it was for " + req.url);
+    }
+})
+{% endhighlight %}
