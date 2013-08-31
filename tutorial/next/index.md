@@ -23,11 +23,13 @@ Your first canned response
 Now, let's assume you want the path `/foo` to always return the
 following JSON data:
 
-    {"success": true,
-     "results": [{"url": "http://robohydra.org",
-                  "title": "RoboHydra testing tool"},
-                 {"url": "http://en.wikipedia.org/wiki/Hydra",
-                  "title": "Hydra - Wikipedia"}]
+{% highlight json %}
+{"success": true,
+ "results": [{"url": "http://robohydra.org",
+              "title": "RoboHydra testing tool"},
+             {"url": "http://en.wikipedia.org/wiki/Hydra",
+              "title": "Hydra - Wikipedia"}]
+{% endhighlight %}
 
 You can do that very easily: simply go to the [admin
 interface](http://localhost:3000/robohydra-admin), find the "Create a
@@ -67,26 +69,28 @@ describing one or more heads.
 For example, if you wanted to keep the above head for later, you could
 write a simple plugin like this:
 
-    var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic;
-    
-    exports.getBodyParts = function(conf) {
-        return {
-            heads: [
-                new RoboHydraHeadStatic({
-                    path: '/foo',
-                    content: {
-                        "success": true,
-                        "results": [
-                            {"url": "http://robohydra.org",
-                             "title": "RoboHydra testing tool"},
-                            {"url": "http://en.wikipedia.org/wiki/Hydra",
-                             "title": "Hydra - Wikipedia"}
-                        ]
-                    }
-                })
-            ]
-        };
+{% highlight javascript %}
+var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic;
+
+exports.getBodyParts = function(conf) {
+    return {
+        heads: [
+            new RoboHydraHeadStatic({
+                path: '/foo',
+                content: {
+                    "success": true,
+                    "results": [
+                        {"url": "http://robohydra.org",
+                         "title": "RoboHydra testing tool"},
+                        {"url": "http://en.wikipedia.org/wiki/Hydra",
+                         "title": "Hydra - Wikipedia"}
+                    ]
+                }
+            })
+        ]
     };
+};
+{% endhighlight %}
 
 In this case, our first plugin has a single head of type
 `RoboHydraHeadStatic`. You can use the `RoboHydraHeadStatic` class
@@ -94,13 +98,15 @@ when you only want to return a certain static response regardless of
 the incoming request. Now, save the above text in a file
 `robohydra/plugins/firstplugin/index.js` and start RoboHydra like so:
 
-      robohydra -n -P firstplugin
+    robohydra -n -P firstplugin
 
 A head listening in `/foo` will be available from the start. Another
 possibility would be to create a configuration file (say,
 `first.conf`) with the following contents:
 
-      {"plugins": ["firstplugin"]}
+{% highlight json %}
+{"plugins": ["firstplugin"]}
+{% endhighlight %}
 
 And then start RoboHydra as `robohydra first.conf`. The end result is
 the same. With a configuration file, however, is easier to change the
@@ -120,27 +126,30 @@ responses. For example, say you want to wait for one second before you
 send the response back to the client. To do that, modify the `require`
 line and `heads` section in your plugin to add a second head like so:
 
-    var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic,
-        RoboHydraHead       = require("robohydra").heads.RoboHydraHead;
-    
-    exports.getBodyParts = function(conf) {
-        return {
-            heads: [
-                new RoboHydraHeadStatic({
-                    // ... Same as before ...
-                }),
-    
-                new RoboHydraHead({
-                    path: '/slow',
-                    handler: function(req, res) {
-                        setTimeout(function() {
-                            res.send("Some slow response");
-                        }, 1000);
-                    }
-                })
-            ]
-        };
+{% highlight javascript %}
+var RoboHydraHeadStatic = require("robohydra").heads.RoboHydraHeadStatic,
+    RoboHydraHead       = require("robohydra").heads.RoboHydraHead;
+
+exports.getBodyParts = function(conf) {
+    return {
+        heads: [
+            new RoboHydraHeadStatic({
+                // ... Same as before ...
+            }),
+            
+
+            new RoboHydraHead({
+                path: '/slow',
+                handler: function(req, res) {
+                    setTimeout(function() {
+                        res.send("Some slow response");
+                    }, 1000);
+                }
+            })
+        ]
     };
+};
+{% endhighlight %}
 
 
 Accessing the request data
@@ -153,14 +162,16 @@ on. In this case, RoboHydra allows you to specify URL paths like
 `/slow`. The following handler function will allow you to configure
 the wait in this way:
 
-    new RoboHydraHead({
-        path: '/slow/:millis',
-        handler: function(req, res) {
-            setTimeout(function() {
-                res.send("Some slow response");
-            }, req.params.millis);
-        }
-    })
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/slow/:millis',
+    handler: function(req, res) {
+        setTimeout(function() {
+            res.send("Some slow response");
+        }, req.params.millis);
+    }
+})
+{% endhighlight %}
 
 But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
@@ -171,14 +182,16 @@ latter object is of type `Buffer` (see the [Node
 documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
 head would match the GET-parameter-style URLs:
 
-    new RoboHydraHead({
-        path: '/slow',
-        handler: function(req, res) {
-            setTimeout(function() {
-                res.send("Some slow response");
-            }, req.queryParams.millis || 1000);
-        }
-    })
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/slow',
+    handler: function(req, res) {
+        setTimeout(function() {
+            res.send("Some slow response");
+        }, req.queryParams.millis || 1000);
+    }
+})
+{% endhighlight %}
 
 
 Other handy kinds of heads
@@ -208,31 +221,35 @@ as the homepage logo. One way to do this is to grab a copy of the logo
 icon]({{ site.url }}/downloads/search_dropdown_homepage.v102.png),
 save them in a folder `fake-assets` and write this simple plugin:
 
-    var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
-        RoboHydraHeadProxy      = require("robohydra").heads.RoboHydraHeadProxy;
-    
-    exports.getBodyParts = function(conf) {
-        return {
-            heads: [
-                new RoboHydraHeadFilesystem({
-                    mountPath: '/assets',
-                    documentRoot: 'fake-assets'
-                }),
-    
-                new RoboHydraHeadProxy({
-                    mountPath: '/',
-                    proxyTo: 'http://duckduckgo.com'
-                })
-            ]
-        };
+{% highlight javascript %}
+var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
+    RoboHydraHeadProxy      = require("robohydra").heads.RoboHydraHeadProxy;
+
+exports.getBodyParts = function(conf) {
+    return {
+        heads: [
+            new RoboHydraHeadFilesystem({
+                mountPath: '/assets',
+                documentRoot: 'fake-assets'
+            }),
+
+            new RoboHydraHeadProxy({
+                mountPath: '/',
+                proxyTo: 'http://duckduckgo.com'
+            })
+        ]
     };
+};
+{% endhighlight %}
 
 Note that the first head that matches the request dispatches it, so
 the order is important! Now save the plugin as
 `robohydra/plugins/ddg/index.js`, create a configuration file like
 shown below, and start RoboHydra as `robohydra ddg.conf`:
 
-    {"plugins": ["ddg"]}
+{% highlight json %}
+{"plugins": ["ddg"]}
+{% endhighlight %}
 
 You should see the DuckDuckGo page completely functional, but with the
 Adam Yauch logo.
