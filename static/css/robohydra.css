@@ -16,3 +16,29 @@ figcaption {
     color: #777;
     margin-bottom: 2ex;
 }
+
+div.warning {
+    background-color: transparent;
+    border: 3px solid #cc0f16;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 2ex;
+}
+
+div.info {
+    background-color: transparent;
+    border: 3px solid #160fcc;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 2ex;
+}
+
+div.warning img {
+    float: left;
+    padding-right: 15px;
+}
+
+div.info img {
+    float: left;
+    padding-right: 15px;
+}

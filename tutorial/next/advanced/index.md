@@ -1,6 +1,15 @@
 ---
 layout: default
 ---
+<div class="info">
+  <img src="/static/img/dialog-information.png"/>
+
+  Note that this documents the <strong>next</strong>, unreleased
+  version of RoboHydra. Get the <a
+  href="https://github.com/robohydra/robohydra">code from GitHub</a>
+  if you want these features!
+</div>
+
 RoboHydra server advanced tutorial
 ==================================
 
