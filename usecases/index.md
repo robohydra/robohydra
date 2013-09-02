@@ -53,56 +53,58 @@ with one Speed Dial and two bookmarks, one of the bookmarks having the
 same URL as the Speed Dial. In that case, these two RoboHydra heads
 would do the job nicely:
 
-    tests: {
-        duplicateUrlInSpeeddialAndBookmark: {
-            heads: [
-                new RoboHydraHeadStatic({
-                    path: '/rest/speeddial/children',
-                    // You can pass a Javascript object directly in "content":
-                    // it will be converted to JSON
-                    content: [
-                        {
-                            "item_type": "speeddial",
-                            "id": "1",
-                            "properties": {
-                                "reload_interval": "2147483646",
-                                "title": "Opera Portal beta",
-                                "uri": "http://redir.opera.com/speeddials/portal/",
-                                "reload_only_if_expired": "0",
-                                "reload_enabled": "0"
-                            }
+{% highlight javascript %}
+tests: {
+    duplicateUrlInSpeeddialAndBookmark: {
+        heads: [
+            new RoboHydraHeadStatic({
+                path: '/rest/speeddial/children',
+                // You can pass a Javascript object directly in "content":
+                // it will be converted to JSON
+                content: [
+                    {
+                        "item_type": "speeddial",
+                        "id": "1",
+                        "properties": {
+                            "reload_interval": "2147483646",
+                            "title": "Opera Portal beta",
+                            "uri": "http://redir.opera.com/speeddials/portal/",
+                            "reload_only_if_expired": "0",
+                            "reload_enabled": "0"
                         }
-                    ]
-                }),
+                    }
+                ]
+            }),
 
-                new RoboHydraHeadStatic({
-                    path: '/rest/bookmark/children',
-                    content: [
-                        {
-                            "item_type": "bookmark",
-                            "id": "319A38DB4581426DA48CAB58C2528FD4",
-                            "properties": {
-                                "created": "2010-08-18T12:59:13Z",
-                                "uri": "http://opera.com",
-                                "title": "My first API bookmark"
-                            }
-                        },
-                        {
-                            "item_type": "bookmark",
-                            "id": "419A38DB4581426DA48CAB58C2528FD5",
-                            "properties": {
-                                "created": "2010-08-18T12:59:13Z",
-                                "title": "My first API bookmark",
-                                "uri": "http://redir.opera.com/speeddials/portal/"
-                            }
+            new RoboHydraHeadStatic({
+                path: '/rest/bookmark/children',
+                content: [
+                    {
+                        "item_type": "bookmark",
+                        "id": "319A38DB4581426DA48CAB58C2528FD4",
+                        "properties": {
+                            "created": "2010-08-18T12:59:13Z",
+                            "uri": "http://opera.com",
+                            "title": "My first API bookmark"
                         }
-                    ]
-                })
-            ]
-        },
+                    },
+                    {
+                        "item_type": "bookmark",
+                        "id": "419A38DB4581426DA48CAB58C2528FD5",
+                        "properties": {
+                            "created": "2010-08-18T12:59:13Z",
+                            "title": "My first API bookmark",
+                            "uri": "http://redir.opera.com/speeddials/portal/"
+                        }
+                    }
+                ]
+            })
+        ]
+    },
 
-        // ... Other tests ...
-    }
+    // ... Other tests ...
+}
+{% endhighlight %}
 
 Once you have your test defined, you can go to the [test admin
 interface](http://localhost:3000/robohydra-admin/tests) and activate
@@ -168,17 +170,19 @@ that once fixed, it would be much easier to verify the fix.
 This simple head waits one second before serving requests for the
 `/authentication` URL path:
 
-                   new RoboHydraHead({
-                       path: '/authentication',
-                       handler: function(req, res, next) {
-                           setTimeout(function() {
-                               next(req, res);
-                           }, 1000);
-                       }
-                   }),
+{% highlight javascript %}
+new RoboHydraHead({
+    path: '/authentication',
+    handler: function(req, res, next) {
+        setTimeout(function() {
+            next(req, res);
+        }, 1000);
+    }
+}),
 
-                   // ... head that actually serves the
-                   // "/authentication" path (eg. a proxying head) ...
+// ... head that actually serves the
+// "/authentication" path (eg. a proxying head) ...
+{% endhighlight %}
 
 
 Make your front-end developers' lives easier
@@ -200,15 +204,17 @@ backend, but many front-end developers working on their own version of
 the front-end files independently of the rest. These two heads might
 do the trick:
 
-                   new RoboHydraHeadStatic({
-                       mountPath: '/js',
-                       documentRoot: 'src/js'
-                   }),
+{% highlight javascript %}
+new RoboHydraHeadStatic({
+    mountPath: '/js',
+    documentRoot: 'src/js'
+}),
 
-                   new RoboHydraHeadProxy({
-                       mountPath: '/',
-                       proxyTo: 'http://dev.myapp.example.com'
-                   })
+new RoboHydraHeadProxy({
+    mountPath: '/',
+    proxyTo: 'http://dev.myapp.example.com'
+})
+{% endhighlight %}
 
 <img src="../static/img/frontend-comic2.png" />
 
