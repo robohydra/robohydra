@@ -17,6 +17,15 @@ figcaption {
     margin-bottom: 2ex;
 }
 
+.teaser-pic {
+    float: right;
+    margin-left: 1.5em;
+    margin-right: 3em;
+    text-align: center;
+    line-height: 100%;
+    font-size: 12px;
+}
+
 div.warning {
     background-color: transparent;
     border: 3px solid #cc0f16;

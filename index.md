@@ -1,25 +1,31 @@
 ---
-layout: default
+layout: frontpage
 ---
 RoboHydra HTTP client test tool
 ===============================
 
+<div class="teaser-pic">
+  <a href="/usecases">
+    <img src="/static/img/usecases-teaser.png" />
+    <figcaption>Read the<br/>use case comics!</figcaption>
+  </a>
+</div>
+
 RoboHydra is a web server designed to help you test any kind of
-HTTP-based client: GUIs that use a public API, mobile applications
-that communicate with some server in order to retrieve information,
-complex Javascript front-ends that use the server mostly as a data
-store, etc.
+HTTP client:
+
+* GUIs that use a public API,
+* Mobile applications that communicate with some server,
+* Complex Javascript front-ends that use a server as a data store,
+* Server applications that contact 3rd party servers,
+* And more! See the [use case comics](/usecases) for more information.
 
 RoboHydra allows you to easily build custom "mock" servers with little
-effort, be it to build a test suite or easily reproduce problems while
-fixing bugs. You can even add functionality to your RoboHydra-based
-server via its web interface, which is very useful when doing
-exploratory testing of your client. All these capabilities can _also_
-be combined with proxying in several useful ways.
-
-For more information about the different ways in which you can use
-RoboHydra, have a look at the [use cases](usecases) (now includes
-comics!).
+effort, be it to build a test suite or to easily reproduce problems
+while fixing bugs. RoboHydra also supports exploratory testing by
+allowing you to change its behaviour dynamically via its web interface.
+Last but not least, RoboHydra can also be used as a proxy, which is
+useful in a variety of situations.
 
 Documentation
 =============
