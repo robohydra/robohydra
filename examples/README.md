@@ -56,3 +56,10 @@ Description
   Opera, but before returning content to the client, it will replace
   all the occurrences of "developers" by "DEVELOPERS, DEVELOPERS,
   DEVELOPERS, DEVELOPERS".
+
+* simple-summmoner.conf loads a plugin with a summoner
+  configuration. All URLs will return 404 because there's no content,
+  but you can see in
+  [/robohydra-admin](http://localhost:3000/robohydra-admin) that if
+  you pass a GET parameter `user`, you'll change the hydra processing
+  the request.
