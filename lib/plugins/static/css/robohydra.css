@@ -2,6 +2,21 @@
     vertical-align: middle;
 }
 
+.navbar .navbar-right {
+  display: table;
+  float: right;
+  height: 70px;
+}
+.navbar .navbar-hydra {
+  display: table-cell;
+  font-size: 14px;
+  height: 70px;
+  vertical-align: middle;
+}
+.navbar .navbar-hydra-name {
+  font-family: monospace;
+}
+
 .navbar-brand img {
     vertical-align: text-top;
     margin-right: 5px;
