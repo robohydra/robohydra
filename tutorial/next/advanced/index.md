@@ -14,7 +14,7 @@ RoboHydra server advanced tutorial
 ==================================
 
 If you haven't already, please read the [beginner's
-tutorial]({{ site.url }}/tutorial) first.
+tutorial](../) first.
 
 Chaining
 --------
@@ -74,7 +74,7 @@ exports.getBodyParts = function(conf) {
 Now, create a new directory `fake-assets-unversioned` with the same
 files, but renaming them to `search_dropdown_homepage.png` and
 `logo_homepage.normal.png`. Once you have the new files, start
-RoboHydra again with `robohydra ddg.conf`. Everything should keep
+RoboHydra again with `robohydra -n -P ddg`. Everything should keep
 working as before, and will keep working even if DuckDuckGo changes
 the version number in the URLs.
 
@@ -236,12 +236,9 @@ exports.getBodyParts = function(conf) {
 };
 {% endhighlight %}
 
-Once saved, create a matching configuration file and start RoboHydra
-with it:
+Once saved, run RoboHydra like so:
 
-{% highlight json %}
-{"plugins": ["search"]}
-{% endhighlight %}
+    robohydra -n -P search
 
 You can see the available scenarios, which one is active (if any) and
 start and stop them in the [scenario admin

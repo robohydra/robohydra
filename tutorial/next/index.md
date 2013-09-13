@@ -253,15 +253,9 @@ exports.getBodyParts = function(conf) {
 
 Note that the first head that matches the request dispatches it, so
 the order is important! Now save the plugin as
-`robohydra/plugins/ddg/index.js`, create a configuration file like
-shown below, and start RoboHydra as `robohydra ddg.conf`:
-
-{% highlight json %}
-{"plugins": ["ddg"]}
-{% endhighlight %}
-
-You should see the DuckDuckGo page completely functional, but with the
-Adam Yauch logo.
+`robohydra/plugins/ddg/index.js` and start RoboHydra as `robohydra -n
+-P ddg`. You should see the DuckDuckGo page completely functional, but
+with the Adam Yauch logo.
 
 Now you know all the basic functionality RoboHydra offers. If you want
 more information, you can read and follow the <a
