@@ -349,6 +349,68 @@ scenario index page. In case you want to access this information in an
 automated fashion, you can get the results in JSON format at the URL
 [http://localhost:3000/robohydra-admin/rest/test-results](http://localhost:3000/robohydra-admin/rest/test-results).
 
+
+Multi-user RoboHydra
+--------------------
+
+Especially when you are using RoboHydra for test suites inside a
+company, you might want to have a single RoboHydra installation for
+the whole organisation. That is, instead of every developer or tester
+having one in their own private workstation, having one shared
+RoboHydra server for everyone.
+
+If you used RoboHydra as we have seen so far, that would be a problem
+because when two users tried to use the test suite at the same time,
+the second user would reset the active scenario while the first user
+is still testing someting. To solve that problem, the RoboHydra server
+permits having more than one "hydra" ("hydra" being a collection of
+heads with their own state) and choose between them using the
+*summoner*. The idea is that upon receiving a request, the summoner
+will give a different hydra to every user (eg. by checking cookies):
+that way many users can use the same RoboHydra server without
+interfering with one another. The default *summoner* will always
+summon the same hydra (ie. it's for a single user), but you can
+provide the function that receives the incoming request object and
+returns the name of the hydra that should process that request.
+
+Let's make a simple, multi-user RoboHydra server. We'll start by
+deciding how we're going to tell the different users apart: although a
+common way to do so in the real world would be to use cookies, as a
+simplification we'll just use the browser user agents. Create a file
+`robohydra/plugins/ua-summoner/index.js` with the following contents:
+
+{% highlight javascript %}
+exports.getBodyParts = function() {
+    return {};
+};
+
+exports.getSummonerTraits = function() {
+    return {
+        robohydraPicker: function(req) {
+            var ua = req.headers['user-agent'] || '<empty>';
+            // Avoid very long hydra names, they look ugly on the admin UI
+            return ua.length > 50 ? ua.slice(0, 50) + '…' : ua;
+        }
+    };
+};
+{% endhighlight %}
+
+In this case every user agent will be considered a different user. In
+other words, every browser you have installed (including different
+versions!) will get its requests served by a different hydra. To test
+this, start RoboHydra like `robohydra -P ua-summoner`, fire two or
+three different browsers and go to
+[/robohydra-admin/](http://localhost:3000/robohydra-admin/) with all
+of them. You'll notice on the top-right corner that the hydra name is
+different for every browser. If you create new heads with one browser
+using the admin UI, the other browser will _not_ see those new
+heads. That means all browsers you try with can work independently of
+each other, but all of them using the same server!
+
+
+Conclusion
+----------
+
 And this is the end of the advanced RoboHydra tutorial. Now you have
 learned about all features and it's just a matter of experimenting and
 creating your own plugins.
