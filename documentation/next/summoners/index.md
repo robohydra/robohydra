@@ -112,14 +112,14 @@ write a plugin that exports a function `getSummonerTraits`. This
 function works in a way similar to `getBodyParts`: it receives the
 configuration and returns an object with the traits of the
 summoner. The only currently supported summoner trait is
-`robohydraPicker`, a function that receives the request object and
+`hydraPicker`, a function that receives the request object and
 returns a string with the name of the hydra to use for that request. A
 trivial example of such a plugin could be:
 
 {% highlight javascript %}
 exports.getSummonerTraits = function(config) {
     return {
-        robohydraPicker: function(req) {
+        hydraPicker: function(req) {
             if ('user' in req.queryParams) {
                 return req.queryParams.user;
             }
@@ -129,11 +129,11 @@ exports.getSummonerTraits = function(config) {
 };
 {% endhighlight %}
 
-If the RoboHydra server loads only one plugin with a `robohydraPicker`
+If the RoboHydra server loads only one plugin with a `hydraPicker`
 summoner trait, it will use this RoboHydra picker function to decide
 how to dispatch the different incoming requests. If it has more than
-one `robohydraPicker` available, you will have to use a configuration
-file a set the `robohydraPickerPlugin` property in `summoner`. See the
+one `hydraPicker` available, you will have to use a configuration
+file a set the `hydraPickerPlugin` property in `summoner`. See the
 [configuration section](../configuration) for more information.
 
 
@@ -201,7 +201,7 @@ code _at the bottom of the file_:
 {% highlight javascript %}
 exports.getSummonerTraits = function() {
     return {
-        robohydraPicker: function(req) {
+        hydraPicker: function(req) {
             var cookies = cookie.parse(req.headers.cookie || "");
             return cookies.sessionId || "";
         }

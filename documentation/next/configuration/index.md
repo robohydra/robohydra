@@ -67,14 +67,14 @@ that specifies a RoboHydra picker, you need to specify in the
 configuration file which of the plugins contains the picker to be used
 (because you can only use one!). You do so by setting the
 configuration key `summoner` to an object with the property
-`robohydraPickerPlugin` set to the name of that plugin. For example:
+`hydraPickerPlugin` set to the name of that plugin. For example:
 
 {% highlight json %}
 {"plugins": ["plugin-with-picker", "another-plugin-with-picker", "moar"],
- "summoner": {"robohydraPickerPlugin": "plugin-with-picker"}}
+ "summoner": {"hydraPickerPlugin": "plugin-with-picker"}}
 {% endhighlight %}
 
 Specifying a plugin that doesn't define any picker will result in an
 error. On the other hand, if you only load one plugin that defines a
-picker, there's no need to specify `robohydraPickerPlugin` in the
+picker, there's no need to specify `hydraPickerPlugin` in the
 configuration file.

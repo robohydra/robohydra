@@ -383,7 +383,7 @@ exports.getBodyParts = function() {
 
 exports.getSummonerTraits = function() {
     return {
-        robohydraPicker: function(req) {
+        hydraPicker: function(req) {
             var ua = req.headers['user-agent'] || '<empty>';
             // Avoid very long hydra names, they look ugly on the admin UI
             return ua.length > 50 ? ua.slice(0, 50) + '…' : ua;
