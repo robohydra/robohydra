@@ -63,7 +63,7 @@ Summoners
 ---------
 
 When you use [summoners](../summoners) and have more than one plugin
-that specifies a RoboHydra picker, you need to specify in the
+that specifies a hydra picker, you need to specify in the
 configuration file which of the plugins contains the picker to be used
 (because you can only use one!). You do so by setting the
 configuration key `summoner` to an object with the property
