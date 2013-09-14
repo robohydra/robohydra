@@ -4,7 +4,7 @@ exports.getBodyParts = function() {
 
 exports.getSummonerTraits = function() {
     return {
-        robohydraPicker: function(req) {
+        hydraPicker: function(req) {
             return req.queryParams.user || "anonymous";
         }
     };

@@ -14,7 +14,7 @@ exports.getBodyParts = function(conf) {
 
 exports.getSummonerTraits = function() {
     return {
-        robohydraPicker: function() {
+        hydraPicker: function() {
             return "simple-authenticator-fixed-user";
         }
     };

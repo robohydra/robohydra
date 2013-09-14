@@ -24,7 +24,7 @@ describe("RoboHydra picking system", function() {
         var summoner = new RoboHydraSummoner(
             [{name: 'simple-authenticator', config: {}},
              {name: 'url-query-authenticator', config: {}}],
-            {robohydraPickerPlugin: 'simple-authenticator'},
+            {hydraPickerPlugin: 'simple-authenticator'},
             {rootDir: __dirname + '/plugin-fs'}
         );
         var h = summoner.summonRoboHydraForRequest(new Request({url: '/'}));
@@ -36,7 +36,7 @@ describe("RoboHydra picking system", function() {
             new RoboHydraSummoner(
                 [{name: 'simple-authenticator', config: {}},
                  {name: 'url-query-authenticator', config: {}}],
-                {robohydraPickerPlugin: 'another-plugin'},
+                {hydraPickerPlugin: 'another-plugin'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
         }).toThrow('InvalidRoboHydraConfigurationException');
@@ -48,7 +48,7 @@ describe("RoboHydra picking system", function() {
                 [{name: 'simple-authenticator', config: {}},
                  {name: 'url-query-authenticator', config: {}},
                  {name: 'definedtwice', config: {}}],
-                {robohydraPickerPlugin: 'definedtwice'},
+                {hydraPickerPlugin: 'definedtwice'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
         }).toThrow('InvalidRoboHydraConfigurationException');

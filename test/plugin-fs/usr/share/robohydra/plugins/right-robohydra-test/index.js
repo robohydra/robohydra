@@ -34,7 +34,7 @@ exports.getSummonerTraits = function() {
     "use strict";
 
     return {
-        robohydraPicker: function(req) {
+        hydraPicker: function(req) {
             return req.queryParams.user || "default-user";
         }
     };

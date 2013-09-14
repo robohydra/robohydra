@@ -16,6 +16,6 @@ exports.getSummonerTraits = function() {
     "use strict";
 
     return {
-        robohydraPicker: "fixed (wrong)"
+        hydraPicker: "fixed (wrong)"
     };
 };

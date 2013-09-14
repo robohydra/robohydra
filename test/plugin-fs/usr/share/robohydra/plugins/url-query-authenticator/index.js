@@ -14,7 +14,7 @@ exports.getBodyParts = function(conf) {
 
 exports.getSummonerTraits = function() {
     return {
-        robohydraPicker: function(req) {
+        hydraPicker: function(req) {
             return req.queryParams.user || "no-user-query-param";
         }
     };
