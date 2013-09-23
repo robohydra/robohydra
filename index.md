@@ -96,7 +96,7 @@ written that CSS.
 
 This project started at [Opera Software ASA](http://opera.com) as an
 internal tool to test some of our projects. Large parts of this code
-were (and still are) developed there, but as it's pretty generic we
-decided to open source it. See [Opera's GitHub
+were developed there, but as it's pretty generic we decided to open
+source it. See [Opera's GitHub
 account](http://github.com/operasoftware) for more open source
 goodies.
