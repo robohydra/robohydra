@@ -187,6 +187,43 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('plugin2', 1);
     });
 
+    it("considers plugin configuration when registering plugins", function() {
+        var hydra = new RoboHydra();
+        var value = 'configuration key value';
+        hydra.registerPluginObject({
+            name: 'plugin1',
+            path: '/',
+            config: {myConfVariable: value},
+            module: {
+                getBodyParts: function(conf) {
+                    expect(conf.myConfVariable).toEqual(value);
+                    return {};
+                }
+            }
+        });
+    });
+
+    it("considers extraVars when registering plugins", function() {
+        var configKeyValue = 'config value',
+            overridenConfigKeyValue = 'overriden value',
+            newConfigKeyValue = 'new value';
+
+        var hydra = new RoboHydra({configKey: overridenConfigKeyValue,
+                                   newConfigKey: newConfigKeyValue});
+        hydra.registerPluginObject({
+            name: 'plugin1',
+            path: '/',
+            config: {configKey: configKeyValue},
+            module: {
+                getBodyParts: function(conf) {
+                    expect(conf.configKey).toEqual(overridenConfigKeyValue);
+                    expect(conf.newConfigKey).toEqual(newConfigKeyValue);
+                    return {};
+                }
+            }
+        });
+    });
+
     it("can get a plugin by name", function() {
         var hydra = new RoboHydra();
         var plugin1 = {name: 'plugin1',

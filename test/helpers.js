@@ -247,7 +247,7 @@ var robohydra = require("../lib/robohydra"),
         return {
             name: name,
             path: info.path || '/tmp/fake/unit-testing/' + name,
-            config: info.config || {},
+            config: info.config,
             module: {
                 getBodyParts: function() {
                     return bodyParts;
