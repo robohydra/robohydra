@@ -2,21 +2,6 @@
     vertical-align: middle;
 }
 
-.navbar .navbar-right {
-  display: table;
-  float: right;
-  height: 70px;
-}
-.navbar .navbar-hydra {
-  display: table-cell;
-  font-size: 14px;
-  height: 70px;
-  vertical-align: middle;
-}
-.navbar .navbar-hydra-name {
-  font-family: monospace;
-}
-
 .navbar-brand img {
     vertical-align: text-top;
     margin-right: 5px;
@@ -25,4 +10,22 @@
 .table tbody tr.is-highlighted th,
 .table tbody tr.is-highlighted td {
     background-color: #cc0f16 !important;
+}
+
+.footer {
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    border-top: 1px solid rgba(51, 51, 51, 0.149);
+
+    background-color: white;
+    color: #666;
+    padding: 10px;
+}
+
+.footer .value {
+    color: #000;
+}
+.hydra-name {
+    font-family: monospace;
 }
