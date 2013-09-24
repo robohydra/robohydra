@@ -63,3 +63,6 @@ Description
   [/robohydra-admin](http://localhost:3000/robohydra-admin) that if
   you pass a GET parameter `user`, you'll change the hydra processing
   the request.
+
+* custom-types.conf loads a plugin that demonstrates how to write a
+  custom head class. See the code in `examples/plugins/custom-types`.
