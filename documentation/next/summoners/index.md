@@ -117,6 +117,10 @@ returns a string with the name of the hydra to use for that request. A
 trivial example of such a plugin could be:
 
 {% highlight javascript %}
+exports.getBodyParts = function() {
+    return {};
+};
+
 exports.getSummonerTraits = function(config) {
     return {
         hydraPicker: function(req) {
