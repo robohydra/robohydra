@@ -14,8 +14,9 @@ description of the capabilities of each type of head.
 A plugin is a _directory-based_ Node package (ie. you can't have
 plugins like `robohydra/plugins/my-plugin.js`, it has to be
 `robohydra/plugins/my-plugin/index.js` or similar) that defines the
-function `getBodyParts`. When loading your plugin, RoboHydra will call
-that function with two parameters:
+function `getBodyParts`, and maybe also the function
+`getSummonerTraits`. When loading your plugin, RoboHydra will call
+`getBodyParts` with two parameters:
 
 * `conf`: this is a Javascript object with all configuration
   properties defined in the configuration file and/or the
@@ -35,6 +36,9 @@ optional properties:
 * `heads`: an *array* of `RoboHydraHead` objects.
 * `scenarios`: an *object* with scenario names as properties, and
   objects as values.
+
+As for the `getSummonerTraits` function, read the [summoner
+section](../summoners/).
 
 
 ### Defining scenarios
