@@ -54,6 +54,18 @@ scenario is an object with the following properties:
 * `heads`: an *array* of heads that will be activated when the
   scenario is running.
 
+There are two ways to define scenarios in your plugin: you can either
+specify them as objects in the `scenarios` list returned by
+`getBodyParts`, that is, inline in your plugin code, or you can
+define each scenario in a separate file. Or a mix between the two.
+
+If you want to define scenarios in separate files, each scenario will
+be a file `<scenarioname>.js` inside the `scenarios/` subdirectory
+inside your plugin directory. This file is similar to a RoboHydra
+plugin: a Node module exporting the function `getBodyParts`. Again,
+this function will be called with two parameters, `conf` and
+`modules`, and must return a Javascript object with the key `heads`.
+
 When you start a RoboHydra server, all scenarios are inactive. You can
 activate any scenario at any time (using the admin web interface, the
 [programmatic API](../api) or the [REST API](../rest)), but only one
