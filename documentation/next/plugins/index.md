@@ -24,9 +24,10 @@ that function with two parameters:
   the plugin directory, although it's also available as `__dirname`
   under Node).
 * `modules`: this is a Javascript object with special modules for the
-  plugin to use. Currently there is only one module available,
-  `assert`, used for assertions (see "The 'assert' module" below for
-  more information).
+  plugin to use. Currently there are two modules available, `assert`,
+  used for assertions (see "The 'assert' module" below); and
+  `fixtures`, used to load fixtures (see "The 'fixtures' module"
+  below).
 
 The `getBodyParts` function must return an object with the following
 optional properties:
@@ -74,6 +75,15 @@ failure, but instead will return `false`. This is much more useful
 because it allows you to easily return a normal response to the client
 (the same or different than the response the client would get if the
 assertion had passed).
+
+
+### The "fixtures" module
+
+The fixtures module defines a single function, `load`, to load
+fixtures. Fixtures are files inside the `fixtures/` subdirectory
+inside a plugin directory. From the plugin code you can call
+`modules.fixtures.load("foo.bar")` to load the file
+`<plugindir>/fixtures/foo.bar`.
 
 
 ### Example plugin
