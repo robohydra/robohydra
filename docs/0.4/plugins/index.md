@@ -99,7 +99,8 @@ The fixtures module defines a single function, `load`, to load
 fixtures. Fixtures are files inside the `fixtures/` subdirectory
 inside a plugin directory. From the plugin code you can call
 `modules.fixtures.load("foo.bar")` to load the file
-`<plugindir>/fixtures/foo.bar`.
+`<plugindir>/fixtures/foo.bar`. Note that it returns a [`Buffer`
+object](http://nodejs.org/docs/latest/api/buffer.html), not a string!
 
 
 ### Example plugin
