@@ -32,9 +32,9 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
     // variable. But whaeva.
     function showHelpAndDie(message) {
         if (message) {
-            console.log(message);
+            console.error(message);
         }
-        console.log(commander.helpInformation());
+        console.error(commander.helpInformation());
         process.exit(1);
     }
 
@@ -121,9 +121,9 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
             sslOptionsObject.key  = fs.readFileSync(keyPath);
             sslOptionsObject.cert = fs.readFileSync(certPath);
         } catch(e) {
-            console.log("Could not read the HTTPS key or certificate file.");
-            console.log("Paths were '" + keyPath + "' and '" + certPath + "'.");
-            console.log("You must set properties 'key' and 'cert' inside 'sslOptions'.");
+            console.error("Could not read the HTTPS key or certificate file.");
+            console.error("Paths were '" + keyPath + "' and '" + certPath + "'.");
+            console.error("You must set properties 'key' and 'cert' inside 'sslOptions'.");
             process.exit(1);
         }
         server = https.createServer(sslOptionsObject, requestHandler);
@@ -134,8 +134,8 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
-            console.log("Couldn't listen in port " + commander.port +
-                        ", aborting.");
+            console.error("Couldn't listen in port " + commander.port +
+                          ", aborting.");
         }
     });
     server.listen(commander.port, function() {

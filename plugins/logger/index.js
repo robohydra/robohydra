@@ -60,7 +60,7 @@ function logRequestResponse(logFileFd, req, res, cb) {
         if (res.headers['content-encoding'] === 'gzip') {
             zlib.gunzip(res.body, function(err, buffer) {
                 if (err) {
-                    var msg = "INVALID GZIP DATA IN RESPONSE? WTF?";
+                    var msg = "INVALID GZIP DATA IN RESPONSE?";
                     console.log(msg);
                     fs.writeSync(logFileFd, msg + "\n");
                 } else {
