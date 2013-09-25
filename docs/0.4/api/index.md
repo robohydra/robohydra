@@ -33,8 +33,7 @@ and properties:
   * `module`: mandatory, the plugin module (ie. an object with the
   `getBodyParts` function; see more information in the
   [plugin documentation](../plugins)).
-* `getModulesObject`: returns an object with the available modules
-  (currently only `assert`).
+* `getModulesObject`: returns an object with the available modules.
 * `getPlugins`: returns a list of all current plugins, including
   pseudo-plugins.
 * `getPluginNames`: returns a list of all current plugin names, including
@@ -52,16 +51,18 @@ and properties:
   attached/detached, `InvalidRoboHydraHeadStateException` is thrown.
 * `addPluginLoadPath`: It adds the given path to the list of paths to
   search for plugins.
-* `startTest`: given a plugin name and test name, start the given
-  test. If it doesn't exist, throw `InvalidRoboHydraTestException`.
-* `stopTest`: stops the current test, if any.
-* `currentTest` (property): object with two properties, `plugin` and
-  `test`, pointing to the currently running test. If there's no running
-  test, it's `*default*` / `*default*`.
+* `startScenario`: given a plugin name and scenario name, start the
+  given scenario. If it doesn't exist, throw
+  `InvalidRoboHydraTestException`.
+* `stopScenario`: stops the current scenario, if any.
+* `currentScenario` (property): object with two properties, `plugin`
+  and `scenario`, pointing to the currently active scenario. If
+  there's no active scenario, it's `*default*` / `*default*`.
 * `testResults` (property): object with the current test results. Its
-  keys are plugin names and its values are objects with test names as
-  keys. The values of the latter objects are test results: objects
-  with the keys `result` (`undefined` if the test doesn't have any
-  result yet, or `pass` or `fail` if at least one assertion has run
-  for that test), `passes` (an array with the description of the
-  passing assertions) and `failures` (ditto for failing assertions).
+  keys are plugin names and its values are objects with scenario names
+  as keys. The values of the latter objects are test results: objects
+  with the keys `result` (value is `undefined` if the test doesn't
+  have any result yet, or `pass` or `fail` if at least one assertion
+  has run for that test), `passes` (an array with the description of
+  the passing assertions) and `failures` (ditto for failing
+  assertions).
