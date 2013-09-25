@@ -1,19 +1,19 @@
 ---
 layout: default
 ---
-<div class="warning">
+<div class="message warning">
   <img src="/static/img/dialog-warning.png"/>
 
   <strong>Oi!</strong> If you're using an updated version from GitHub,
   or want to see how the next version of RoboHydra will be, go to the
-  <a href="../next/advanced/">updated tutorial</a>.
+  <a href="../../../0.4/tutorial/advanced/">updated tutorial</a>.
 </div>
 
 RoboHydra server advanced tutorial
 ==================================
 
 If you haven't already, please read the [beginner's
-tutorial]({{ site.url }}/tutorial) first.
+tutorial](../) first.
 
 Chaining
 --------

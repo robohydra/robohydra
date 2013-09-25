@@ -1,7 +1,7 @@
 ---
 layout: default
 ---
-<div class="info">
+<div class="message info">
   <img src="/static/img/dialog-information.png"/>
 
   Note that this documents the <strong>next</strong>, unreleased

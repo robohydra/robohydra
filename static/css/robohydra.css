@@ -26,28 +26,24 @@ figcaption {
     font-size: 12px;
 }
 
-div.warning {
+div.message {
     background-color: transparent;
-    border: 3px solid #cc0f16;
+    border: 3px solid;
     border-radius: 10px;
     padding: 15px;
     margin-bottom: 2ex;
+    min-height: 50px;
+}
+
+div.message img {
+    float: left;
+    padding-right: 15px;
+}
+
+div.warning {
+    border-color: #cc0f16;
 }
 
 div.info {
-    background-color: transparent;
-    border: 3px solid #160fcc;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 2ex;
-}
-
-div.warning img {
-    float: left;
-    padding-right: 15px;
-}
-
-div.info img {
-    float: left;
-    padding-right: 15px;
+    border-color: #160fcc;
 }

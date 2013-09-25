@@ -30,34 +30,19 @@ useful in a variety of situations.
 Documentation
 =============
 
-To get started, go read the [basic tutorial](tutorial) and the more
-[advanced tutorial](tutorial/advanced). There are also a number of
-screencasts in the [RoboHydra YouTube
-channel](http://www.youtube.com/user/robohydra/videos).
+To get started, go read the [tutorial](docs/tutorial). There are also
+a number of screencasts in the [YouTube
+channel](http://www.youtube.com/user/robohydra/videos), and [Dev
+Opera](http://dev.opera.com) published articles on how to use
+RoboHydra for [front-end developer
+proxies](http://dev.opera.com/articles/view/robohydra-a-new-testing-tool-for-client-server-interactions/)
+and [mock
+servers](http://dev.opera.com/articles/view/using-robohydra-as-a-mock-server/),
+and even one on [advanced
+techniques](http://dev.opera.com/articles/view/robohydra-advanced-techniques/).
 
-[Dev Opera](http://dev.opera.com) published three articles on
-RoboHydra that serve as tutorials for different RoboHydra use cases:
-
-1. [Robohydra: a new testing tool for client-server
-interactions](http://dev.opera.com/articles/view/robohydra-a-new-testing-tool-for-client-server-interactions/)
-serves as a general introduction and covers how to build a simple
-development proxy for front-end developers.
-
-2. [Using RoboHydra as a mock
-server](http://dev.opera.com/articles/view/using-robohydra-as-a-mock-server/)
-covers how to use RoboHydra to build mock servers that help you
-reproduce bugs and build a functional testsuite.
-
-3. [RoboHydra: advanced
-techniques](http://dev.opera.com/articles/view/robohydra-advanced-techniques/)
-covers advanced techniques that can be applied to any kind of
-RoboHydra server.
-
-You also have [reference documentation](documentation) available. The
-sources don't have embedded documentation (yet), but most of what you
-need is described in the pages above, and the rest you can read in the
-[sources](https://github.com/operasoftware/robohydra) themselves
-(they're still small and easy to understand).
+For those of you already familiar with RoboHydra, there is also
+[reference documentation](docs) available.
 
 Download
 ========

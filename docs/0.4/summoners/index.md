@@ -4,7 +4,7 @@ layout: documentation
 RoboHydra Summoners
 ===================
 
-<div class="warning">
+<div class="message warning">
   <img src="/static/img/dialog-warning.png"/>
 
   This feature is experimental and might change dramatically, or even
