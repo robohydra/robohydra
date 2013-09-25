@@ -48,13 +48,13 @@ Download
 ========
 
 You can get the [code on
-GitHub](https://github.com/operasoftware/robohydra), or install
+GitHub](https://github.com/robohydra/robohydra), or install
 RoboHydra via NPM with the following command:
 
     npm install robohydra
 
 You can check the
-[ChangeLog](https://raw.github.com/operasoftware/robohydra/master/ChangeLog)
+[ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog)
 for the changes between versions.
 
 Updates
@@ -65,7 +65,7 @@ For updates and announcements related to this project, follow
 the [development group on Google
 Groups](https://groups.google.com/forum/?hl=es&fromgroups#!forum/robohydra),
 watch project [robohydra on
-GitHub](https://github.com/operasoftware/robohydra) or subscribe to
+GitHub](https://github.com/robohydra/robohydra) or subscribe to
 the [RoboHydra channel on
 YouTube](http://www.youtube.com/user/robohydra/videos).
 

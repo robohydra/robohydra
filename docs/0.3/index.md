@@ -483,7 +483,7 @@ results, sending the test results to another server, or any other
 thing you can think of. You could also write your own admin interface
 if you wanted to, as the stock admin interface is essentially a normal
 plugin (see
-[`lib/plugins/admin.js`](https://github.com/operasoftware/robohydra/blob/master/lib/plugins/admin.js)
+[`lib/plugins/admin.js`](https://github.com/robohydra/robohydra/blob/master/lib/plugins/admin.js)
 in the RoboHydra source code).
 
 The following is a list of interesting public RoboHydra API methods

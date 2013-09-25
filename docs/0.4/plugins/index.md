@@ -7,7 +7,7 @@ Writing your own plugins
 Most uses of RoboHydra need writing custom plugins for the behaviour
 you want. Writing plugins is easy, as you can use ready-made RoboHydra
 heads that do most common operations. See the
-[tutorial](/tutorial) to get an idea of what's possible and get
+[tutorial](../tutorial) to get an idea of what's possible and get
 started, and the [head documentation](../heads) for a detailed
 description of the capabilities of each type of head.
 

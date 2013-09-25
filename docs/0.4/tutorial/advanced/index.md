@@ -256,7 +256,7 @@ interpreted as Markdown). This can be very handy if you want to build
 some kind of acceptance test suite of your client.  And in case you
 want to automate the testing of the client, you will also want to
 automate the starting/switching of scenarios in RoboHydra. In that
-case, you can use the RoboHydra [REST API](/documentation/next/rest/).
+case, you can use the RoboHydra [REST API](../../rest/).
 
 
 Assertions
@@ -411,3 +411,5 @@ Conclusion
 And this is the end of the advanced RoboHydra tutorial. Now you have
 learned about all features and it's just a matter of experimenting and
 creating your own plugins.
+
+For more information, check the [reference documentation](../..).
