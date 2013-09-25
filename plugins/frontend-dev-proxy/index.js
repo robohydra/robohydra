@@ -26,8 +26,8 @@ exports.getBodyParts = function(conf) {
         process.exit(1);
     }
 
-    var urlpaths = conf.urlpath.split(/,/);
-    var localdirs = conf.localdir.split(/,/);
+    var urlpaths = conf.urlpath !== '' ? conf.urlpath.split(/,/) : [];
+    var localdirs = conf.localdir !== '' ? conf.localdir.split(/,/) : [];
     var proxyurl = conf.proxyurl || "";
     if (urlpaths.length !== localdirs.length) {
         console.error("ERROR: I have " + urlpaths.length + " URL paths to " +
