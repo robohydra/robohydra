@@ -1,5 +1,5 @@
 ---
-layout: frontpage
+layout: default
 ---
 RoboHydra HTTP client test tool
 ===============================
