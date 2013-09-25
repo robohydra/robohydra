@@ -20,6 +20,7 @@ Tutorials
 Reference documentation
 =======================
 
+* [Changes](changes/) &mdash; changes from the previous version
 * [Usage](usage/) &mdash; command-line arguments and calling convention
 * [Configuration](configuration/) &mdash; RoboHydra configuration file format
 * [Writing plugins](plugins/) &mdash; plugin format

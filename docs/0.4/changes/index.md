@@ -1,0 +1,56 @@
+---
+layout: default
+---
+
+New in 0.4
+==========
+
+This is a summary of the changes between RoboHydra 0.3 and RoboHydra
+0.4. For full details, check the
+[ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog).
+
+
+### "Tests" renamed to "scenarios"
+
+"Tests" (as in the collection of heads that get attached/detached at
+the same time) are now called "scenarios". It's a more appropriate
+name and much less ambiguous.
+
+The use of `tests` in plugins is deprecated, and support for it will
+be dropped the next version.
+
+### REST API
+
+Now there's an actual [REST API](../rest) to easily interact with the
+RoboHydra server: it allows you to check and manipulate the state of
+the heads and scenarios of a given hydra.
+
+### External scenarios
+
+Scenarios can now be written in their own file in a special directory
+inside the plugin, as opposed to being written inside the plugin's
+`index.js`. This makes it much easier to maintain plugins with many
+scenarios.
+
+### New "fixture" module
+
+Plugins now receive a second module, `fixture`, in the second
+parameter to `getBodyParts`. This new module has a single function,
+`load`, that allow you to load fixtures easily without having to worry
+about paths. See the [plugin documentation](../plugins) for details.
+
+### RoboHydra Summoners
+
+Version 0.4 introduces a new feature, summoners, that allows you to
+use a single RoboHydra server for multiple users. Read the [rationale,
+documentation and examples](../summoners) for more details.
+
+### Standard way to create new classes of heads
+
+RoboHydra 0.4 also introduces a standard way to [create your own head
+classes](../custom-heads), the `roboHydraHeadType` function.
+
+### Simplified admin UI
+
+The new admin UI is a bit simpler and has been adapted to the changes
+in this version.
