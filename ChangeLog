@@ -1,6 +1,56 @@
 Next
 ----
 
+	* Broken compatibility: the API of the "registerPluginObject"
+	function has changed, check the new documentation. The function
+	"requirePlugin" no longer exists.
+
+	* Deprecated name "tests": now you should use "scenarios". It's
+	just a name change, functionality stays the same. The functions
+	"startTest" and "stoptest" are deprecated, and "startScenario" and
+	"stopScenario" should be used instead (see next point for
+	details).
+
+	* External scenarios: scenarios can now be specified in separate
+	files, in addition to inline inside the plugin's index.js
+	file. Each scenario is a file inside the scenarios/ subdirectory
+	of the plugin directory.
+
+	* New "fixtures" module: plugins now have access to a second
+	module, "fixtures". This module contains a single function,
+	"load", that allows you to easily load files sitting in the
+	fixtures/ subdirectory of the plugin directory.
+
+	* Multiple user support: RoboHydra servers can now be shared among
+	several users. Each user will have her own state independent of
+	the other users' state. This allows you to setup a single, shared
+	RoboHydra server for a whole team, as opposed to every member of
+	the team having to install RoboHydra in her own computer. See the
+	"summoners" documentation for more information.
+
+	* REST API: there is a new API to interact with the RoboHydra
+	server. It's REST based, and for now it only support JSON as a
+	format. It allows you to check the loaded plugins, information
+	about a given plugin, head or scenario, and change the state of a
+	given head or scenario.
+
+	* Admin UI: some changes to the admin UI. Simplified the head and
+	scenario list UI, and show the hydra name (related to the multiple
+	user support) and the date in which the server was started.
+
+	* Creating new head classes: there is now a function
+	("roboHydraHeadType") to create head classes that inherit from
+	other, existing head classes. See the documentation and examples
+	for more details.
+
+	* Command-line UI: now configuration files are optional, and
+	plugins can be specified on the command-line directly.
+
+	* Add more and better examples to the examples/ folder.
+
+	* Many code clean-ups and improvements.
+
+
 Version 0.3 (2012-09-02)
 ------------------------
 
