@@ -1158,7 +1158,7 @@ describe("RoboHydra test system (deprecated)", function() {
         );
     });
 
-    it("can access a test instructions", function() {
+    it("can access a test's instructions", function() {
         var hydra = new RoboHydra();
         var instructions = "Click here, then there";
         hydra.registerPluginObject(pluginInfoObject({
