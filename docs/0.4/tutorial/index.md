@@ -48,7 +48,7 @@ the appropriate fields, and click on "Create". Don't worry about the
 JSON, it will be `application/json`.
 
 <figure>
-  <img src="../../static/img/robohydra-admin1.png" />
+  <img src="/static/img/robohydra-admin1.png" />
   <figcaption>Figure 1: creating a dynamic head from the RoboHydra
   admin interface</figcaption>
 </figure>

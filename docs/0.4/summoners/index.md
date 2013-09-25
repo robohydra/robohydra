@@ -48,7 +48,7 @@ That is, in 0.3 and earlier versions a request was processed like
 this:
 
 <figure>
-  <img src="../../../static/img/summoners-0.png" />
+  <img src="/static/img/summoners-0.png" />
   <figcaption>Figure 1: <strong>old</strong> request dispatch
   (RoboHydra 0.3 and earlier)</figcaption>
 </figure>
@@ -56,7 +56,7 @@ this:
 However, now, by default, it's more something like this:
 
 <figure>
-  <img src="../../../static/img/summoners-1.png" />
+  <img src="/static/img/summoners-1.png" />
   <figcaption>Figure 2: default, single user request dispatch
   (RoboHydra 0.4 and newer)</figcaption>
 </figure>
@@ -70,7 +70,7 @@ that hydra, the hydra will be created transparently. Thus, in the
 general case, a request is processed like so:
 
 <figure>
-  <img src="../../../static/img/summoners-2.png" />
+  <img src="/static/img/summoners-2.png" />
   <figcaption>Figure 3: multi-user request dispatch
   (RoboHydra 0.4 and newer)</figcaption>
 </figure>
