@@ -29,7 +29,13 @@ exports.getBodyParts = function(config) {
                     }
                     rh.attachHead('replayer', 'recorder');
                 }
-                res.end();
+                res.headers['content-type'] = 'text/html';
+                res.send('<h1>Record mode started</h1>' +
+                         'From now on, all traffic will be recorded in "' +
+                         trafficFilePath + '". ' +
+                         "When you're done you can replay that traffic " +
+                         'by visiting ' +
+                         '<a href="/start-replaying">/start-replaying</a>.');
             }
         }),
 
@@ -48,7 +54,12 @@ exports.getBodyParts = function(config) {
                     }
                     rh.attachHead('replayer', 'replayer');
                 }
-                res.end();
+                res.headers['content-type'] = 'text/html';
+                res.send('<h1>Replay mode started</h1>' +
+                         'From now on, this RoboHydra server will respond ' +
+                         'with traffic from "' + trafficFilePath + '" ' +
+                         'instead of real traffic from ' +
+                         proxyToUrl + '.');
             }
         }),
 
@@ -83,27 +94,23 @@ exports.getBodyParts = function(config) {
             name:    'replayer',
             path:    '/.*',
             detached: true,
-            handler: function(req, res, next) {
-                next(req, new Response(
-                    function() {
-                        var urlResponses = currentTrafficData[req.url];
-                        if (urlResponses) {
-                            var index = indexForUrl[req.url] || 0;
-                            var currentResponse =
-                                    currentTrafficData[req.url][index];
-                            indexForUrl[req.url] =
-                                ((index + 1) %
-                                 currentTrafficData[req.url].length);
-                            res.statusCode = currentResponse.statusCode;
-                            res.headers    = currentResponse.headers;
-                            res.send(new Buffer(currentResponse.body,
-                                                'base64'));
-                        } else {
-                            res.statusCode = 404;
-                            res.send(new Buffer("Not Found", "utf-8"));
-                        }
-                    }
-                ));
+            handler: function(req, res) {
+                var urlResponses = currentTrafficData[req.url];
+                if (urlResponses) {
+                    var index = indexForUrl[req.url] || 0;
+                    var currentResponse =
+                            currentTrafficData[req.url][index];
+                    indexForUrl[req.url] =
+                        ((index + 1) %
+                         currentTrafficData[req.url].length);
+                    res.statusCode = currentResponse.statusCode;
+                    res.headers    = currentResponse.headers;
+                    res.send(new Buffer(currentResponse.body,
+                                        'base64'));
+                } else {
+                    res.statusCode = 404;
+                    res.send(new Buffer("Not Found", "utf-8"));
+                }
             }
         }),
 
