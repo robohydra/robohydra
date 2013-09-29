@@ -32,9 +32,9 @@ inside the plugin, as opposed to being written inside the plugin's
 `index.js`. This makes it much easier to maintain plugins with many
 scenarios.
 
-### New "fixture" module
+### New "fixtures" module
 
-Plugins now receive a second module, `fixture`, in the second
+Plugins now receive a second module, `fixtures`, in the second
 parameter to `getBodyParts`. This new module has a single function,
 `load`, that allow you to load fixtures easily without having to worry
 about paths. See the [plugin documentation](../plugins) for details.
