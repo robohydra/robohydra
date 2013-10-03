@@ -54,7 +54,7 @@ same URL as the Speed Dial. In that case, these two RoboHydra heads
 would do the job nicely:
 
 {% highlight javascript %}
-tests: {
+scenarios: {
     duplicateUrlInSpeeddialAndBookmark: {
         heads: [
             new RoboHydraHeadStatic({
@@ -102,19 +102,16 @@ tests: {
         ]
     },
 
-    // ... Other tests ...
+    // ... Other scenarios ...
 }
 {% endhighlight %}
 
-Once you have your test defined, you can go to the [test admin
-interface](http://localhost:3000/robohydra-admin/tests) and activate
-each test before starting it. Note that if your client was web-based
-and you were automating your tests with something like Selenium, you
-could easily change the current test by sending a POST request to a
-URL like
-[http://localhost:3000/robohydra-admin/tests/operalink-client-testsuite/duplicateUrlInSpeeddialAndBookmark](http://localhost:3000/robohydra-admin/tests/operalink-client-testsuite/duplicateUrlInSpeeddialAndBookmark)
-before every test (where "operalink-client-testsuite" in that URL
-would be the name of the plugin containing the test).
+Once you have your scenario defined, you can go to the scenario admin
+interface (ie. `http://localhost:3000/robohydra-admin/scenarios/`) and
+activate each one before starting it. Note that if your client was
+web-based and you were automating your tests with something like
+Selenium, you could easily change the current scenario by using the
+[REST API](/docs/).
 
 
 Exploratory testing
@@ -125,12 +122,13 @@ client, but would like to be able to reproduce certain situations
 easily. For this example, imagine you're implementing a client for
 some API that specifies that, in order to allow for future extensions,
 all clients must ignore any attributes they don't understand. As a
-tester, it would be great to be able to test that easily and reliably
-(something the server will never return).
+tester, it would be great to have an easy and reliable way to test how
+your client behaves when it receives something that the _current_
+server _never_ sends, but a _future_ server _might_.
 
 One possibility would be to use RoboHydra as a proxy to your normal
 development or production server, and then create heads dynamically using
-the [admin interface](http://localhost:3000/robohydra-admin) to get
+the admin interface (ie. `http://localhost:3000/robohydra-admin/`) to get
 specific test responses for certain paths (say, temporarily override
 path `/api/widgets/1` to show some special testing data instead of
 whatever your development or production server replies with).
@@ -155,17 +153,17 @@ Even if your "testing" doesn't need any support, RoboHydra might come
 in handy to reliably reproduce hard-to-track bugs like race
 conditions.  For example, let's say you are building an application
 that uses two different servers: one for authentication and another
-one to retrieve data from. Usually the authentication server replies
-before the client can manage to send the data retrieval request, but
-if it doesn't, maybe the client will send the request with an empty or
-invalid user name.
+one to retrieve application data from. Usually the authentication
+server replies before the client can manage to send the data retrieval
+request, but if it doesn't, maybe the client will send the request
+with an empty or invalid user name.
 
 RoboHydra allows you to set up this "race condition" in a reliable
 way, making the authentication request take a couple of seconds to
 respond, or maybe respond with an internal server error or not respond
 at all. This usage of RoboHydra might make it trivial to debug and fix
 errors that otherwise could take hours, if not days. Not to mention
-that once fixed, it would be much easier to verify the fix.
+that once fixed, it will be much easier to verify the fix.
 
 This simple head waits one second before serving requests for the
 `/authentication` URL path:
@@ -183,6 +181,9 @@ new RoboHydraHead({
 // ... head that actually serves the
 // "/authentication" path (eg. a proxying head) ...
 {% endhighlight %}
+
+See "The next function" in the "RoboHydra heads" section in the
+[documentation](/docs/) for more details.
 
 
 Make your front-end developers' lives easier
@@ -218,6 +219,10 @@ new RoboHydraHeadProxy({
 
 <img src="../static/img/frontend-comic2.png" />
 
+As this is such a common use of RoboHydra, there's a plugin called
+`frontend-dev-proxy` that does exactly that. See the "Standard
+plugins" section in the [documentation](/docs/) for more details.
+
 
 Offline testing/prototyping
 ---------------------------
@@ -228,5 +233,7 @@ intranet and don't have access to a VPN, etc. In those cases,
 RoboHydra can be used to save the traffic sent by the server, and then
 replay it whenever you don't have access to the internet.
 
-RoboHydra comes with a simple _replayer_ plugin for this (see the
-[screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM)).
+RoboHydra comes with a simple _replayer_ plugin for this. See the
+[screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM) or the
+"Standard plugins" section in the [documentation](/docs/) for more
+details.
