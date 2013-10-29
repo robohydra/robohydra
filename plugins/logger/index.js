@@ -1,8 +1,9 @@
 var zlib = require('zlib'),
     fs   = require('fs');
-var robohydra           = require('robohydra'),
-    RoboHydraHead       = robohydra.heads.RoboHydraHead,
-    Response            = robohydra.Response;
+var robohydra     = require('robohydra'),
+    RoboHydraHead = robohydra.heads.RoboHydraHead,
+    Request       = robohydra.Request,
+    Response      = robohydra.Response;
 
 
 function printResponseBody(logFileFd, responseBody) {
@@ -97,10 +98,13 @@ function getBodyParts(config) {
         name:    'logger',
         path:    '/.*',
         handler: function(req, res, next) {
+            // Save the original request as it can be modified before
+            // the response object end callback gets executed
+            var origRequest = new Request(req);
             var fakeRes = new Response(
                 function() {
                     logRequestResponse(logFileFd,
-                                       req,
+                                       origRequest,
                                        fakeRes,
                                        function() {
                                            res.copyFrom(fakeRes);
