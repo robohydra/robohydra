@@ -53,6 +53,13 @@ Version 0.4 introduces a new feature, summoners, that allows you to
 use a single RoboHydra server for multiple users. Read the [rationale,
 documentation and examples](../summoners) for more details.
 
+### Configuration files now optional
+
+RoboHydra has a new command-line option, `-n`, to avoid reading a
+configuration file. It also has an option `-P` to specify a
+comma-separated list of plugins to load on startup. These two options
+combined allow you to start RoboHydra without any configuration file.
+
 ### Standard way to create new classes of heads
 
 RoboHydra 0.4 also introduces a standard way to [create your own head
