@@ -446,6 +446,67 @@ describe("RoboHydras", function() {
         }));
     });
 
+    it("can create additional heads dynamically with explicit priority", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo';
+
+        hydra.registerDynamicHead(simpleRoboHydraHead(path, 'some content'),
+                                  {priority: 'normal'});
+        expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
+
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.body).toEqual('some content');
+            done();
+        }));
+    });
+
+    it("can create additional high priority heads dynamically", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo';
+
+        hydra.registerDynamicHead(simpleRoboHydraHead(path, 'some content'),
+                                  {priority: 'high'});
+        expect(hydra).toHavePluginWithHeadcount('*priority-dynamic*', 1);
+
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.body).toEqual('some content');
+            done();
+        }));
+    });
+
+    it("throw exceptions on wrong priority for dynamic heads", function() {
+        var hydra = new RoboHydra();
+
+        expect(function() {
+            hydra.registerDynamicHead(simpleRoboHydraHead('/foo',
+                                                          'some content'),
+                                      {priority: 'normall'});
+        }).toThrow("RoboHydraException");
+    });
+
+    it("places high priority heads above normal priority heads", function(done) {
+        var hydra = new RoboHydra();
+        var path1 = '/foo', path2 = '/bar';
+        var highPrioContent = 'This is high-priority content!',
+            normalContent = 'Normal prio content';
+
+        hydra.registerDynamicHead(simpleRoboHydraHead(path1, highPrioContent),
+                                  {priority: 'high'});
+        hydra.registerDynamicHead(simpleRoboHydraHead('/.*', normalContent));
+        hydra.registerDynamicHead(simpleRoboHydraHead(path2, highPrioContent),
+                                  {priority: 'high'});
+        expect(hydra).toHavePluginWithHeadcount('*priority-dynamic*', 2);
+        expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
+
+        hydra.handle(simpleReq(path1), new Response(function() {
+            expect(this.body).toEqual(highPrioContent);
+            hydra.handle(simpleReq(path2), new Response(function() {
+                expect(this.body).toEqual(highPrioContent);
+                done();
+            }));
+        }));
+    });
+
     it("can register several dynamic heads", function(done) {
         var hydra = new RoboHydra();
         var path1    = '/foo',         path2    = '/bar';
@@ -1759,6 +1820,7 @@ describe("Request object", function() {
 
     it("doesn't freak out if there's no body", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new Request({url: '/foo/bar'});
         }).not.toThrow();
     });

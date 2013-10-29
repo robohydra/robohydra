@@ -114,7 +114,7 @@ function getBodyParts(config) {
             );
             next(req, fakeRes);
         }
-    }));
+    }), {priority: 'high'});
 
     return {heads: []};
 }
