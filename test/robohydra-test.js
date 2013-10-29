@@ -446,6 +446,21 @@ describe("RoboHydras", function() {
         }));
     });
 
+    it("gives newer dynamic heads precedence", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo';
+        var content1 = 'some content',
+            content2 = 'newer content';
+
+        hydra.registerDynamicHead(simpleRoboHydraHead(path, content1));
+        hydra.registerDynamicHead(simpleRoboHydraHead(path, content2));
+
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.body).toEqual(content2);
+            done();
+        }));
+    });
+
     it("can create additional heads dynamically with explicit priority", function(done) {
         var hydra = new RoboHydra();
         var path = '/foo';
@@ -1338,6 +1353,27 @@ describe("RoboHydra scenario system", function() {
         hydra.startScenario('plugin', 'someTest');
         hydra.handle(simpleReq(path), new Response(function() {
             expect(this.statusCode).toEqual(200);
+            done();
+        }));
+    });
+
+    it("honours the head order when activating scenarios", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/foo';
+        var content1 = 'first content',
+            content2 = 'second content';
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                someTest: {
+                    heads: [simpleRoboHydraHead(path, content1),
+                            simpleRoboHydraHead(path, content2)]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'someTest');
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.body.toString()).toEqual(content1);
             done();
         }));
     });
