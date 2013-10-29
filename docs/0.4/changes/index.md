@@ -65,6 +65,17 @@ combined allow you to start RoboHydra without any configuration file.
 RoboHydra 0.4 also introduces a standard way to [create your own head
 classes](../custom-heads), the `roboHydraHeadType` function.
 
+### Changes in `registerDynamicHead`
+
+Now the function `registerDynamicHead` adds heads at the _beginning_
+of the `*dynamic*` plugin, not the end. That way, heads added later
+have precedence. Note that this implicitly changes the behaviour of
+the admin web UI, too.
+
+Another change is the addition of the concept of high-priority,
+dynamic heads: see the [documentation](../api) for details and the
+standard `logger` plugin for an example of how to use it.
+
 ### Simplified admin UI
 
 The new admin UI is a bit simpler and has been adapted to the changes

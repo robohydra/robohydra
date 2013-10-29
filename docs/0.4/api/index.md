@@ -19,9 +19,11 @@ in the RoboHydra source code).
 The following is a list of interesting public RoboHydra API methods
 and properties:
 
-* `registerDynamicHead`: receives a single head and
-  registers it in RoboHydra (at the end of the `*dynamic-heads*`
-  pseudo-plugin).
+* `registerDynamicHead`: receives a head and an object with
+  options. Registers the head in RoboHydra (at the _beginning_ of the
+  appropriate pseudo-plugin, which by default is `*dynamic*`). The
+  only possible option is `priority`: if it's set to `high`, the head
+  will be added to the `*priority-dynamic*` pseudo-plugin instead.
 * `registerPluginObject`: receives a plugin as a parameter
   and registers it in RoboHydra (at the end). A plugin is a Javascript
   object with the following properties:
