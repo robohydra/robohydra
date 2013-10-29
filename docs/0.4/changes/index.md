@@ -32,6 +32,14 @@ inside the plugin, as opposed to being written inside the plugin's
 `index.js`. This makes it much easier to maintain plugins with many
 scenarios.
 
+### Property `setHostHeader` now `true` by default
+
+This is a **breaking change**, but I don't expect a lot of people to
+be bitten by this. On the other hand, I'm constantly bitten by the
+old counter-intuitive default value, and it's hard to debug and figure
+out what the problem is if you don't already know that RoboHydra
+doesn't set it by default.
+
 ### New "fixtures" module
 
 Plugins now receive a second module, `fixtures`, in the second
