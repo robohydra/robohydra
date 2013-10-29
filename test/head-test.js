@@ -907,20 +907,18 @@ describe("Proxying RoboHydra heads", function() {
         ], done);
     });
 
-    it("can set the proxied hostname in headers", function(done) {
+    it("sets the proxied hostname in headers by default", function(done) {
         var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
             return "The host header says: " + headers.host;
         });
         var head1 = new RoboHydraHeadProxy({
             mountPath: '/example1',
             proxyTo: 'http://example.com',
-            setHostHeader: true,
             httpRequestFunction: fakeHttpR
         });
         var head2 = new RoboHydraHeadProxy({
             mountPath: '/example2',
             proxyTo: 'http://example.com:8080',
-            setHostHeader: true,
             httpRequestFunction: fakeHttpR
         });
 
@@ -937,18 +935,20 @@ describe("Proxying RoboHydra heads", function() {
         });
     });
 
-    it("don't set the proxied hostname unless asked", function(done) {
+    it("allows NOT setting the proxied hostname in headers", function(done) {
         var fakeHttpR = fakeHttpRequest(function(method, path, headers) {
             return "The host header says: " + headers.host;
         });
         var head1 = new RoboHydraHeadProxy({
             mountPath: '/example1',
             proxyTo: 'http://example.com',
+            setHostHeader: false,
             httpRequestFunction: fakeHttpR
         });
         var head2 = new RoboHydraHeadProxy({
             mountPath: '/example2',
             proxyTo: 'http://example.com:8080',
+            setHostHeader: false,
             httpRequestFunction: fakeHttpR
         });
 
