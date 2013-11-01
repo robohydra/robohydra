@@ -1,9 +1,23 @@
-Next
-----
+Version 0.4 (2013-11-xx)
+------------------------
 
 	* Broken compatibility: the API of the "registerPluginObject"
 	function has changed, check the new documentation. The function
 	"requirePlugin" no longer exists.
+
+	* Potential compatibility problem: the setHostHeader property of
+	the proxy head is now true by default. It's unlikely that this
+	change will bite anyone, but if you needed the proxy head to NOT
+	set the Host HTTP header you have to change your
+	RoboHydraHeadProxy definitions.
+
+	* Potential compatibility problem: now dynamic heads have
+	precedence over any dynamic heads created before. This behaviour
+	makes much more sense (heads you create will override whatever the
+	current behaviour is), and it's very unlikely that this change
+	will be a problem for anyone, but if you're creating dynamic heads
+	programmatically for some reason, check that this doesn't break
+	your plugins.
 
 	* Deprecated name "tests": now you should use "scenarios". It's
 	just a name change, functionality stays the same. The functions
@@ -16,10 +30,26 @@ Next
 	file. Each scenario is a file inside the scenarios/ subdirectory
 	of the plugin directory.
 
+	* Scenario reliability: now scenarios should be more reliable, as
+	heads contained in the scenario are reset to their original state
+	(assuming they have any state at all; RoboHydraHeadStatic is
+	currently the only head type with state, and only in the case of
+	using multiple responses).
+
 	* New "fixtures" module: plugins now have access to a second
 	module, "fixtures". This module contains a single function,
 	"load", that allows you to easily load files sitting in the
 	fixtures/ subdirectory of the plugin directory.
+
+	* Dynamic head priority: the registerDynamicHead method of the
+	RoboHydra object now supports an optional parameter to specify the
+	priority of the head (for now, only "normal" or "high"). Dynamic
+	heads with "high" priority will be added to the
+	"*priority-dynamic*" pseudo-plugin, which is placed before
+	"*dynamic*". This is useful for plugins like "logger", which
+	thanks to this change can add "overall" heads that will have
+	precedence over regular dynamic heads added afterwards (see also
+	the dynamic head precedence change above).
 
 	* Multiple user support: RoboHydra servers can now be shared among
 	several users. Each user will have her own state independent of
@@ -29,14 +59,20 @@ Next
 	"summoners" documentation for more information.
 
 	* REST API: there is a new API to interact with the RoboHydra
-	server. It's REST based, and for now it only support JSON as a
+	server. It's REST based, and for now it only supports JSON as a
 	format. It allows you to check the loaded plugins, information
 	about a given plugin, head or scenario, and change the state of a
 	given head or scenario.
 
-	* Admin UI: some changes to the admin UI. Simplified the head and
-	scenario list UI, and show the hydra name (related to the multiple
-	user support) and the date in which the server was started.
+	* Admin UI: simplified the head and scenario list UI; static heads
+	can now be created with a specific status code; show the hydra
+	name (related to the multiple user support) and the date in which
+	the server was started.
+
+	* Logger plugin: it now logs the original request sent by the
+	client, as opposed to the possibly-modified request (eg. the
+	request could be modified in place before calling the next
+	function).
 
 	* Creating new head classes: there is now a function
 	("roboHydraHeadType") to create head classes that inherit from
@@ -44,7 +80,8 @@ Next
 	for more details.
 
 	* Command-line UI: now configuration files are optional, and
-	plugins can be specified on the command-line directly.
+	plugins can be specified on the command-line directly (options
+	-n and -P).
 
 	* Add more and better examples to the examples/ folder.
 
