@@ -246,6 +246,15 @@ describe("Static content RoboHydra heads", function() {
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
+    it("cannot be created with responses with wrong properties", function() {
+        expect(function() {
+            /*jshint nonew: false*/
+            new RoboHydraHeadStatic({responses: [{content: "",
+                                                  // Typo for "statusCode"
+                                                  status: 500}]});
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
     it("return 404 when requesting unknown paths", function(done) {
         var head = new RoboHydraHeadStatic({path: '/foobar',
                                             content: 'static content'});
