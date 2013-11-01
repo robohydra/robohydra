@@ -398,7 +398,7 @@ versions!) will get its requests served by a different hydra. To test
 this, start RoboHydra like `robohydra -P ua-summoner`, fire two or
 three different browsers and go to
 [/robohydra-admin/](http://localhost:3000/robohydra-admin/) with all
-of them. You'll notice on the top-right corner that the hydra name is
+of them. You'll notice on the bottom left that the hydra name is
 different for every browser. If you create new heads with one browser
 using the admin UI, the other browser will _not_ see those new
 heads. That means all browsers you try with can work independently of

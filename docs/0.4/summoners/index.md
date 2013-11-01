@@ -156,8 +156,8 @@ serving the login form and setting a cookie when the username is
 received:
 
 {% highlight javascript %}
-var heads               = require("robohydra").heads,
-    RoboHydraHead       = heads.RoboHydraHead;
+var heads         = require("robohydra").heads,
+    RoboHydraHead = heads.RoboHydraHead;
 var cookie = require("cookie");
 
 exports.getBodyParts = function() {
@@ -191,7 +191,8 @@ exports.getBodyParts = function() {
                 path: '/.*',
                 handler: function(req, res) {
                     var cookies = cookie.parse(req.headers.cookie || "");
-                    res.send('You are now logged in as ' + cookies.sessionId);
+                    var sessionId = cookies.sessionId || req.bodyParams.login;
+                    res.send('You are now logged in as ' + sessionId);
                 }
             })
         ]
