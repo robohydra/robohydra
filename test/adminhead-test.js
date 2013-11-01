@@ -6,8 +6,7 @@ var robohydra = require("../lib/robohydra"),
     Request   = robohydra.Request,
     Response  = robohydra.Response;
 var heads               = require("../lib/heads"),
-    RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
-    RoboHydraHead       = heads.RoboHydraHead;
+    RoboHydraHeadStatic = heads.RoboHydraHeadStatic;
 var helpers          = require("./helpers"),
     pluginInfoObject = helpers.pluginInfoObject,
     withResponse     = helpers.withResponse,
@@ -313,7 +312,7 @@ describe("REST API", function() {
         robohydra.startScenario(pluginName, scenarioName2);
         robohydra.startScenario(pluginName, scenarioName);
 
-        withResponse(robohydra, '/', function(requestForFail) {
+        withResponse(robohydra, '/', function(/*requestForFail*/) {
             withResponse(robohydra, restUrl('/test-results'), function(resp) {
                 expect(resp.statusCode).toEqual(200);
                 var stopInfo = JSON.parse(resp.body.toString());

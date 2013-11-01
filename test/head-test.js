@@ -26,10 +26,12 @@ describe("Generic RoboHydra heads", function() {
 
     it("can't be created without necessary properties", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHead({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHead({handler: function() {}});
         }).toThrow("InvalidRoboHydraHeadException");
     });
@@ -193,16 +195,19 @@ describe("Static content RoboHydra heads", function() {
 
     it("can't be created without necessary properties", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadStatic({});
         }).toThrow("InvalidRoboHydraHeadException");
 
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadStatic({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can't be created with extra, unknown properties", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadStatic({madeUpProperty: true});
         }).toThrow("InvalidRoboHydraHeadException");
     });
@@ -236,6 +241,7 @@ describe("Static content RoboHydra heads", function() {
 
     it("cannot be created with an empty response array", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadStatic({responses: []});
         }).toThrow("InvalidRoboHydraHeadException");
     });
@@ -394,6 +400,7 @@ describe("Filesystem RoboHydra heads", function() {
 
     it("can't be created without necessary properties", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadFilesystem({mountPath: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
@@ -715,6 +722,7 @@ describe("Proxying RoboHydra heads", function() {
 
     it("can't be created without necessary properties", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadProxy({mountPath: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
@@ -991,18 +999,21 @@ describe("RoboHydra filtering heads", function() {
 
     it("cannot be created without the 'filter' property", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadFilter({path: '/.*'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("cannot be created with a non-function 'filter' property", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadFilter({filter: ''});
         }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can be created with only the 'filter' property", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadFilter({filter: '/.*'});
         }).toThrow("InvalidRoboHydraHeadException");
     });
@@ -1205,6 +1216,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("can't be created without a watcher", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadWatchdog({
                 path: '/.*'
             });
@@ -1213,6 +1225,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("can be created without a reporter", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadWatchdog({
                 watcher: function() { return true; }
             });
@@ -1221,6 +1234,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("complain if watcher is not a function", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadWatchdog({
                 watcher: 'not a function'
             });
@@ -1229,6 +1243,7 @@ describe("RoboHydra watchdog heads", function() {
 
     it("complain if reporter is there but is not a function", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraHeadWatchdog({
                 watcher: function() {},
                 reporter: 'not a function'
