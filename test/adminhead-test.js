@@ -215,6 +215,34 @@ describe("REST API", function() {
         });
     });
 
+    it("returns correct error if the plugin/head don't exist", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', headName = 'some-head-name';
+        robohydra.registerPluginObject(pluginInfoObject({
+            name: pluginName,
+            heads: [new RoboHydraHeadStatic({name: headName, content: 'foo'})]
+        }));
+
+        var wrongPluginUrl = restUrl('/plugins/non-existent-' + pluginName +
+                                  '/heads/' + headName);
+        var detachRequest = {path: wrongPluginUrl,
+                             method: 'POST',
+                             postData: 'attached=false'};
+        withResponse(robohydra, detachRequest, function(detachResp) {
+            expect(detachResp.statusCode).toEqual(404);
+
+            var wrongHeadUrl = restUrl('/plugins/' + pluginName +
+                                  '/heads/non-existent-' + headName);
+            var detachRequest2 = {path: wrongHeadUrl,
+                                  method: 'POST',
+                                  postData: 'attached=false'};
+            withResponse(robohydra, detachRequest2, function(afterResp) {
+                expect(afterResp.statusCode).toEqual(404);
+                done();
+            });
+        });
+    });
+
     it("can toggle the state of a scenario", function(done) {
         var robohydra = new RoboHydra();
         var pluginName = 'plugin1', scenarioName = 'some-scenario';
@@ -237,6 +265,36 @@ describe("REST API", function() {
 
             expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
             done();
+        });
+    });
+
+    it("returns correct error if the plugin/scenario don't exist", function(done) {
+        var robohydra = new RoboHydra();
+        var pluginName = 'plugin1', scenarioName = 'some-scenario';
+        registerSimplePlugin(robohydra, {
+            name: pluginName,
+            scenarios: [scenarioName]
+        });
+
+        var wrongPluginUrl = restUrl('/plugins/non-existent-' + pluginName +
+                                         '/scenarios/' + scenarioName);
+        var startScenarioRequest = {path: wrongPluginUrl,
+                                    method: 'POST',
+                                    postData: 'active=true'};
+        withResponse(robohydra, startScenarioRequest, function(resp1) {
+            expect(resp1.statusCode).toEqual(404);
+
+            var wrongScenarioNameUrl = restUrl('/plugins/' +
+                                                   pluginName +
+                                                   '/scenarios/non-existent-' +
+                                                   scenarioName);
+            var startScenarioRequest2 = {path: wrongScenarioNameUrl,
+                                         method: 'POST',
+                                         postData: 'active=true'};
+            withResponse(robohydra, startScenarioRequest2, function(resp2) {
+                expect(resp2.statusCode).toEqual(404);
+                done();
+            });
         });
     });
 
