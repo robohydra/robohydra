@@ -406,7 +406,7 @@ properties:
   documentation for `RoboHydraHeadFilesystem`.
 * `setHostHeader` (optional): sets the `Host` header to the hostname
   of the proxied URL (`proxyTo` property) in the requests to the
-  target URL.
+  target URL. Defaults to `true`.
 * `httpRequestFunction` (optional): an object that behaves like
   Node's `http.createClient` function. Useful if you need to fake
   stuff.
