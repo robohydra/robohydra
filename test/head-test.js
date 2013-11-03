@@ -368,6 +368,26 @@ describe("Static content RoboHydra heads", function() {
         ], done);
     });
 
+    it("can be reset and started from scratch", function(done) {
+        var response1 = "response 1",
+            response2 = "response 2";
+        var head = new RoboHydraHeadStatic({
+            responses: [{content: response1},
+                        {content: response2}]
+        });
+        checkRouting(head, [
+            ['/', response1],
+            ['/', response2],
+            ['/', response1]
+        ], function() {
+            head.reset();
+            withResponse(head, '/', function(res) {
+                expect(res.body.toString()).toEqual(response1);
+                done();
+            });
+        });
+    });
+
     it("use content, statusCode and contentType by default", function(done) {
         var defaultContent     = 'It works!';
         var defaultContentType = 'application/x-foobar';

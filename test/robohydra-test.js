@@ -1378,6 +1378,35 @@ describe("RoboHydra scenario system", function() {
         }));
     });
 
+    it("resets scenario heads when starting a scenario", function(done) {
+        var hydra = new RoboHydra();
+        var resp1 = 'response 1', resp2 = 'response 2';
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'plugin',
+            scenarios: {
+                someTest: {
+                    heads: [
+                        new RoboHydraHeadStatic({
+                            responses: [
+                                {content: resp1},
+                                {content: resp2}
+                            ]
+                        })
+                    ]
+                }
+            }
+        }));
+        hydra.startScenario('plugin', 'someTest');
+        hydra.handle(simpleReq('/'), new Response(function(evt) {
+            expect(evt.response.body.toString()).toEqual(resp1);
+            hydra.startScenario('plugin', 'someTest');
+            hydra.handle(simpleReq('/'), new Response(function(evt2) {
+                expect(evt2.response.body.toString()).toEqual(resp1);
+                done();
+            }));
+        }));
+    });
+
     it("deactivates scenario heads when a scenario is stopped", function(done) {
         var hydra = new RoboHydra();
         var path = '/foo';
