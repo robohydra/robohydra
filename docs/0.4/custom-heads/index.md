@@ -31,6 +31,10 @@ This function receives a settings object with the following keys:
 * `parentPropBuilder`: A function that calculates the properties to be
   used when calling the parent class' constructor, from the new
   head's properties (available in `this`).
+* `reset`: A function that resets the head to its initial state. It's
+  normally not needed, but if a head of this type is used in a
+  scenario, the `reset()` method (ie. the code passed in this
+  property) will be called on each start of the containing scenario.
 
 All of them are optional, but you would normally specify at least a
 name, one of the property lists, and `parentPropBuilder`.

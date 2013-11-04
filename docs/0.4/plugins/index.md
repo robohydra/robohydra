@@ -71,9 +71,15 @@ activate any scenario at any time (using the admin web interface, the
 [programmatic API](../api) or the [REST API](../rest)), but only one
 scenario can be active at a given time: activating one will
 automatically deactivate the current active scenario, if there was
-one. When you activate a scenario, both the heads defined in the
-**plugin** `heads` property and the heads defined in the **scenario**
-`heads` property are active, but the scenario heads have preference.
+one.
+
+When you activate a scenario, the heads defined in the scenario
+`heads` property are added to the hydra. These heads have precedence
+over normal plugins heads, but not over dynamic heads. Also note that
+every time a scenario is activated, the `reset` method is called on
+every head defined in that scenario. This allows for reliable
+behaviour even when heads have an internal state
+(eg. `RoboHydraHeadStatic` heads that use multiple responses).
 
 
 ### The "assert" module
