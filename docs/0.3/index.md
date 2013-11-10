@@ -4,9 +4,9 @@ layout: default
 <div class="message warning">
   <img src="/static/img/dialog-warning.png"/>
 
-  <strong>Oi!</strong> If you're using an updated version from GitHub,
-  or want to see how the next version of RoboHydra will be, go to the
-  <a href="../0.4">updated documentation</a>.
+  <strong>Oi!</strong> This is documentation is for an older version
+  of RoboHydra. Unless you know you're using version 0.3, please read
+  the <a href="../">documentation for the latest version</a>.
 </div>
 
 <div class="message info">
