@@ -30,7 +30,7 @@ the heads and scenarios of a given hydra.
 Scenarios can now be written in their own file in a special directory
 inside the plugin, as opposed to being written inside the plugin's
 `index.js`. This makes it much easier to maintain plugins with many
-scenarios.
+scenarios. See the [plugin documentation](../plugins) for details.
 
 ### Property `setHostHeader` now `true` by default
 
@@ -44,8 +44,9 @@ doesn't set it by default.
 
 Plugins now receive a second module, `fixtures`, in the second
 parameter to `getBodyParts`. This new module has a single function,
-`load`, that allow you to load fixtures easily without having to worry
-about paths. See the [plugin documentation](../plugins) for details.
+`load`, that allows you to load fixtures easily without having to
+worry about paths. See the [plugin documentation](../plugins) for
+details.
 
 ### RoboHydra Summoners
 
