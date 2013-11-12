@@ -539,6 +539,11 @@ i[class*="i-"] {
 body {
   padding-top: 90px;
 }
+@media (max-width: 768px) {
+  body {
+    padding-top: 0;
+  }
+}
 
 .navbar {
   position: fixed;
