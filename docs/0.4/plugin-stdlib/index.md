@@ -21,7 +21,7 @@ CSS or Javascript). This allows front-end developers to work on an
 application without having to install a full backend on their
 machines.
 
-To use it, load the `front-dev-proxy` plugin and set its `proxyurl`
+To use it, load the `frontend-dev-proxy` plugin and set its `proxyurl`
 configuration variable to the proxy target URL, and `urlpath` to a
 comma-separated list of URL paths that will be served from the local
 filesystem. Finally, `localdir` must be set to a comma-separated list
