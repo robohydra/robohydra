@@ -30,7 +30,7 @@ of _local directories_ to serve the URL paths from. Variables
 elements. Assume you start RoboHydra like so:
 
 {% highlight bash %}
-$ robohydra -n -P frond-dev-proxy proxyurl=http://dev.example.com \
+$ robohydra -n -P frontend-dev-proxy proxyurl=http://dev.example.com \
                        urlpath=/css,/js localdir=static/css,static/js
 {% endhighlight %}
 
