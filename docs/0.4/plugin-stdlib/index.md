@@ -93,7 +93,7 @@ server, etc.
 
 To use it, load the `replayer` plugin and set the variable
 `replayerurl` to the URL of the site you want to record, eg. start
-RoboHydra as `robohydra replayer.conf
+RoboHydra as `robohydra -n -P replayer
 replayerurl=http://myserver.example.com/api`. To start recording,
 visit the URL
 [/start-recording](http://localhost:3000/start-recording) and then
