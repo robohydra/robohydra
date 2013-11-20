@@ -23,9 +23,9 @@ HTTP client:
 RoboHydra allows you to easily build custom "mock" servers with little
 effort, be it to build a test suite or to easily reproduce problems
 while fixing bugs. RoboHydra also supports exploratory testing by
-allowing you to change its behaviour dynamically via its web interface.
-Last but not least, RoboHydra can also be used as a proxy, which is
-useful in a variety of situations.
+allowing you to change its behaviour dynamically via its web
+interface.  Last but not least, RoboHydra can also reverse proxy
+requests, which is useful in a variety of situations.
 
 Documentation
 =============
