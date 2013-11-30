@@ -47,27 +47,28 @@ For those of you already familiar with RoboHydra, there is also
 Download
 ========
 
-You can get the [code on
-GitHub](https://github.com/robohydra/robohydra), or install
-RoboHydra via NPM with the following command:
+First, make sure you have [Node.js](http://nodejs.org/download/)
+installed (at least 0.6). Then, type the following in a terminal:
 
     npm install robohydra
 
-You can check the
-[ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog)
-for the changes between versions.
+The full [source code](https://github.com/robohydra/robohydra) is
+available on GitHub.
 
 Updates
 =======
 
-For updates and announcements related to this project, follow
+For updates and announcements, follow
 [@robohydra](https://twitter.com/robohydra) on Twitter, subscribe to
 the [development group on Google
 Groups](https://groups.google.com/forum/?hl=es&fromgroups#!forum/robohydra),
 watch project [robohydra on
-GitHub](https://github.com/robohydra/robohydra) or subscribe to
-the [RoboHydra channel on
+GitHub](https://github.com/robohydra/robohydra) or subscribe to the
+[RoboHydra channel on
 YouTube](http://www.youtube.com/user/robohydra/videos).
+
+For the changes between versions, check the
+[ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog).
 
 License and copyright
 =====================
