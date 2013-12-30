@@ -11,6 +11,7 @@ describe("RoboHydra picking system", function() {
 
     it("detects multiple picking functions and fails to load", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraSummoner(
                 [{name: 'simple-authenticator', config: {}},
                  {name: 'url-query-authenticator', config: {}}],

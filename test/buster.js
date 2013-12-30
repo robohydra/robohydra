@@ -1,6 +1,6 @@
 var config = module.exports;
 
-config["Main"] = {
+config.Main = {
     rootPath: "../",
     environment: "node",
     sources: [
