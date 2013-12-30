@@ -1688,11 +1688,11 @@ describe("RoboHydra scenario system", function() {
             tests: {testWithAssertion: {heads: []},
                     anotherTest:       {heads: []}}
         }));
-        hydra.startTest('plugin', 'testWithAssertion');
+        hydra.startScenario('plugin', 'testWithAssertion');
         hydra.handle(
             simpleReq('/p'),
             new Response(function() {
-                hydra.startTest('plugin', 'anotherTest');
+                hydra.startScenario('plugin', 'anotherTest');
                 expect(hydra).toHaveTestResult('plugin',
                                                'testWithAssertion',
                                                {result: 'pass',
