@@ -1,4 +1,4 @@
-/*global describe, it, expect*/
+/*global describe, it*/
 
 var buster = require("buster"),
     zlib   = require("zlib");
@@ -20,6 +20,7 @@ var InvalidRoboHydraHeadException =
         require("../lib/exceptions").InvalidRoboHydraHeadException;
 
 buster.spec.expose();
+var expect = buster.expect;
 
 describe("Generic RoboHydra heads", function() {
     "use strict";
@@ -1056,7 +1057,7 @@ describe("RoboHydra filtering heads", function() {
 
         var next = function(_, res) { res.send("foobar"); };
         withResponse(head, {path: '/test', nextFunction: next}, function(res) {
-            expect(res.body).toEqual("FOOBAR");
+            expect(res.body).toHaveEqualBody("FOOBAR");
             done();
         });
     });
@@ -1078,7 +1079,7 @@ describe("RoboHydra filtering heads", function() {
             res.send(origBody);
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.body).toEqual(expectedBody);
+            expect(res.body).toHaveEqualBody(expectedBody);
             expect(res.statusCode).toEqual(statusCode);
             expect(res.headers).toEqual(headers);
             done();
@@ -1150,7 +1151,7 @@ describe("RoboHydra filtering heads", function() {
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             expect(res.headers['content-encoding']).toEqual('gzip');
             zlib.gunzip(res.body, function(err, uncompressedBody) {
-                expect(uncompressedBody).toEqual("OH HAI THAR");
+                expect(uncompressedBody).toHaveEqualBody("OH HAI THAR");
                 done();
             });
         });
@@ -1170,7 +1171,7 @@ describe("RoboHydra filtering heads", function() {
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             expect(res.headers['content-encoding']).toEqual('deflate');
             zlib.inflate(res.body, function(err, uncompressedBody) {
-                expect(uncompressedBody).toEqual("- Buzz: heads, heads everywhere");
+                expect(uncompressedBody).toHaveEqualBody("- Buzz: heads, heads everywhere");
                 done();
             });
         });

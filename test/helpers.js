@@ -1,6 +1,6 @@
-/*global expect*/
-
-var buster = require("buster");
+var buster = require("buster"),
+    samsam = require("samsam");
+var expect = buster.expect;
 var path = require("path");
 var robohydra = require("../lib/robohydra"),
     heads     = robohydra.heads,
@@ -11,19 +11,7 @@ var robohydra = require("../lib/robohydra"),
 (function () {
     "use strict";
 
-    function areBuffersEqual(buffer1, buffer2) {
-        if (buffer1.length !== buffer2.length) { return false; }
-
-        for (var i = 0, len = buffer1.length; i < len; i++) {
-            if (buffer1[i] !== buffer2[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    buster.assertions.add("responseMatches", {
+    buster.referee.add("responseMatches", {
         assert: function (actual, expectedResponse) {
             var r = true;
             this.actualProps = {};
@@ -32,7 +20,8 @@ var robohydra = require("../lib/robohydra"),
             }
             if (expectedResponse.hasOwnProperty('content')) {
                 this.actualProps.content = actual.body;
-                r = r && (areBuffersEqual(this.actualProps.content, new Buffer(expectedResponse.content)));
+                r = r && (hasEqualBody(this.actualProps.content,
+                                       expectedResponse.content));
             }
             if (expectedResponse.hasOwnProperty('statusCode')) {
                 this.actualProps.statusCode = actual.statusCode;
@@ -49,7 +38,7 @@ var robohydra = require("../lib/robohydra"),
         expectation: "toMatchResponse"
     });
 
-    buster.assertions.add("handles", {
+    buster.referee.add("handles", {
         assert: function(actual, urlPath) {
             return actual.canHandle(urlPath);
         },
@@ -58,26 +47,43 @@ var robohydra = require("../lib/robohydra"),
         expectation: "toHandle"
     });
 
-    buster.assertions.add("hasTestResult", {
+    buster.referee.add("hasTestResult", {
         assert: function(actual, plugin, test, expectedResult) {
             this.testResults = actual.testResults;
-            return buster.assertions.deepEqual(this.testResults[plugin][test],
-                                               expectedResult);
+            return samsam.deepEqual(this.testResults[plugin][test],
+                                    expectedResult);
         },
         assertMessage: "Expected RoboHydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
         refuteMessage: "Expected RoboHydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
         expectation: "toHaveTestResult"
     });
 
-    buster.assertions.add("hasScenarioTestResult", {
+    buster.referee.add("hasScenarioTestResult", {
         assert: function(actual, plugin, scenario, expectedResult) {
             this.testResults = actual.testResults;
-            return buster.assertions.deepEqual(this.testResults[plugin][scenario],
-                                               expectedResult);
+            return samsam.deepEqual(this.testResults[plugin][scenario],
+                                    expectedResult);
         },
         assertMessage: "Expected RoboHydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
         refuteMessage: "Expected RoboHydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
         expectation: "toHaveTestResult"
+    });
+
+    function hasEqualBody(body1, body2) {
+        if (typeof(body1) === 'string') {
+            body1 = new Buffer(body1);
+        }
+        if (typeof(body2) === 'string') {
+            body2 = new Buffer(body2);
+        }
+
+        return body1.toString('base64') === body2.toString('base64');
+    }
+    buster.referee.add("hasEqualBody", {
+        assert: hasEqualBody,
+        assertMessage: "Expected body ${0} to equal ${1}!",
+        refuteMessage: "Expected body ${0} to not equal ${1}!",
+        expectation: "toHaveEqualBody"
     });
 
     function withResponse(robohydraOrHead, pathOrObject, cb) {

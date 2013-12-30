@@ -11,7 +11,8 @@
     , "markdown":  ">= 0.3.1"
   }
   , "devDependencies": {
-      "buster": ">= 0.5.0"
+      "buster": ">= 0.7.0"
+    , "samsam": ">= 1.1.0"
   }
   , "scripts": {
       "test": "node_modules/.bin/buster-test"

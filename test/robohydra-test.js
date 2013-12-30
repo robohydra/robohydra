@@ -1,6 +1,7 @@
-/*global require, describe, it, expect, before*/
+/*global require, describe, it, before*/
 
-var buster = require("buster");
+var buster = require("buster"),
+    samsam = require("samsam");
 var path = require("path");
 var robohydra = require("../lib/robohydra"),
     RoboHydra = robohydra.RoboHydra,
@@ -17,8 +18,9 @@ var helpers              = require("./helpers"),
     pluginObjectFromPath = helpers.pluginObjectFromPath;
 
 buster.spec.expose();
+var expect = buster.expect;
 
-buster.assertions.add("hasHeadAttached", {
+buster.referee.add("hasHeadAttached", {
     assert: function (actual, pluginName, headName) {
         "use strict";
         return actual.isHeadAttached(pluginName, headName);
@@ -28,7 +30,7 @@ buster.assertions.add("hasHeadAttached", {
     expectation: "toHaveHeadAttached"
 });
 
-buster.assertions.add("isARoboHydraHead", {
+buster.referee.add("isARoboHydraHead", {
     assert: function (actual) {
         "use strict";
         return typeof(actual.attach) === 'function';
@@ -38,7 +40,7 @@ buster.assertions.add("isARoboHydraHead", {
     expectation: "toBeARoboHydraHead"
 });
 
-buster.assertions.add("hasPluginList", {
+buster.referee.add("hasPluginList", {
     assert: function (actual, expectedPluginList) {
         "use strict";
         var list = this.actualPluginList = actual.getPluginNames();
@@ -46,14 +48,14 @@ buster.assertions.add("hasPluginList", {
         if (! this.countSpecialPlugins) {
             list = list.filter(function(p) { return p.indexOf("*") === -1; });
         }
-        return buster.assertions.deepEqual(list, expectedPluginList);
+        return samsam.deepEqual(list, expectedPluginList);
     },
     assertMessage: "Expected plugin list (counting hydra-admin: ${countSpecialPlugins}) to be ${1} (was ${actualPluginList})!",
     refuteMessage: "Expected plugin list (counting hydra-admin: ${countSpecialPlugins}) to not be ${1}!",
     expectation: "toHavePluginList"
 });
 
-buster.assertions.add("hasPluginWithHeadcount", {
+buster.referee.add("hasPluginWithHeadcount", {
     assert: function (actual, pluginName, expectedHeadcount) {
         "use strict";
         return actual.getPlugin(pluginName).heads.length === expectedHeadcount;
@@ -248,7 +250,7 @@ describe("RoboHydras", function() {
         hydra.handle(simpleReq('/'),
                      new Response(function() {
                          expect(this.statusCode).toEqual(404);
-                         expect(this.body).toEqual('Not Found');
+                         expect(this.body).toHaveEqualBody('Not Found');
                      }));
     });
 
@@ -261,7 +263,7 @@ describe("RoboHydras", function() {
         hydra.handle(simpleReq('/'),
                      new Response(function() {
                          expect(this.statusCode).toEqual(200);
-                         expect(this.body).toEqual(content);
+                         expect(this.body).toHaveEqualBody(content);
                      }));
     });
 
@@ -275,7 +277,7 @@ describe("RoboHydras", function() {
         hydra.handle(simpleReq('/'),
                      new Response(function() {
                          expect(this.statusCode).toEqual(200);
-                         expect(this.body).toEqual(content);
+                         expect(this.body).toHaveEqualBody(content);
                      }));
     });
 
@@ -416,17 +418,17 @@ describe("RoboHydras", function() {
                                                      heads: heads}));
         hydra.handle(simpleReq(path), new Response(function() {
             expect(this.statusCode).toEqual(200);
-            expect(this.body).toEqual('foo path');
+            expect(this.body).toHaveEqualBody('foo path');
 
             hydra.detachHead('plugin', 'head1');
             hydra.handle(simpleReq(path), new Response(function() {
                 expect(this.statusCode).toEqual(200);
-                expect(this.body).toEqual('catch-all');
+                expect(this.body).toHaveEqualBody('catch-all');
 
                 hydra.attachHead('plugin', 'head1');
                 hydra.handle(simpleReq(path), new Response(function() {
                     expect(this.statusCode).toEqual(200);
-                    expect(this.body).toEqual('foo path');
+                    expect(this.body).toHaveEqualBody('foo path');
                     done();
                 }));
             }));
@@ -441,7 +443,7 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toEqual('some content');
+            expect(this.body).toHaveEqualBody('some content');
             done();
         }));
     });
@@ -456,7 +458,7 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead(path, content2));
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toEqual(content2);
+            expect(this.body).toHaveEqualBody(content2);
             done();
         }));
     });
@@ -470,7 +472,7 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toEqual('some content');
+            expect(this.body).toHaveEqualBody('some content');
             done();
         }));
     });
@@ -484,7 +486,7 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('*priority-dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toEqual('some content');
+            expect(this.body).toHaveEqualBody('some content');
             done();
         }));
     });
@@ -514,9 +516,9 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
 
         hydra.handle(simpleReq(path1), new Response(function() {
-            expect(this.body).toEqual(highPrioContent);
+            expect(this.body).toHaveEqualBody(highPrioContent);
             hydra.handle(simpleReq(path2), new Response(function() {
-                expect(this.body).toEqual(highPrioContent);
+                expect(this.body).toHaveEqualBody(highPrioContent);
                 done();
             }));
         }));
@@ -531,9 +533,9 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead(path2, content2));
 
         hydra.handle(simpleReq(path1), new Response(function() {
-            expect(this.body).toEqual(content1);
+            expect(this.body).toHaveEqualBody(content1);
             hydra.handle(simpleReq(path2), new Response(function() {
-                expect(this.body).toEqual(content2);
+                expect(this.body).toHaveEqualBody(content2);
                 done();
             }));
         }));
@@ -555,7 +557,7 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead(path, content, name));
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toEqual(content);
+            expect(this.body).toHaveEqualBody(content);
 
             hydra.detachHead('*dynamic*', name);
             hydra.handle(simpleReq(path), new Response(function() {
@@ -575,7 +577,7 @@ describe("RoboHydras", function() {
         hydra.detachHead('*dynamic*', name2);
 
         hydra.handle(simpleReq(path1), new Response(function() {
-            expect(this.body).toEqual(content1);
+            expect(this.body).toHaveEqualBody(content1);
             done();
         }));
     });
@@ -1373,7 +1375,7 @@ describe("RoboHydra scenario system", function() {
         }));
         hydra.startScenario('plugin', 'someTest');
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body.toString()).toEqual(content1);
+            expect(this.body).toHaveEqualBody(content1);
             done();
         }));
     });

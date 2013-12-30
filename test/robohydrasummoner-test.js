@@ -1,10 +1,11 @@
-/*global require, describe, it, expect*/
+/*global require, describe, it*/
 
 var buster = require("buster");
 var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 var Request = require("robohydra").Request;
 
 buster.spec.expose();
+var expect = buster.expect;
 
 describe("RoboHydra picking system", function() {
     "use strict";

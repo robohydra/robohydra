@@ -1,4 +1,4 @@
-/*global describe, it, expect*/
+/*global describe, it*/
 
 var buster = require("buster");
 var robohydra = require("../lib/robohydra"),
@@ -13,6 +13,7 @@ var helpers          = require("./helpers"),
     headWithFail     = helpers.headWithFail;
 
 buster.spec.expose();
+var expect = buster.expect;
 
 function registerSimplePlugin(robohydra, props) {
     var scenarios = {};
