@@ -2,7 +2,8 @@
 
 var buster = require("buster");
 var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
-var Request = require("robohydra").Request;
+var Request = require("../lib/robohydra").Request;
+var path = require('path');
 
 buster.spec.expose();
 var expect = buster.expect;
@@ -129,49 +130,47 @@ describe("RoboHydra picking system", function() {
 describe("Plugin loader", function() {
     "use strict";
 
+    var rootDir = __dirname + path.sep +'plugin-fs';
+
     it("fails when loading non-existent plugins", function() {
         expect(function() {
             new RoboHydraSummoner(
                 [{name: 'i-dont-exist', config: {}}],
                 {},
-                {rootDir: __dirname + '/plugin-fs'}
+                {rootDir: rootDir}
             );
         }).toThrow('RoboHydraPluginNotFoundException');
     });
 
     it("can load a simple plugin", function() {
         var configKeyValue = 'config value';
-        var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'simple', config: {configKey: configKeyValue}}],
             {},
             {rootDir: rootDir}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/usr/share/robohydra/plugins/simple');
+            rootDir + '/usr/share/robohydra/plugins'+path.sep+'simple');
         expect(lair.pluginInfoList[0].config.configKey).toEqual(configKeyValue);
     });
 
     it("can load plugins with the simplified syntax", function() {
-        var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(["simple"], {}, {rootDir: rootDir});
         expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/usr/share/robohydra/plugins/simple');
+            rootDir + '/usr/share/robohydra/plugins'+path.sep+'simple');
     });
 
     it("loads plugins in the right order of preference", function() {
-        var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'definedtwice', config: {}}],
             {},
             {rootDir: rootDir}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
+            rootDir + '/usr/local/share/robohydra/plugins'+path.sep+'definedtwice');
     });
 
     it("can define own load path, and takes precedence", function() {
-        var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'definedtwice', config: {}}],
             {},
@@ -179,11 +178,10 @@ describe("Plugin loader", function() {
              extraPluginLoadPaths: ['/opt/robohydra/plugins']}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/opt/robohydra/plugins/definedtwice');
+            rootDir + '/opt/robohydra/plugins'+path.sep+'definedtwice');
     });
 
     it("can define more than one load path, latest has precedence", function() {
-        var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'definedtwice', config: {}}],
             {},
@@ -192,11 +190,10 @@ describe("Plugin loader", function() {
                                     '/opt/project/robohydra-plugins']}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/opt/project/robohydra-plugins/definedtwice');
+            rootDir + '/opt/project/robohydra-plugins'+path.sep+'definedtwice');
     });
 
     it("can define more than one load path, first is still valid", function() {
-        var rootDir = __dirname + '/plugin-fs';
         var lair = new RoboHydraSummoner(
             [{name: 'customloadpath', config: {}}],
             {},
@@ -205,6 +202,6 @@ describe("Plugin loader", function() {
                                     '/opt/project/robohydra-plugins']}
         );
         expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/opt/robohydra/plugins/customloadpath');
+            rootDir + '/opt/robohydra/plugins'+path.sep+'customloadpath');
     });
 });
