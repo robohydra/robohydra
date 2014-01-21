@@ -2,3 +2,4 @@ out/
 tmp/
 robohydra.log
 node_modules/
+/robohydra.sublime*
