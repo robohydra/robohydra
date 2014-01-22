@@ -9,7 +9,11 @@ exports.getBodyParts = function(conf) {
 
     var proxyToUrl = conf.replayerurl || 'http://robohydra.org';
     // Initialise the log file on RoboHydra start
-    var trafficFilePath = conf.trafficFilePath || 'robohydra-replayer.json';
+    var trafficFilePath = conf.trafficfilepath ||
+            conf.trafficFilePath || 'robohydra-replayer.json';
+    if ('trafficFilePath' in conf) {
+        console.warn("***WARNING***: 'trafficFilePath' is deprecated, please use 'trafficfilepath'");
+    }
     var trafficFileFd, currentTrafficData, indexForUrl;
 
     return {heads: [

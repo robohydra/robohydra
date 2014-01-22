@@ -89,7 +89,7 @@ function getBodyParts(conf) {
     "use strict";
 
     // Initialise the log file on RoboHydra start
-    var logFilePath = conf.logFilePath || 'robohydra.log';
+    var logFilePath = conf.logfilepath || conf.logFilePath || 'robohydra.log';
     var logFileFd = fs.openSync(logFilePath, 'w+');
 
     // Register the head dynamically, instead of a normal head part of
