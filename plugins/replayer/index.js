@@ -4,12 +4,12 @@ var robohydra          = require('robohydra'),
     RoboHydraHeadProxy = robohydra.heads.RoboHydraHeadProxy,
     Response           = robohydra.Response;
 
-exports.getBodyParts = function(config) {
+exports.getBodyParts = function(conf) {
     "use strict";
 
-    var proxyToUrl = config.replayerurl || 'http://robohydra.org';
+    var proxyToUrl = conf.replayerurl || 'http://robohydra.org';
     // Initialise the log file on RoboHydra start
-    var trafficFilePath = config.trafficFilePath || 'robohydra-replayer.json';
+    var trafficFilePath = conf.trafficFilePath || 'robohydra-replayer.json';
     var trafficFileFd, currentTrafficData, indexForUrl;
 
     return {heads: [
@@ -17,7 +17,7 @@ exports.getBodyParts = function(config) {
             name:    'startRecording',
             path:    '/start-recording',
             handler: function(req, res) {
-                var rh = config.robohydra;
+                var rh = conf.robohydra;
                 var recorderHead = rh.findHead('replayer', 'recorder');
                 if (! recorderHead.attached()) {
                     trafficFileFd = fs.openSync(trafficFilePath, 'w+');
@@ -43,7 +43,7 @@ exports.getBodyParts = function(config) {
             name:    'startReplaying',
             path:    '/start-replaying',
             handler: function(req, res) {
-                var rh = config.robohydra;
+                var rh = conf.robohydra;
                 var replayerHead = rh.findHead('replayer', 'replayer');
                 if (! replayerHead.attached()) {
                     currentTrafficData =

@@ -85,16 +85,16 @@ function logRequestResponse(logFileFd, req, res, cb) {
     }
 }
 
-function getBodyParts(config) {
+function getBodyParts(conf) {
     "use strict";
 
     // Initialise the log file on RoboHydra start
-    var logFilePath = config.logFilePath || 'robohydra.log';
+    var logFilePath = conf.logFilePath || 'robohydra.log';
     var logFileFd = fs.openSync(logFilePath, 'w+');
 
     // Register the head dynamically, instead of a normal head part of
     // the plugin, so it has precedence over all other dynamic heads.
-    config.robohydra.registerDynamicHead(new RoboHydraHead({
+    conf.robohydra.registerDynamicHead(new RoboHydraHead({
         name:    'logger',
         path:    '/.*',
         handler: function(req, res, next) {
