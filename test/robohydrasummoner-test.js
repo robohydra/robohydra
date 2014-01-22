@@ -130,7 +130,7 @@ describe("RoboHydra picking system", function() {
 describe("Plugin loader", function() {
     "use strict";
 
-    var rootDir = __dirname + path.sep +'plugin-fs';
+    var rootDir = path.join(__dirname, 'plugin-fs');
 
     it("fails when loading non-existent plugins", function() {
         expect(function() {
@@ -149,15 +149,15 @@ describe("Plugin loader", function() {
             {},
             {rootDir: rootDir}
         );
-        expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/usr/share/robohydra/plugins'+path.sep+'simple');
+        expect(lair.pluginInfoList[0].path).toEqualPath(
+            rootDir + '/usr/share/robohydra/plugins/simple');
         expect(lair.pluginInfoList[0].config.configKey).toEqual(configKeyValue);
     });
 
     it("can load plugins with the simplified syntax", function() {
         var lair = new RoboHydraSummoner(["simple"], {}, {rootDir: rootDir});
-        expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/usr/share/robohydra/plugins'+path.sep+'simple');
+        expect(lair.pluginInfoList[0].path).toEqualPath(
+            rootDir + '/usr/share/robohydra/plugins/simple');
     });
 
     it("loads plugins in the right order of preference", function() {
@@ -166,8 +166,8 @@ describe("Plugin loader", function() {
             {},
             {rootDir: rootDir}
         );
-        expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/usr/local/share/robohydra/plugins'+path.sep+'definedtwice');
+        expect(lair.pluginInfoList[0].path).toEqualPath(
+            rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
     });
 
     it("can define own load path, and takes precedence", function() {
@@ -177,8 +177,8 @@ describe("Plugin loader", function() {
             {rootDir: rootDir,
              extraPluginLoadPaths: ['/opt/robohydra/plugins']}
         );
-        expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/opt/robohydra/plugins'+path.sep+'definedtwice');
+        expect(lair.pluginInfoList[0].path).toEqualPath(
+            rootDir + '/opt/robohydra/plugins/definedtwice');
     });
 
     it("can define more than one load path, latest has precedence", function() {
@@ -189,8 +189,8 @@ describe("Plugin loader", function() {
              extraPluginLoadPaths: ['/opt/robohydra/plugins',
                                     '/opt/project/robohydra-plugins']}
         );
-        expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/opt/project/robohydra-plugins'+path.sep+'definedtwice');
+        expect(lair.pluginInfoList[0].path).toEqualPath(
+            rootDir + '/opt/project/robohydra-plugins/definedtwice');
     });
 
     it("can define more than one load path, first is still valid", function() {
@@ -201,7 +201,7 @@ describe("Plugin loader", function() {
              extraPluginLoadPaths: ['/opt/robohydra/plugins',
                                     '/opt/project/robohydra-plugins']}
         );
-        expect(lair.pluginInfoList[0].path).toEqual(
-            rootDir + '/opt/robohydra/plugins'+path.sep+'customloadpath');
+        expect(lair.pluginInfoList[0].path).toEqualPath(
+            rootDir + '/opt/robohydra/plugins/customloadpath');
     });
 });

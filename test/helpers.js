@@ -86,6 +86,28 @@ var robohydra = require("../lib/robohydra"),
         expectation: "toHaveEqualBody"
     });
 
+    buster.referee.add("equalsPath", {
+        assert: function(actual, expected) {
+            var canonicalActual = path.resolve(actual);
+            var canonicalExpected = path.resolve(expected);
+            return canonicalActual === canonicalExpected;
+        },
+        assertMessage: "Expected ${0} to be the same path as ${1}!",
+        refuteMessage: "Expected ${0} to not be the same path as ${1}!",
+        expectation: "toEqualPath"
+    });
+
+    buster.referee.add("equalsText", {
+        assert: function(actual, expected) {
+            var canonicalActual = actual.replace(/\r\n/g, "\n");
+            var canonicalExpected = expected.replace(/\r\n/g, "\n");
+            return canonicalActual === canonicalExpected;
+        },
+        assertMessage: "Expected ${0} to be the same text as ${1}!",
+        refuteMessage: "Expected ${0} to not be the same text as ${1}!",
+        expectation: "toEqualText"
+    });
+
     function withResponse(robohydraOrHead, pathOrObject, cb) {
         if (typeof(pathOrObject) === 'string') {
             pathOrObject = {path: pathOrObject};
