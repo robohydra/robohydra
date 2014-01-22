@@ -1839,7 +1839,7 @@ describe("Fixture system", function() {
     it("loads non-ASCII fixtures", function(done) {
         this.hydra.handle(simpleReq('/fixtures/non-ascii.txt'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqual(
+                              expect(this.body.toString()).toEqualText(
                                   'Velázquez\n');
                               done();
                           }));
@@ -1848,7 +1848,7 @@ describe("Fixture system", function() {
     it("doesn't try to load fixtures from other directories", function(done) {
         this.hydra.handle(simpleReq('/absolute-directory-fixture'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqual(
+                              expect(this.body.toString()).toEqualText(
                                   'This is a fake /etc/passwd\n');
                               done();
                           }));
@@ -1857,7 +1857,7 @@ describe("Fixture system", function() {
     it("doesn't allow leaving the fixture directory", function(done) {
         this.hydra.handle(simpleReq('/relative-directory-fixture'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqual(
+                              expect(this.body.toString()).toEqualText(
                                   'This is a fake /etc/passwd\n');
                               done();
                           }));
@@ -1867,7 +1867,7 @@ describe("Fixture system", function() {
         this.hydra.startScenario('simple-fixtures', 'fixtureLoader');
         this.hydra.handle(simpleReq('/external-test-fixture'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqual(
+                              expect(this.body.toString()).toEqualText(
                                   'Simple fixture\n');
                               done();
                           }));
