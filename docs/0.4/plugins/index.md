@@ -119,12 +119,12 @@ var heads               = require('robohydra').heads,
     RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
     RoboHydraHead       = heads.RoboHydraHead;
 
-exports.getBodyParts = function(config, modules) {
+exports.getBodyParts = function(conf, modules) {
     "use strict";
 
     // This can be passed on the command-line as eg.:
     //     robohydra foo.conf defNumberResults=10
-    var defNumberResults = parseInt(config.defNumberResults, 10) || 5;
+    var defNumberResults = parseInt(conf.defNumberResults, 10) || 5;
     var counter = 0;
     var assert = modules.assert;
 

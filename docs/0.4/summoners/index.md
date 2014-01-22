@@ -121,7 +121,7 @@ exports.getBodyParts = function() {
     return {};
 };
 
-exports.getSummonerTraits = function(config) {
+exports.getSummonerTraits = function() {
     return {
         hydraPicker: function(req) {
             if ('user' in req.queryParams) {
