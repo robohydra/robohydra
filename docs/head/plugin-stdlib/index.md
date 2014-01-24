@@ -63,8 +63,8 @@ more details.
 ------------
 
 Avoids any client-side caching by tweaking client request caching
-headers. In particular, it deletes the `If-Modified-Since` header and
-sets `Cache-Control` to `no-cache`.
+headers. In particular, it deletes the `If-Modified-Since` and
+`If-None-Match` headers and sets `Cache-Control` to `no-cache`.
 
 By default `no-caching` operates on all requests, but you can limit
 its influence to requests to a given path by setting the
