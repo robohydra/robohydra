@@ -12,6 +12,7 @@ function getBodyParts(config) {
             // Tweak client cache-related headers so ensure no
             // caching, then let the request be dispatched normally
             delete req.headers['if-modified-since'];
+            delete req.headers['if-none-match'];
             req.headers['cache-control'] = 'no-cache';
 
             next(req, res);
