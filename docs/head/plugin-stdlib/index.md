@@ -82,6 +82,18 @@ screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM#t=7m30s) for
 more details.
 
 
+`proxy-cache`
+-------------
+
+Proxies to a given URL and caches all responses to GET requests. You
+configure it with variables `proxyurl`, the URL to proxy requests to,
+and `cachedir`, the directory of the cache. The latter defaults to
+`proxy-cache`.
+
+Plugins `logger` and `no-caching` are sometimes useful combined with
+`proxy-cache`.
+
+
 `replayer`
 ----------
 
