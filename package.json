@@ -1,20 +1,20 @@
 {
-    "name": "robohydra"
-  , "version": "0.4.0000000000001"
-  , "bin": "./bin/robohydra.js"
-  , "main": "./lib/robohydra.js"
-  , "dependencies": {
-      "mime":      ">= 1.0.0"
-    , "ejs":       ">= 0.6.1"
-    , "qs":        ">= 0.4.2"
-    , "commander": ">= 0.6.0"
-    , "markdown":  ">= 0.3.1"
-  }
-  , "devDependencies": {
-      "buster": ">= 0.7.0"
-    , "samsam": ">= 1.1.0"
-  }
-  , "scripts": {
+  "name": "robohydra",
+  "version": "0.4.0000000000001",
+  "bin": "./bin/robohydra.js",
+  "main": "./lib/robohydra.js",
+  "scripts": {
       "test": "node_modules/.bin/buster-test"
+  },
+  "dependencies": {
+    "mime":      ">= 1.0.0",
+    "ejs":       ">= 0.6.1",
+    "qs":        ">= 0.4.2",
+    "commander": ">= 0.6.0",
+    "markdown":  ">= 0.3.1"
+  },
+  "devDependencies": {
+    "buster": ">= 0.7.0",
+    "samsam": ">= 1.1.0"
   }
 }
