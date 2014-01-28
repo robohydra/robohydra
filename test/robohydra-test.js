@@ -30,16 +30,6 @@ buster.referee.add("hasHeadAttached", {
     expectation: "toHaveHeadAttached"
 });
 
-buster.referee.add("isARoboHydraHead", {
-    assert: function (actual) {
-        "use strict";
-        return typeof(actual.attach) === 'function';
-    },
-    assertMessage: "Expected ${0} to be a hydra head!",
-    refuteMessage: "Expected ${0} to not be a hydra head!",
-    expectation: "toBeARoboHydraHead"
-});
-
 buster.referee.add("hasPluginList", {
     assert: function (actual, expectedPluginList) {
         "use strict";
