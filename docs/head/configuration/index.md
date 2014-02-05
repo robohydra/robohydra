@@ -6,9 +6,12 @@ The configuration file
 ======================
 
 The RoboHydra configuration file is a JSON file with the list of
-plugins to load, SSL information if you want RoboHydra to use the
-HTTPS protocol when responding to requests, and information about the
-[RoboHydra summoner](../summoners).
+plugins to load, the port to listen on, SSL information if you want
+RoboHydra to use the HTTPS protocol when responding to requests, and
+information about the [RoboHydra summoner](../summoners).
+
+_It doesn't actually contain any heads, those go in plugins! See the
+[Writing your own plugins](../plugins) section for more information._
 
 Plugins
 -------
