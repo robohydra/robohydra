@@ -19,15 +19,6 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 (function () {
     "use strict";
 
-    commander.version('0.3.0+').
-        usage("mysetup.conf [confvar=value confvar2=value2 ...]").
-        option('-I <path>', 'Adds a new path in the plugin search path list').
-        option('-P, --plugins <plugin-list>', 'Load plugins at startup').
-        option('-n, --no-config', "Don't read a configuration file").
-        option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
-        parse(process.argv);
-
-
     // This is a bit crappy as it uses the global commander
     // variable. But whaeva.
     function showHelpAndDie(message) {
@@ -37,6 +28,14 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         console.error(commander.helpInformation());
         process.exit(1);
     }
+
+    commander.version('0.3.0+').
+        usage("mysetup.conf [confvar=value confvar2=value2 ...]").
+        option('-I <path>', 'Adds a new path in the plugin search path list').
+        option('-P, --plugins <plugin-list>', 'Load plugins at startup').
+        option('-n, --no-config', "Don't read a configuration file").
+        option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
+        parse(process.argv);
 
 
     // Process the options
@@ -65,7 +64,7 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         }
     }
 
-    // Add any plugin load paths
+    var port = robohydraConfig.port || commander.port;
     extraPluginLoadPath =
         (robohydraConfig.pluginLoadPaths || []).concat(extraPluginLoadPath);
 
@@ -138,13 +137,12 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
-            console.error("Couldn't listen in port " + commander.port +
-                          ", aborting.");
+            console.error("Couldn't listen in port " + port + ", aborting.");
         }
     });
-    server.listen(commander.port, function() {
-        var adminUrl = "http://localhost:" + commander.port + "/robohydra-admin";
+    server.listen(port, function() {
+        var adminUrl = "http://localhost:" + port + "/robohydra-admin";
         console.log("RoboHydra ready on port %d - Admin URL: %s",
-                    commander.port, adminUrl);
+                    port, adminUrl);
     });
 }());
