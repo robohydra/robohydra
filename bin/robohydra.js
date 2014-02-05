@@ -65,6 +65,10 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         }
     }
 
+    // Add any plugin load paths
+    extraPluginLoadPath =
+        (robohydraConfig.pluginLoadPaths || []).concat(extraPluginLoadPath);
+
     // After the second parameter, the rest is extra configuration variables
     var extraVars = {};
     for (var i = 0, len = args.length; i < len; i++) {
