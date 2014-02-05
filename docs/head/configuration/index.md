@@ -41,6 +41,37 @@ configuration keys `path` and `logLevel` could be:
                          "logLevel": "warn"}]}
 {% endhighlight %}
 
+Plugin load paths
+-----------------
+
+If you don't have your plugins in `robohydra/plugins` or any of the
+other plugin directories, you can specify a list of extra directories
+for RoboHydra to search for plugins with the `pluginLoadPaths` key:
+
+{% highlight json %}
+{"plugins": ["logger", "myplugin"],
+ "pluginLoadPaths": [".", "functional-tests/robohydra-plugins"]}
+{% endhighlight %}
+
+Directories later in the array have higher precedence, but plugin load
+directories specified on the command line have even higher precedence.
+
+
+Port
+----
+
+You can specify the port RoboHydra should listen on with the key
+`port`:
+
+{% highlight json %}
+{"plugins": ["myplugin"],
+ "port": 3003}
+{% endhighlight %}
+
+A port specified on the command line (`-p` option) will have
+precedence over the port number in the configuration file.
+
+
 SSL configuration
 -----------------
 
