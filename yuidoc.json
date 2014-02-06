@@ -1,0 +1,10 @@
+{
+  "name": "RoboHydra public API",
+  "description": "Public RoboHydra functions and classes available to plugins",
+  "url": "http://robohydra.org/docs",
+  "options": {
+    "paths": "../robohydra/",
+    "exclude": "node_modules,tmp",
+    "outdir": "docs/head/api/"
+  }
+}
