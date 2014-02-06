@@ -14,12 +14,15 @@
 <div id="doc">
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
-            
-                <h1><img src="../assets/css/logo.png" title="RoboHydra public API"></h1>
-            
+          <span class="navbar-brand"><img src="../assets/img/robohydra.png" title="RoboHydra public API"> RoboHydra</span>
+          <ul class="navbar-menu">
+            <li><a href="/">Home</a></span>
+            <li><a href="/docs/tutorial">Tutorial</a></span>
+            <li><a href="/docs">Documentation</a></span>
+          </ul>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: </em>
+            <em>API Docs for: HEAD</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -96,7 +99,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/.._robohydra_lib_utils.js.html#l293"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:293</code></a>
+            Defined in: <a href="../files/.._robohydra_lib_utils.js.html#l322"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:322</code></a>
         </div>
     
 
@@ -157,7 +160,7 @@
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l293"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:293</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l322"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:322</code></a>
         
         </p>
 
@@ -187,7 +190,7 @@
 
                     <div class="param-description">
                         <p>Callback to be used when the response is
-finished.</p>
+finished. See the <code>end</code> event on the <code>on</code> method documentation.</p>
 
                     </div>
 
@@ -239,6 +242,13 @@ finished.</p>
                         
                             <li class="index-item method">
                                 <a href="#method_copyFrom">copyFrom</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_end">end</a>
 
                                 
                                 
@@ -361,7 +371,7 @@ finished.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l457"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:457</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l518"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:518</code></a>
         
         </p>
 
@@ -374,8 +384,9 @@ finished.</p>
     <div class="description">
         <p>Chains the response given as a parameter to the current
 object. This means that as data is written to the current
-object, that same data will be written in the parameter. It&#39;s
-similar to <code>copyFrom</code>, but with the following differences:</p>
+object, that same data will be written in the parameter (ie. it
+honours and replicates streaming). It&#39;s similar to <code>copyFrom</code>,
+but with the following differences:</p>
 <ul>
 <li><code>chain</code> is called on the source object, not the target.</li>
 <li><code>chain</code> is to be used <em>before</em> any data is written to the
@@ -461,7 +472,7 @@ current object.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l414"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:414</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l452"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:452</code></a>
         
         </p>
 
@@ -473,7 +484,8 @@ current object.</p>
 
     <div class="description">
         <p>Copies the response given as a parameter into the current
-response object.</p>
+response object. This is intended to be used when the response
+given as a parameter is already finished.</p>
 
     </div>
 
@@ -501,6 +513,63 @@ response object.</p>
             
             </ul>
         </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_end" class="method item">
+    <h3 class="name"><code>end</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l430"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:430</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Marks the response as complete and calls the &#39;end&#39;
+callback. When called in the response object provided by
+RoboHydra, this closes the connection.</p>
+
+    </div>
+
     
 
     
@@ -551,7 +620,7 @@ response object.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l427"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:427</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l466"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:466</code></a>
         
         </p>
 
@@ -648,7 +717,7 @@ object as finished.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l439"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:439</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l478"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:478</code></a>
         
         </p>
 
@@ -662,6 +731,26 @@ object as finished.</p>
         <p>Adds a callback to the given event. An event can have more than
 one callback. All callbacks for an event will be called in
 order when the event is triggered.</p>
+<p>The callback function will receive a single parameter, <code>event</code>,
+an object with the property <code>type</code> set to the event type, plus
+different properties according to the event fired.</p>
+<p>The list of response object events is:</p>
+<ul>
+<li><code>head</code>: Fired when the header is written. Event objects for
+this event contain two properties, <code>statusCode</code> and
+<code>headers</code>.</li>
+<li><code>data</code>: Fired when there is data written in the response
+object. Event objects for this event contain a single property,
+<code>data</code>, an instance of <code>Buffer</code>.</li>
+<li><code>end</code>: Fired when the response is finished. Event objects for
+this event contain a single property, <code>response</code>, the response
+object that fired the event.</li>
+</ul>
+<p>For responses you have created yourself to pass to the <code>next</code>
+function, the <code>end</code> event would typically be used to inspect or
+modify the response contents, then write data to the response
+object you received, possibly with the help of the methods
+below.</p>
 
     </div>
 
@@ -756,7 +845,7 @@ callback to. Possible event names are <code>head</code>, <code>data</code> and <
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l385"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:385</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l419"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:419</code></a>
         
         </p>
 
@@ -767,7 +856,7 @@ callback to. Possible event names are <code>head</code>, <code>data</code> and <
     </div>
 
     <div class="description">
-        <p>Adds the given data to the response body and finishes
+        <p>Appends the given data to the response body and closes
 it. Equivalent to calling the <code>write</code> method, then <code>end</code>.</p>
 
     </div>
@@ -846,7 +935,7 @@ it. Equivalent to calling the <code>write</code> method, then <code>end</code>.<
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l361"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:361</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l391"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:391</code></a>
         
         </p>
 
@@ -857,7 +946,11 @@ it. Equivalent to calling the <code>write</code> method, then <code>end</code>.<
     </div>
 
     <div class="description">
-        <p>Writes part of the response body.</p>
+        <p>Appends data to the response body. This method allows a
+RoboHydra head to write the response body in chunks, and the
+response will be sent in chunks to the client (so you could,
+say, send data, then wait, then send more data, wait, then
+close the connection).</p>
 
     </div>
 
@@ -942,7 +1035,7 @@ body. This parameter can be a string, too.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l346"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:346</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l376"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:376</code></a>
         
         </p>
 
@@ -1045,7 +1138,7 @@ body. This parameter can be a string, too.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l300"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:300</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l329"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:329</code></a>
         
         </p>
 
@@ -1097,7 +1190,7 @@ body. This parameter can be a string, too.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l318"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:318</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l348"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:348</code></a>
         
         </p>
 
@@ -1149,7 +1242,7 @@ body. This parameter can be a string, too.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l312"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:312</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l341"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:341</code></a>
         
         </p>
 
@@ -1159,7 +1252,8 @@ body. This parameter can be a string, too.</p>
     </div>
 
     <div class="description">
-        <p>Response headers.</p>
+        <p>Response headers. Note that the header names are Node-style
+(ie. lowercase).</p>
 
     </div>
 
@@ -1201,7 +1295,7 @@ body. This parameter can be a string, too.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l306"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:306</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l335"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:335</code></a>
         
         </p>
 
@@ -1211,7 +1305,7 @@ body. This parameter can be a string, too.</p>
     </div>
 
     <div class="description">
-        <p>Response status code.</p>
+        <p>Response status code (by default, <code>200</code>).</p>
 
     </div>
 

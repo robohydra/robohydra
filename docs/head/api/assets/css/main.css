@@ -70,7 +70,7 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
     font-size: 184.6%;
-    color: #30418C;
+    color: #000;
     margin: 0.75em 0 0.5em;
 }
 
@@ -389,7 +389,7 @@ specific tabview, see the other sections below.
 /* Headings */
 h2, h3, h4, h5, h6 {
     border: none;
-    color: #30418C;
+    color: #000;
     font-weight: bold;
     text-decoration: none;
 }
@@ -781,3 +781,34 @@ kbd .cmd { font-family: Monaco, Helvetica; }
     font-weight: bold;
 }
 
+
+
+
+/* Specific code for RoboHydra */
+.yui3-u-3-4 {
+    margin: 15px 0;
+}
+
+.navbar-brand {
+    color: #000;
+    font-size: 18px;
+    margin-right: 18px;
+    float: left;
+    vertical-align: text-top;
+}
+
+.navbar-menu {
+    list-style: none outside none;
+}
+
+.navbar-menu li {
+    display: table;
+    float: left;
+}
+
+.navbar-menu > li > a {
+    padding: 0px 18px;
+    color: #000;
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}

@@ -2,16 +2,11 @@
     "project": {
         "name": "RoboHydra public API",
         "description": "Public RoboHydra functions and classes available to plugins",
-        "url": "http://robohydra.org/docs"
+        "version": "HEAD",
+        "url": "http://robohydra.org/docs",
+        "logo": "/assets/img/robohydra.png"
     },
     "files": {
-        "../robohydra/bin/robohydra.js": {
-            "name": "../robohydra/bin/robohydra.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
         "../robohydra/lib/robohydra.js": {
             "name": "../robohydra/lib/robohydra.js",
             "modules": {},
@@ -123,25 +118,19 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "../robohydra/lib/utils.js",
-            "line": 293,
+            "line": 322,
             "description": "Represents a server response.",
             "is_constructor": 1,
             "params": [
                 {
                     "name": "cb",
-                    "description": "Callback to be used when the response is\nfinished.",
+                    "description": "Callback to be used when the response is\nfinished. See the `end` event on the `on` method documentation.",
                     "type": "Function"
                 }
             ]
         }
     },
     "classitems": [
-        {
-            "file": "../robohydra/bin/robohydra.js",
-            "line": 4,
-            "description": "Module dependencies.",
-            "class": "robohydra"
-        },
         {
             "file": "../robohydra/lib/robohydra.js",
             "line": 56,
@@ -391,11 +380,6 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 526,
-            "class": "robohydra"
-        },
-        {
             "file": "../robohydra/lib/utils.js",
             "line": 25,
             "description": "Serves a static file with correct headers and such, writing the\nresult in the given response object.",
@@ -492,7 +476,7 @@
         {
             "file": "../robohydra/lib/utils.js",
             "line": 233,
-            "description": "Request URL.",
+            "description": "Request URL path, including GET parameters (eg. `/foo`,\n`/bar/qux`, `/articles?order=date`).",
             "itemtype": "attribute",
             "name": "url",
             "type": "String",
@@ -500,7 +484,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 239,
+            "line": 240,
             "description": "Request method, normalised to uppercase.",
             "itemtype": "attribute",
             "name": "method",
@@ -509,8 +493,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 245,
-            "description": "Request headers.",
+            "line": 246,
+            "description": "Request headers. Note that the header names are Node-style\n(ie. lowercase).",
             "itemtype": "attribute",
             "name": "headers",
             "type": "Object",
@@ -518,8 +502,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 251,
-            "description": "Request body.",
+            "line": 253,
+            "description": "Request body, if the body was parseable. Otherwise,\n`undefined`.",
             "itemtype": "attribute",
             "name": "rawBody",
             "type": "Buffer",
@@ -527,7 +511,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 257,
+            "line": 260,
             "description": "Request body parameters.",
             "itemtype": "attribute",
             "name": "bodyParams",
@@ -536,7 +520,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 263,
+            "line": 266,
             "description": "Request query parameters (\"GET\" parameters).",
             "itemtype": "attribute",
             "name": "queryParams",
@@ -545,7 +529,26 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 300,
+            "line": 272,
+            "description": "Request query parameters (\"GET\" parameters).",
+            "itemtype": "attribute",
+            "name": "getParams",
+            "type": "Object",
+            "deprecated": true,
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 279,
+            "description": "Request URL path captured parameters. Note that this attribute\nis only available in request objects passed directly by\nRoboHydra, not in user-created request objects.\n\nWhen defining URL paths, expressions like `:id` or `:user` can\nbe used as part of the regular expression (eg. `/save/:id` or\n`/:user/preferences`). These expressions will match any URL\npath fragment, and the matched contents will be available in\nthe `params` object in the request object. For example, if you\nhave a head for path `/articles/:articleid/view` and you\nreceive a request for\n`/articles/introduction-to-robohydra/view`, the request object\nwill have a `params` property with a single property,\n`articleid` with value `introduction-to-robohydra`.",
+            "itemtype": "attribute",
+            "name": "params",
+            "type": "Object",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 329,
             "description": "Response body.",
             "itemtype": "attribute",
             "name": "body",
@@ -554,8 +557,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 306,
-            "description": "Response status code.",
+            "line": 335,
+            "description": "Response status code (by default, `200`).",
             "itemtype": "attribute",
             "name": "statusCode",
             "type": "Integer",
@@ -563,8 +566,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 312,
-            "description": "Response headers.",
+            "line": 341,
+            "description": "Response headers. Note that the header names are Node-style\n(ie. lowercase).",
             "itemtype": "attribute",
             "name": "headers",
             "type": "Object",
@@ -572,7 +575,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 318,
+            "line": 348,
             "description": "Whether the response is finished.",
             "itemtype": "attribute",
             "name": "ended",
@@ -581,7 +584,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 346,
+            "line": 376,
             "description": "Sets and writes the response headers.",
             "itemtype": "method",
             "name": "writeHead",
@@ -601,8 +604,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 361,
-            "description": "Writes part of the response body.",
+            "line": 391,
+            "description": "Appends data to the response body. This method allows a\nRoboHydra head to write the response body in chunks, and the\nresponse will be sent in chunks to the client (so you could,\nsay, send data, then wait, then send more data, wait, then\nclose the connection).",
             "itemtype": "method",
             "name": "write",
             "params": [
@@ -616,8 +619,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 385,
-            "description": "Adds the given data to the response body and finishes\nit. Equivalent to calling the `write` method, then `end`.",
+            "line": 419,
+            "description": "Appends the given data to the response body and closes\nit. Equivalent to calling the `write` method, then `end`.",
             "itemtype": "method",
             "name": "send",
             "params": [
@@ -631,14 +634,16 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 396,
-            "description": "Marks the response as complete and calls the 'end' callback.",
+            "line": 430,
+            "description": "Marks the response as complete and calls the 'end'\ncallback. When called in the response object provided by\nRoboHydra, this closes the connection.",
+            "itemtype": "method",
+            "name": "end",
             "class": "Response"
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 414,
-            "description": "Copies the response given as a parameter into the current\nresponse object.",
+            "line": 452,
+            "description": "Copies the response given as a parameter into the current\nresponse object. This is intended to be used when the response\ngiven as a parameter is already finished.",
             "itemtype": "method",
             "name": "copyFrom",
             "params": [
@@ -652,7 +657,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 427,
+            "line": 466,
             "description": "Forwards the response given as a parameter. That is, copies the\ngiven response in the current object, then marks the given\nobject as finished.",
             "itemtype": "method",
             "name": "forward",
@@ -667,8 +672,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 439,
-            "description": "Adds a callback to the given event. An event can have more than\none callback. All callbacks for an event will be called in\norder when the event is triggered.",
+            "line": 478,
+            "description": "Adds a callback to the given event. An event can have more than\none callback. All callbacks for an event will be called in\norder when the event is triggered.\n\nThe callback function will receive a single parameter, `event`,\nan object with the property `type` set to the event type, plus\ndifferent properties according to the event fired.\n\nThe list of response object events is:\n\n* `head`: Fired when the header is written. Event objects for\nthis event contain two properties, `statusCode` and\n`headers`.\n* `data`: Fired when there is data written in the response\nobject. Event objects for this event contain a single property,\n`data`, an instance of `Buffer`.\n* `end`: Fired when the response is finished. Event objects for\nthis event contain a single property, `response`, the response\nobject that fired the event.\n\nFor responses you have created yourself to pass to the `next`\nfunction, the `end` event would typically be used to inspect or\nmodify the response contents, then write data to the response\nobject you received, possibly with the help of the methods\nbelow.",
             "itemtype": "method",
             "name": "on",
             "params": [
@@ -687,8 +692,8 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 457,
-            "description": "Chains the response given as a parameter to the current\nobject. This means that as data is written to the current\nobject, that same data will be written in the parameter. It's\nsimilar to `copyFrom`, but with the following differences:\n\n* `chain` is called on the source object, not the target.\n* `chain` is to be used _before_ any data is written to the\n  source object.\n* `chain` will write data as it's received, instead of\n  everything at once.",
+            "line": 518,
+            "description": "Chains the response given as a parameter to the current\nobject. This means that as data is written to the current\nobject, that same data will be written in the parameter (ie. it\nhonours and replicates streaming). It's similar to `copyFrom`,\nbut with the following differences:\n\n* `chain` is called on the source object, not the target.\n* `chain` is to be used _before_ any data is written to the\n  source object.\n* `chain` will write data as it's received, instead of\n  everything at once.",
             "itemtype": "method",
             "name": "chain",
             "params": [
@@ -701,18 +706,5 @@
             "class": "Response"
         }
     ],
-    "warnings": [
-        {
-            "message": "Missing item type\nModule dependencies.",
-            "line": " ../robohydra/bin/robohydra.js:4"
-        },
-        {
-            "message": "Missing item type",
-            "line": " ../robohydra/lib/robohydra.js:526"
-        },
-        {
-            "message": "Missing item type\nMarks the response as complete and calls the 'end' callback.",
-            "line": " ../robohydra/lib/utils.js:396"
-        }
-    ]
+    "warnings": []
 }
