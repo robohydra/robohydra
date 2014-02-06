@@ -1,10 +1,13 @@
 {
   "name": "RoboHydra public API",
   "description": "Public RoboHydra functions and classes available to plugins",
+  "version": "HEAD",
   "url": "http://robohydra.org/docs",
+  "logo": "/assets/img/robohydra.png",
   "options": {
     "paths": "../robohydra/",
     "exclude": "node_modules,tmp",
-    "outdir": "docs/head/api/"
+    "outdir": "docs/head/api/",
+    "themedir": "themes/robohydra"
   }
 }
