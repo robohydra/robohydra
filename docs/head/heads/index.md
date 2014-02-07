@@ -40,10 +40,10 @@ following parameters:
   and `next`. This function will be called for every request the head
   has to handle (it's not enough that the URL path in the request
   matches the `path` property, because there could be another head
-  before handling the request --see "Dispatching requests"). This
-  function must always call `res.end()` to end the request, either
-  explicitly or implicitly (eg. by passing the `res` object to the
-  `next` function).
+  before handling the request --see the introduction in this
+  page). This function must always call `res.end()` to end the
+  request, either explicitly or implicitly (eg. by passing the `res`
+  object to the `next` function).
 * `detached` (optional): a *boolean* specifying if the head should be
   detached when starting RoboHydra. If this is true, RoboHydra will
   behave as if the head wasn't there. Heads can be detached and
@@ -53,118 +53,9 @@ Apart from a normal regular expression, the path string supports the
 special syntax `:foobar` that matches any URL path fragment (eg. the
 path `/articles/:id` would match `/articles/123`,
 `/articles/title-of-the-article` and so on, but not
-`/articles/view/123`). See the documentation for the request object,
-below, to see how to access these parameters.
-
-
-### The request object
-The first parameter of the handling function is the request
-object. This object contains the following properties:
-
-* `method`: the HTTP request method (eg. `GET`, `POST`, ...).
-* `url`: the URL path of the incoming request, including GET
-  parameters (eg. `/foo`, `/bar/qux`, `/articles?order=date`).
-* `headers`: an object with the request headers. These headers are in
-  Node-style (ie. lowercased).
-* `queryParams`: an object containing the GET parameters for the
-  request. It was called `getParams` before, but now that property is
-  deprecated.
-* `rawBody`: a `Buffer` object with the raw body of the request.
-* `bodyParams`: an object containing the body parameters, if the body
-  was parseable. Otherwise, `undefined`.
-* `params`: an object containing all URL path parameters in the
-  request. See below for an explanation.
-
-When defining URL paths, expressions like `:id` or `:user` can be used
-as part of the regular expression. These expressions will match any
-URL path fragment, and the matched contents will be available in the
-`params` object in the request object. For example, if you have a head
-for path `/articles/:articleid/view` and you receive a request for
-`/articles/introduction-to-robohydra/view`, the request object will
-have a `params` property with a single property, `articleid` with
-value `introduction-to-robohydra`.
-
-When you use the `next` function in a RoboHydra head (see
-documentation below), you sometimes want to modify the request before
-sending it further to the next head. You can modify the request in
-place before calling `next`, or simply create a new mock request with
-the `Request` class. To do the latter, call the constructor with an
-object containing the request properties. Valid properties are:
-
-* `url`: the URL path of the request.
-* `method`: `GET`, `POST`, etc. defaults to `GET`.
-* `headers`: an object with the request headers.
-* `rawBody`: a `Buffer` object with the request body, if any.
-
-
-
-### The response object
-The response object is how you send data back to the client. The
-response object has the following API:
-
-* `statusCode`: a property containing the HTTP status code to return
-  to the client (by default 200).
-* `headers`: an object with the Node-style (lowercase) response
-  headers.
-* `write`: a method to write content to the body. It accepts a single
-  parameter, namely a `Buffer` or string to append to the current
-  response body. This method allows a RoboHydra head to write the
-  response body in chunks, and the response will be sent in chunks to
-  the client (so you could, say, send data, then wait, then send more
-  data, wait, then close the connection).
-* `end`: a method you must call to end the request.
-* `send`: a method to send content to the client. It's a `write` +
-  `end`, so you can call `send` with the content to be sent instead of
-  calling `write`, then `end`.
-
-When you use the `next` function in a RoboHydra head (see
-documentation below), you often want to pass a mock response so you
-can inspect or modify it before sending it back to the client. In that
-case you will be interested in these other API methods methods:
-
-* `Response` class constructor: It receives one optional parameter,
-  the event listener for the `end` event (see the `on` method and
-  event documentation below). Here you would typically inspect or
-  modify the mock response, then write data to your own response
-  object, possibly with the help of the methods below. If you don't
-  pass any parameters, you can add your own event listeners with the
-  `on` method.
-* `on`: It attaches event listeners to the response object. It
-  receives an event name (see event list below) and a callback
-  function. The callback function will receive a single parameter,
-  `event`, an object with the property `type` set to the event type,
-  plus different properties according to the event fired. Note that
-  you can setup more than one event listener for a single event: in
-  that case, all event listeners will be executed.
-* `chain`: It connects a response with the given parameter (another
-  response) in such a way that all events in the second response will
-  be duplicated in the first one. It's intended to be used when
-  creating a response. As it replicates all events, it keeps
-  streaming. Note that, as you can setup more than one event listener
-  for a given event, you can chain a response to another one, then add
-  extra event listeners for extra processing or logging.
-* `copyFrom`: It receives a response as a parameter and copies the
-  data in the parameter to the current response
-  (eg. `res.copyFrom(res2)` copies `res2` into `res`). It's intended
-  to be used when `res2` is finished and won't change again. Thus, it
-  breaks streaming.
-* `forward`: It receives a response as a parameter and forwards it as
-  if that had been the original response. In other words,
-  `res.forward(res2)` is equivalent to `res.copyFrom(res2);
-  res.end()`. It's intended to be used when `res2` is finished and
-  won't change again. Thus, it breaks streaming. See the `chain` above
-  for an alternative that respects streaming.
-
-The list of response object events is:
-
-* `head`: Fired when the header is written. Event objects for this
-  event contain two properties, `statusCode` and `headers`.
-* `data`: Fired when there is data written in the response
-  object. Event objects for this event contain a single property,
-  `data`, an instance of `Buffer`.
-* `end`: Fired when the response is finished. Event objects for this
-  event contain a single property, `response`, the response object
-  that fired the event.
+`/articles/view/123`). See the documentation for the [request
+object](../api/classes/Request.html) to see how to access these
+parameters.
 
 
 ### The next function
@@ -184,15 +75,15 @@ current one. Naturally, this processing will end up with a call to the
 `end` function in the response object passed to it.
 
 The head calling the `next` function (let's call it the "middleware
-head") can decide what is being passed as request and response objects
-(they need *not* be the request and response objects passed to the
-middleware head). A common thing to do is to pass a mock response
-object: when the second head processes the request, the mock
-response's callback function will be called. Thus, you are free to
-pass the response as is (by using the `forward` method), tweak the
-response before sending (eg. modifying it before calling `forward`),
-retry the request with a different URL if you didn't like the
-response, etc.
+head") can decide what is being passed as request and response
+objects. Often you will just pass the middleware head's request and
+response objects themselves, possibly after modifying them; but
+sometimes you will want to pass mock requests and responses. For
+example, passing a mock response object will allow you to inspect its
+contents before you decide if you pass that response as is (by using
+the `forward` method), tweak the response before sending
+(eg. modifying it before calling `forward`), retry the request with a
+different URL if you didn't like the response, etc.
 
 
 Examples
