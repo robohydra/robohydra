@@ -79,11 +79,17 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         }
     }
 
-    var summoner = new RoboHydraSummoner(
-        plugins,
-        robohydraConfig.summoner,
-        {extraVars: extraVars, extraPluginLoadPaths: extraPluginLoadPath}
-    );
+    var summoner;
+    try {
+        summoner = new RoboHydraSummoner(
+            plugins,
+            robohydraConfig.summoner,
+            {extraVars: extraVars, extraPluginLoadPaths: extraPluginLoadPath}
+        );
+    } catch (e) {
+        console.error(e.message || e);
+        process.exit(1);
+    }
     // This merely forces a default Hydra to be created. It's nice because
     // it forces plugins to be loaded, and we get plugin loading errors
     // early
