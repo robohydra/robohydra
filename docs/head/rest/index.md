@@ -86,7 +86,7 @@ given plugin. Example output (reformatted for readability):
     ],
     "scenarios": [
         {
-            "attached": true,
+            "active": true,
             "name": "language-detection",
             "plugin": "simple-i18n"
         }
