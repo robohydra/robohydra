@@ -12,7 +12,7 @@ use cases and examples of what RoboHydra can do:
 [testsuites](#testsuites), [exploratory
 testing](#exploratory-testing), [help test race
 conditions](#testing-race-conditions), [help your front-end
-developers](#make-your-frontend-developers-lives-easier), and
+developers](#make-your-front-end-developers-lives-easier), and
 [off-line testing and prototyping](#offline-testingprototyping).
 
 Testsuites
