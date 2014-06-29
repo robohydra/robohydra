@@ -10,10 +10,10 @@ single purpose. Thus, it can be at first hard to tell whether or not
 RoboHydra can help you do what you want. The following is a list of
 use cases and examples of what RoboHydra can do:
 [testsuites](#testsuites), [exploratory
-testing](#exploratory_testing), [help test race
-conditions](#testing_race_conditions), [help your front-end
-developers](#make_your_frontend_developers_lives_easier), and
-[off-line testing and prototyping](#offline_testingprototyping).
+testing](#exploratory-testing), [help test race
+conditions](#testing-race-conditions), [help your front-end
+developers](#make-your-frontend-developers-lives-easier), and
+[off-line testing and prototyping](#offline-testingprototyping).
 
 Testsuites
 ----------
