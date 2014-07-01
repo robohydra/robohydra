@@ -141,7 +141,8 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         }
     });
     server.listen(port, function() {
-        var adminUrl = "http://localhost:" + port + "/robohydra-admin";
+        var protocol = robohydraConfig.secure ? "https" : "http";
+        var adminUrl = protocol + "://localhost:" + port + "/robohydra-admin";
         console.log("RoboHydra ready on port %d - Admin URL: %s",
                     port, adminUrl);
     });
