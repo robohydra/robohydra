@@ -423,6 +423,27 @@ describe("Static content RoboHydra heads", function() {
                    statusCode: defaultStatusCode}]
         ], done);
     });
+
+    it("can be configured to repeat the last response", function(done) {
+        var response1 = "response 1",
+            response2 = "response 2";
+        var head = new RoboHydraHeadStatic({
+            responses: [{content: response1},
+                        {content: response2}],
+            repeatMode: 'repeat-last'
+        });
+        checkRouting(head, [
+            ['/', response1],
+            ['/', response2],
+            ['/', response2]
+        ], function() {
+            head.reset();
+            withResponse(head, '/', function(res) {
+                expect(res.body.toString()).toEqual(response1);
+                done();
+            });
+        });
+    });
 });
 
 describe("Filesystem RoboHydra heads", function() {
