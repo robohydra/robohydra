@@ -139,14 +139,13 @@ var exceptions = require(&#x27;./exceptions&#x27;),
      * default, &quot;index.html&quot;, &quot;index.htm&quot;, &quot;home.html&quot; and
      * &quot;home.htm&quot;).
      */
-    function serveStaticFile(filePath, res, opts) {
+    function serveStaticFile(path, res, opts) {
         opts = opts || {};
         var fsObject   = opts.fs      || fs;
         var mimeObject = opts.mime    || mime;
         var headers    = opts.headers || {};
         var indexFiles = opts.indexFiles || [&#x27;index.html&#x27;, &#x27;index.htm&#x27;,
                                              &#x27;home.html&#x27;,  &#x27;home.htm&#x27;];
-        var path = filePath.split(&#x27;?&#x27;)[0];
 
         fsObject.stat(path, function(err, stats) {
             if (!err) {
