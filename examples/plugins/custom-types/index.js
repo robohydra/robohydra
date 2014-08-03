@@ -10,7 +10,7 @@ var RoboHydraHeadLogin = roboHydraHeadType({
 
     mandatoryProperties: ['users'],
     optionalProperties: [{name: 'path', defaultValue: '/api/login'}],
-    defaultProps: {users: []},
+    defaultPropertyObject: {users: []},
 
     init: function() {
         if (! util.isArray(this.users)) {
@@ -22,7 +22,7 @@ var RoboHydraHeadLogin = roboHydraHeadType({
     // The 'users' property contains the list of usernames for which
     // login will succeed. The rest of the usernames will be given
     // authentication error no matter what.
-    parentPropBuilder: function() {
+    parentPropertyBuilder: function() {
         return {
             path: this.path,
             handler: function(req, res) {
