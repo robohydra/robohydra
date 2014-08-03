@@ -11,9 +11,9 @@ class on) or use then `roboHydraHeadType` function.
 
 This function receives a settings object with the following keys:
 
-* `defaultProps`: The properties used when creating a head of this
-  type without specifying any properties (eg. when inheriting from
-  this class).
+* `defaultPropertyObject`: The property object used when creating a
+  head of this type without specifying any parameters (eg. when
+  inheriting from this class).
 * `init`: A function to be executed in the constructor. Needed
   sometimes for extra initialization and/or property sanity checks.
 * `mandatoryProperties`: Array of mandatory properties. Creating a
@@ -28,8 +28,8 @@ This function receives a settings object with the following keys:
   object creation (defaults to `undefined`).
 * `parentClass`: The class to inherit from. If not specified,
   `RoboHydraHead` is assumed.
-* `parentPropBuilder`: A function that calculates the properties to be
-  used when calling the parent class' constructor, from the new
+* `parentPropertyBuilder`: A function that calculates the properties
+  to be used when calling the parent class' constructor, from the new
   head's properties (available in `this`).
 * `reset`: A function that resets the head to its initial state. It's
   normally not needed, but if a head of this type is used in a
@@ -37,7 +37,7 @@ This function receives a settings object with the following keys:
   property) will be called on each start of the containing scenario.
 
 All of them are optional, but you would normally specify at least a
-name, one of the property lists, and `parentPropBuilder`.
+name, one of the property lists, and `parentPropertyBuilder`.
 
 Example
 -------
@@ -89,7 +89,7 @@ var RoboHydraHeadFriendResponse = roboHydraHeadType({
     mandatoryProperties: ['friends'],
     optionalProperties: [{name: 'path', defaultValue: '/api/friends/list'},
                          {name: 'contentType', defaultValue: 'text/xml'}],
-    defaultProps: {friends: []},
+    defaultPropertyObject: {friends: []},
 
     init: function() {
         if (! util.isArray(this.friends)) {
@@ -98,7 +98,7 @@ var RoboHydraHeadFriendResponse = roboHydraHeadType({
         }
     },
 
-    parentPropBuilder: function() {
+    parentPropertyBuilder: function() {
         var content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<friends>\n" +
                 this.friends.map(function(friend) {
