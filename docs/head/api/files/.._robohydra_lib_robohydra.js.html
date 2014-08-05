@@ -190,14 +190,14 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
         this.testResults = this.scenarioResults;
 
         // Register special plugins
-        // Top priority heads
-        this._registerPluginObject({name: &#x27;*priority-dynamic*&#x27;});
         // Admin
         var adminPlugin = require(&#x27;./plugins/admin.js&#x27;);
         var adminPluginConfig = extendObject(this.extraVars,
                                              {robohydra: this});
         adminPlugin.heads = adminPlugin.getBodyParts(adminPluginConfig);
         this._registerPluginObject(adminPlugin);
+        // High priority, dynamic heads
+        this._registerPluginObject({name: &#x27;*priority-dynamic*&#x27;});
         // Dynamic heads
         this._registerPluginObject({name: &#x27;*dynamic*&#x27;});
         // Current scenario heads
@@ -280,7 +280,10 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
      * Adds a new (dynamic) head into a hydra. The new head is added
      * at the beginning of the appropriate pseudo-plugin (&quot;*dynamic*&quot;
      * by default, &quot;*priority-dynamic*&quot; if the priority is set to
-     * &quot;high&quot;).
+     * &quot;high&quot;). The order of the plugins is: special admin plugin
+     * (which is normally not visible in the admin interface!),
+     * &quot;*priority-dynamic*&quot;, &quot;*dynamic*&quot;, &quot;*current-scenario*&quot;, and
+     * regular plugins.
      *
      * @method registerDynamicHead
      * @param {RoboHydraHead} head The head to add

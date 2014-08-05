@@ -189,7 +189,7 @@
         {
             "file": "../robohydra/lib/robohydra.js",
             "line": 182,
-            "description": "Adds a new (dynamic) head into a hydra. The new head is added\nat the beginning of the appropriate pseudo-plugin (\"*dynamic*\"\nby default, \"*priority-dynamic*\" if the priority is set to\n\"high\").",
+            "description": "Adds a new (dynamic) head into a hydra. The new head is added\nat the beginning of the appropriate pseudo-plugin (\"*dynamic*\"\nby default, \"*priority-dynamic*\" if the priority is set to\n\"high\"). The order of the plugins is: special admin plugin\n(which is normally not visible in the admin interface!),\n\"*priority-dynamic*\", \"*dynamic*\", \"*current-scenario*\", and\nregular plugins.",
             "itemtype": "method",
             "name": "registerDynamicHead",
             "params": [
@@ -215,7 +215,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 218,
+            "line": 221,
             "description": "Returns the names of the current plugins, including pseudo-plugins.",
             "itemtype": "method",
             "name": "getPluginNames",
@@ -227,7 +227,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 227,
+            "line": 230,
             "description": "Returns a list of all current plugins, including pseudo-plugins.",
             "itemtype": "method",
             "name": "getPlugins",
@@ -239,7 +239,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 236,
+            "line": 239,
             "description": "Returns a plugin given its name.",
             "itemtype": "method",
             "name": "getPlugin",
@@ -258,7 +258,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 252,
+            "line": 255,
             "description": "Returns the first head that matches a given URL.",
             "itemtype": "method",
             "name": "headForPath",
@@ -282,7 +282,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 317,
+            "line": 320,
             "description": "Detach the given head.",
             "itemtype": "method",
             "name": "detachHead",
@@ -302,7 +302,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 328,
+            "line": 331,
             "description": "Attach the given head.",
             "itemtype": "method",
             "name": "attachHead",
@@ -322,7 +322,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 401,
+            "line": 404,
             "description": "Start the given scenario.",
             "itemtype": "method",
             "name": "startScenario",
@@ -342,7 +342,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 446,
+            "line": 449,
             "description": "Stop the given scenario.",
             "itemtype": "method",
             "name": "stopScenario",
@@ -362,7 +362,7 @@
         },
         {
             "file": "../robohydra/lib/robohydra.js",
-            "line": 494,
+            "line": 497,
             "description": "Returns an object with the modules for a given plugin.",
             "itemtype": "method",
             "name": "getModulesObject",
@@ -673,7 +673,7 @@
         {
             "file": "../robohydra/lib/utils.js",
             "line": 477,
-            "description": "Adds a callback to the given event. An event can have more than\none callback. All callbacks for an event will be called in\norder when the event is triggered.\n\nThe callback function will receive a single parameter, `event`,\nan object with the property `type` set to the event type, plus\ndifferent properties according to the event fired.\n\nThe list of response object events is:\n\n* `head`: Fired when the header is written. Event objects for\nthis event contain two properties, `statusCode` and\n`headers`.\n* `data`: Fired when there is data written in the response\nobject. Event objects for this event contain a single property,\n`data`, an instance of `Buffer`.\n* `end`: Fired when the response is finished. Event objects for\nthis event contain a single property, `response`, the response\nobject that fired the event.\n\nFor responses you have created yourself to pass to the `next`\nfunction, the `end` event would typically be used to inspect or\nmodify the response contents, then write data to the response\nobject you received, possibly with the help of the methods\nbelow.",
+            "description": "Adds a callback to the given event. An event can have more than\none callback. All callbacks for an event will be called in\norder when the event is triggered.\n\nThe callback function will receive a single parameter, `event`,\nan object with the property `type` set to the event type, plus\ndifferent properties according to the event fired. It returns\nthe response object.\n\nThe list of response object events is:\n\n* `head`: Fired when the header is written. Event objects for\nthis event contain two properties, `statusCode` and\n`headers`.\n* `data`: Fired when there is data written in the response\nobject. Event objects for this event contain a single property,\n`data`, an instance of `Buffer`.\n* `end`: Fired when the response is finished. Event objects for\nthis event contain a single property, `response`, the response\nobject that fired the event.\n\nFor responses you have created yourself to pass to the `next`\nfunction, the `end` event would typically be used to inspect or\nmodify the response contents, then write data to the response\nobject you received, possibly with the help of the methods\nbelow.",
             "itemtype": "method",
             "name": "on",
             "params": [
@@ -692,7 +692,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 517,
+            "line": 518,
             "description": "Chains the response given as a parameter to the current\nobject. This means that as data is written to the current\nobject, that same data will be written in the parameter (ie. it\nhonours and replicates streaming). It's similar to `copyFrom`,\nbut with the following differences:\n\n* `chain` is called on the source object, not the target.\n* `chain` is to be used _before_ any data is written to the\n  source object.\n* `chain` will write data as it's received, instead of\n  everything at once.",
             "itemtype": "method",
             "name": "chain",
