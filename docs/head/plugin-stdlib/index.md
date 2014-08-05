@@ -11,6 +11,18 @@ them in your server, you must explicitly mention them in your
 configuration file or command-line options. The following is a
 description of the different available plugins and how to use them:
 
+`cors`
+------
+
+Sets all the appropriate headers so that all CORS requests are
+accepted. To use it, just load the `cors` plugin. If you want to
+accept CORS requests only for certain URL paths, you can set the
+`corsUrlPath` configuration variable (by default, `/.*`) to the
+regular expression path you want.
+
+See `examples/cors/README.md` in the distribution for a full example.
+
+
 `frontend-dev-proxy`
 --------------------
 
