@@ -8,7 +8,9 @@ var helpers         = require("./helpers"),
     fakeFs          = helpers.fakeFs,
     fakeHttpRequest = helpers.fakeHttpRequest,
     simpleReq       = helpers.simpleReq;
-var Response        = require("../lib/robohydra").Response;
+var robohydra = require("../lib/robohydra"),
+    Request   = robohydra.Request,
+    Response  = robohydra.Response;
 var heads                   = require("../lib/heads"),
     RoboHydraHead           = heads.RoboHydraHead,
     RoboHydraHeadStatic     = heads.RoboHydraHeadStatic,
@@ -157,6 +159,63 @@ describe("Generic RoboHydra heads", function() {
         invalidPaths.forEach(function(path) {
             expect(head).not.toHandle(path);
         });
+    });
+
+    it("dispatch heads only if they match the method", function() {
+        var handler = function(req, res) { res.end(); };
+        var headImplicit = new RoboHydraHead({path: '/.*',
+                                              handler: handler});
+        var headExplicitStar = new RoboHydraHead({path: '/.*',
+                                                  method: '*',
+                                                  handler: handler});
+        var headSpecificMethod = new RoboHydraHead({path: '/.*',
+                                                    method: 'GET',
+                                                    handler: handler});
+
+        expect(headImplicit).toHandle(new Request({
+            url: '/',
+            method: 'GET'
+        }));
+        expect(headImplicit).toHandle(new Request({
+            url: '/',
+            method: 'POST'
+        }));
+        expect(headExplicitStar).toHandle(new Request({
+            url: '/',
+            method: 'GET'
+        }));
+        expect(headExplicitStar).toHandle(new Request({
+            url: '/',
+            method: 'POST'
+        }));
+        expect(headSpecificMethod).toHandle(new Request({
+            url: '/',
+            method: 'GET'
+        }));
+        expect(headSpecificMethod).not.toHandle(new Request({
+            url: '/',
+            method: 'POST'
+        }));
+    });
+
+    it("dispatch heads only if they match one of the methods", function() {
+        var handler = function(req, res) { res.end(); };
+        var head = new RoboHydraHead({path: '/.*',
+                                      method: ['GeT', 'Options'],
+                                      handler: handler});
+
+        expect(head).toHandle(new Request({
+            url: '/',
+            method: 'geT'
+        }));
+        expect(head).toHandle(new Request({
+            url: '/',
+            method: 'optIONS'
+        }));
+        expect(head).not.toHandle(new Request({
+            url: '/',
+            method: 'POST'
+        }));
     });
 
     it("set the appropriate request params with the request variables", function(done) {

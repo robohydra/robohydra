@@ -39,8 +39,10 @@ var robohydra = require("../lib/robohydra"),
     });
 
     buster.referee.add("handles", {
-        assert: function(actual, urlPath) {
-            return actual.canHandle(urlPath);
+        assert: function(actual, requestOrUrlPath) {
+            var request = typeof requestOrUrlPath === 'string' ?
+                    new Request({url: requestOrUrlPath}) : requestOrUrlPath;
+            return actual.canHandle(request);
         },
         assertMessage: "Expected ${0} to be able to handle path '${1}'!",
         refuteMessage: "Expected ${0} to not be able to handle path '${1}'!",
