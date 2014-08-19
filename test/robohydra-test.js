@@ -16,6 +16,7 @@ var helpers              = require("./helpers"),
     headWithPass         = helpers.headWithPass,
     pluginInfoObject     = helpers.pluginInfoObject,
     pluginObjectFromPath = helpers.pluginObjectFromPath;
+var extendObject = require("../lib/utils").extendObject;
 
 buster.spec.expose();
 var expect = buster.expect;
@@ -55,11 +56,12 @@ buster.referee.add("hasPluginWithHeadcount", {
     expectation: "toHavePluginWithHeadcount"
 });
 
-function simpleRoboHydraHead(path, content, name) {
+function simpleRoboHydraHead(path, content, moreProps) {
     "use strict";
-    var props = {path:    path    || '/.*',
-                 content: content || 'foo'};
-    if (name) { props.name = name; }
+    moreProps = moreProps || {};
+    var props = extendObject({path:    path    || '/.*',
+                              content: content || 'foo'},
+                             moreProps);
     return new RoboHydraHeadStatic(props);
 }
 
@@ -257,7 +259,7 @@ describe("RoboHydras", function() {
                      }));
     });
 
-    it("traverse heads in order when dispatching", function() {
+    it("traverse heads in order when dispatching", function(done) {
         var hydra = new RoboHydra();
         var content = 'It works!';
         var heads = [simpleRoboHydraHead('/', content),
@@ -268,6 +270,7 @@ describe("RoboHydras", function() {
                      new Response(function() {
                          expect(this.statusCode).toEqual(200);
                          expect(this.body).toHaveEqualBody(content);
+                         done();
                      }));
     });
 
@@ -278,7 +281,7 @@ describe("RoboHydras", function() {
             name: 'plugin1',
             heads: heads
         }));
-        ['/', '/qux', '/foobar', '/foo/bar'].forEach(function(path) {
+        ['/', '/qux', '/foobar', '/foo/bar', '/bar/foo'].forEach(function(path) {
             hydra.handle(simpleReq(path),
                          new Response(function() {
                              expect(this.statusCode).toEqual(404);
@@ -299,8 +302,8 @@ describe("RoboHydras", function() {
 
     it("don't allow registering a plugin with duplicate head names", function() {
         var hydra = new RoboHydra();
-        var heads = [simpleRoboHydraHead('/foo', 'dummy name', 'name'),
-                     simpleRoboHydraHead('/bar', 'dummy name', 'name')];
+        var heads = [simpleRoboHydraHead('/foo', 'dummy', {name: 'name'}),
+                     simpleRoboHydraHead('/bar', 'dummy', {name: 'name'})];
         expect(function() {
             hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
                                                          heads: heads}));
@@ -310,10 +313,18 @@ describe("RoboHydras", function() {
 
     it("allow registering different plugins with common head names", function() {
         var hydra = new RoboHydra();
-        var headsPlugin1 = [simpleRoboHydraHead('/foo', 'content', 'head1'),
-                            simpleRoboHydraHead('/bar', 'content', 'head2')];
-        var headsPlugin2 = [simpleRoboHydraHead('/foo', 'content', 'head1'),
-                            simpleRoboHydraHead('/bar', 'content', 'head2')];
+        var headsPlugin1 = [simpleRoboHydraHead('/foo',
+                                                'content',
+                                                {name: 'head1'}),
+                            simpleRoboHydraHead('/bar',
+                                                'content',
+                                                {name: 'head2'})];
+        var headsPlugin2 = [simpleRoboHydraHead('/foo',
+                                                'content',
+                                                {name: 'head1'}),
+                            simpleRoboHydraHead('/bar',
+                                                'content',
+                                                {name: 'head2'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
                                                      heads: headsPlugin1}));
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin2',
@@ -325,8 +336,8 @@ describe("RoboHydras", function() {
 
     it("find existing heads", function() {
         var hydra = new RoboHydra();
-        var heads = [simpleRoboHydraHead('/foo', 'foo path',  'head1'),
-                     simpleRoboHydraHead('/.*',  'catch-all', 'head2')];
+        var heads = [simpleRoboHydraHead('/foo', 'foo path',  {name: 'head1'}),
+                     simpleRoboHydraHead('/.*',  'catch-all', {name: 'head2'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
 
@@ -336,8 +347,8 @@ describe("RoboHydras", function() {
 
     it("throw an error when finding non-existing heads", function() {
         var hydra = new RoboHydra();
-        var heads = [simpleRoboHydraHead('/foo', 'foo path',  'head1'),
-                     simpleRoboHydraHead('/.*',  'catch-all', 'head2')];
+        var heads = [simpleRoboHydraHead('/foo', 'foo path',  {name: 'head1'}),
+                     simpleRoboHydraHead('/.*',  'catch-all', {name: 'head2'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
 
@@ -357,7 +368,7 @@ describe("RoboHydras", function() {
 
     it("allow attaching and detaching heads", function() {
         var hydra = new RoboHydra();
-        var heads = [simpleRoboHydraHead('/foo', 'foo path', 'head1')];
+        var heads = [simpleRoboHydraHead('/foo', 'foo path', {name: 'head1'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
 
@@ -369,7 +380,7 @@ describe("RoboHydras", function() {
 
     it("throw an error when attaching/detaching non-existing heads", function() {
         var hydra = new RoboHydra();
-        var heads = [simpleRoboHydraHead('/foo', 'foo path', 'head1')];
+        var heads = [simpleRoboHydraHead('/foo', 'foo path', {name: 'head1'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
 
@@ -386,7 +397,7 @@ describe("RoboHydras", function() {
 
     it("throw an error when attaching/detaching already attached/detached heads", function() {
         var hydra = new RoboHydra();
-        var heads = [simpleRoboHydraHead('/foo', 'foo path', 'head1')];
+        var heads = [simpleRoboHydraHead('/foo', 'foo path', {name: 'head1'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
 
@@ -402,8 +413,8 @@ describe("RoboHydras", function() {
     it("skips detached heads when dispatching", function(done) {
         var hydra = new RoboHydra();
         var path = '/foo';
-        var heads = [simpleRoboHydraHead(path,   'foo path', 'head1'),
-                     simpleRoboHydraHead('/.*',  'catch-all', 'head2')];
+        var heads = [simpleRoboHydraHead(path,  'foo path', {name: 'head1'}),
+                     simpleRoboHydraHead('/.*', 'catch-all', {name: 'head2'})];
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
         hydra.handle(simpleReq(path), new Response(function() {
@@ -535,7 +546,7 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var path = '/foo', content = 'some content', name = 'head1';
 
-        hydra.registerDynamicHead(simpleRoboHydraHead(path, content, name));
+        hydra.registerDynamicHead(simpleRoboHydraHead(path, content, {name: name}));
         var dynamicHead = hydra.findHead('*dynamic*', name);
         expect(dynamicHead).toBeDefined();
     });
@@ -544,7 +555,9 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var path = '/foo', content = 'some content', name = 'head1';
 
-        hydra.registerDynamicHead(simpleRoboHydraHead(path, content, name));
+        hydra.registerDynamicHead(simpleRoboHydraHead(path,
+                                                      content,
+                                                      {name: name}));
 
         hydra.handle(simpleReq(path), new Response(function() {
             expect(this.body).toHaveEqualBody(content);
@@ -562,8 +575,12 @@ describe("RoboHydras", function() {
         var path1 = '/foo', content1 = 'some content',  name1 = 'head1';
         var path2 = '/bar', name2 = 'head2';
 
-        hydra.registerDynamicHead(simpleRoboHydraHead(path1, content1,   name1));
-        hydra.registerDynamicHead(simpleRoboHydraHead(path2, 'whatever', name2));
+        hydra.registerDynamicHead(simpleRoboHydraHead(path1,
+                                                      content1,
+                                                      {name: name1}));
+        hydra.registerDynamicHead(simpleRoboHydraHead(path2,
+                                                      'whatever',
+                                                      {name: name2}));
         hydra.detachHead('*dynamic*', name2);
 
         hydra.handle(simpleReq(path1), new Response(function() {
