@@ -98,12 +98,13 @@ more details.
 -------------
 
 Proxies to a given URL and caches all responses to GET requests. You
-configure it with variables `proxyurl`, the URL to proxy requests to,
-and `cachedir`, the directory of the cache. The latter defaults to
-`proxy-cache`.
+configure it with variables `proxyurl`, the URL to proxy requests to;
+`cachedir`, the directory of the cache; and `cachettl`, the number of
+seconds (can be a float!) that each URL will be cached for. The latter
+defaults to `proxy-cache`.
 
-Plugins `logger` and `no-caching` are sometimes useful combined with
-`proxy-cache`.
+You _most probably_ want to use the `no-caching` plugin with
+`proxy-cache`. The `logger` is sometimes useful, too.
 
 
 `replayer`
