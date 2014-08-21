@@ -23,6 +23,17 @@ regular expression path you want.
 See `examples/cors/README.md` in the distribution for a full example.
 
 
+`delayer`
+---------
+
+Insert an artificial delay to the requests matching the specified path
+(by default, all paths). Useful to simulate high-latency connections
+and to help reproduce certain race conditions.
+
+Can be configured with variables `delayPath` and `delayMillis` (number
+of milliseconds to wait, by default 2000).
+
+
 `frontend-dev-proxy`
 --------------------
 
