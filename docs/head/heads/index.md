@@ -36,6 +36,10 @@ following parameters:
   regular expression. Also, URL endings are normalised in such a way
   that a head with path `/foo` or `/foo/` will match requests for both
   `/foo` and `/foo/`.
+* `method` (optional): a *string* specifying the HTTP methods the head
+  will match. It defaults to `*`, meaning it matches every method, but
+  can be set to a specific method like `GET` or `OPTIONS`, or to an
+  array of accepted methods (eg. `["GET", "OPTIONS"]`).
 * `handler`: a *function* that receives three parameters: `req`, `res`
   and `next`. This function will be called for every request the head
   has to handle (it's not enough that the URL path in the request
@@ -56,6 +60,9 @@ path `/articles/:id` would match `/articles/123`,
 `/articles/view/123`). See the documentation for the [request
 object](../api/classes/Request.html) to see how to access these
 parameters.
+
+**NOTE:** parameters `name`, `method` and `detached` are implicitly
+part of all heads, regardless of type.
 
 
 ### The next function
