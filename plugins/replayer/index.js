@@ -18,7 +18,7 @@ exports.getBodyParts = function(conf) {
 
     return {heads: [
         new RoboHydraHead({
-            name:    'startRecording',
+            name:    'start-recording',
             path:    '/start-recording',
             handler: function(req, res) {
                 var rh = conf.robohydra;
@@ -44,7 +44,7 @@ exports.getBodyParts = function(conf) {
         }),
 
         new RoboHydraHead({
-            name:    'startReplaying',
+            name:    'start-replaying',
             path:    '/start-replaying',
             handler: function(req, res) {
                 var rh = conf.robohydra;

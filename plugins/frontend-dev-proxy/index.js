@@ -54,7 +54,7 @@ exports.getBodyParts = function(conf) {
 
     // We always need the proxy at the end
     heads.push(new RoboHydraHeadProxy({
-        name: 'realServerProxy',
+        name: 'real-server-proxy',
         mountPath: '/',
         proxyTo: conf.proxyurl,
         setHostHeader: (conf.sethostheader !== 'no')
