@@ -904,7 +904,7 @@ describe("RoboHydra test system (deprecated)", function() {
                                      expect(res2.statusCode).toEqual(200);
                                      done();
                                  });
-                      hydra.handle({url: path2}, res2);
+                      hydra.handle(new Request({url: path2}), res2);
                   });
         hydra.handle(simpleReq(path), res);
     });
@@ -1458,7 +1458,7 @@ describe("RoboHydra scenario system", function() {
                                      expect(res2.statusCode).toEqual(200);
                                      done();
                                  });
-                      hydra.handle({url: path2}, res2);
+                      hydra.handle(new Request({url: path2}), res2);
                   });
         hydra.handle(simpleReq(path), res);
     });

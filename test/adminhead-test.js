@@ -51,7 +51,7 @@ describe("Admin RoboHydra UI", function() {
                 expect(res2.statusCode).toEqual(404);
                 done();
             });
-            robohydra.handle({url: '/blah'}, res2);
+            robohydra.handle(new Request({url: '/blah'}), res2);
         });
         robohydra.handle(req, res);
     });
