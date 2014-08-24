@@ -66,3 +66,7 @@ Description
 
 * custom-types.conf loads a plugin that demonstrates how to write a
   custom head class. See the code in `examples/plugins/custom-types`.
+
+* advanced-matching.conf loads a plugin that demonstrates advanced
+  head matching, using the HTTP method or the hostname of the incoming
+  request.

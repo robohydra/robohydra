@@ -9,7 +9,9 @@
 
 .table tbody tr.is-highlighted th,
 .table tbody tr.is-highlighted td {
-    background-color: #cc0f16 !important;
+    /* Need the important for the odd-numbered rows */
+    background-color: #0f90ab !important;
+    font-weight: normal;
 }
 
 .footer {

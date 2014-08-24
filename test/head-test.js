@@ -218,6 +218,54 @@ describe("Generic RoboHydra heads", function() {
         }));
     });
 
+    it("dispatch heads only if they match the hostname", function() {
+        var handler = function(req, res) { res.end(); };
+        var head = new RoboHydraHead({path: '/.*',
+                                      hostname: 'example.com',
+                                      handler: handler});
+
+        expect(head).toHandle(new Request({url: '/',
+                                           headers: {host: 'example.com'}}));
+        expect(head).not.toHandle(new Request({url: '/',
+                                               headers: {host: 'localhost'}}));
+    });
+
+    it("dispatch treats hostname as regex", function() {
+        var handler = function(req, res) { res.end(); };
+        var head = new RoboHydraHead({path: '/.*',
+                                      hostname: 'local.*',
+                                      handler: handler});
+
+        expect(head).not.toHandle(new Request({
+            url: '/',
+            headers: {host: 'example.com'}
+        }));
+        expect(head).not.toHandle(new Request({
+            url: '/',
+            headers: {host: 'www.local'}
+        }));
+        expect(head).toHandle(new Request({
+            url: '/',
+            headers: {host: 'localhost'}
+        }));
+        expect(head).toHandle(new Request({
+            url: '/',
+            headers: {host: 'localserver'}
+        }));
+    });
+
+    it("dispatch ignores port when matching hostname", function() {
+        var handler = function(req, res) { res.end(); };
+        var head = new RoboHydraHead({path: '/.*',
+                                      hostname: 'example.com',
+                                      handler: handler});
+
+        expect(head).toHandle(new Request({
+            url: '/',
+            headers: {host: 'example.com:3000'}
+        }));
+    });
+
     it("set the appropriate request params with the request variables", function(done) {
         var controller, action, id;
         var head = new RoboHydraHead({path: '/:controller/:action/:id',
