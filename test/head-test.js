@@ -531,6 +531,17 @@ describe("Static content RoboHydra heads", function() {
         ], done);
     });
 
+    it("reject invalid repeatMode values", function() {
+        expect(function() {
+            /*jshint nonew: false*/
+            new RoboHydraHeadStatic({
+                responses: [{content: "response 1"},
+                            {content: "response 2"}],
+                repeatMode: 'repeatlast'
+            });
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
     it("can be configured to repeat the last response", function(done) {
         var response1 = "response 1",
             response2 = "response 2";
