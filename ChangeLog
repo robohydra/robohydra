@@ -1,3 +1,50 @@
+Version 0.5 (2014-08-xx)
+------------------------
+
+	* Potential compatibility problem: dynamic heads registered as
+	"high priority" now come *after* the admin plugin. That mostly
+	means that (a) you can't replace the Admin UI with your own plugin
+	(you'll have to use a different URL) and that (b) you won't get
+	all the admin plugin requests in robohydra.log.
+
+	* Deprecated mixed-case configuration variables names for plugins
+	(ie. variables like trafficFilePath become now trafficfilepath).
+
+	* Deprecated inconsistent roboHydraHeadType names: some parameters
+	to roboHydraHeadType were inconsistent and have been replaced with
+	more consistent names. In particular, "defaultProps" becomes
+	"defaultPropertyObject" and "parentPropBuilder" becomes
+	"parentPropertyBuilder".
+
+	* New head matching possibilities: now all heads accept properties
+	"method" and "hostname" and will only match requests that have the
+	same method(s) and/or that have the same hostname. See the
+	documentation and the "advanced-matching" example for details.
+
+	* New delayer plugin: there's a new plugin that will delay all
+	requests to a given URL (by default, all of them) by a given
+	number of milliseconds (by default, 2000).
+
+	* New CORS plugin: there's a new plugin that accepts all CORS
+	requests.
+
+	* New proxy-cache plugin: there's a new proxy plugin that caches
+	responses to GET requests.
+
+	* Compatibility bugfix: Windows absolute paths work now as plugin
+	load paths.
+
+	* Configuration files: now they can specify plugin load paths and
+	the port the RoboHydra server will listen on.
+
+	* Multiple RoboHydraHeadStatic response improvement: there's a new
+	property "repeatMode" that can be set to "round-robin" (default)
+	and "repeat-last", which just repeats the last response forever
+	upon reaching it.
+
+	* Bugfixes, improvements and code clean-ups.
+
+
 Version 0.4 (2013-11-10)
 ------------------------
 
