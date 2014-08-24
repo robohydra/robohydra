@@ -36,10 +36,17 @@ following parameters:
   regular expression. Also, URL endings are normalised in such a way
   that a head with path `/foo` or `/foo/` will match requests for both
   `/foo` and `/foo/`.
-* `method` (optional): a *string* specifying the HTTP methods the head
-  will match. It defaults to `*`, meaning it matches every method, but
-  can be set to a specific method like `GET` or `OPTIONS`, or to an
-  array of accepted methods (eg. `["GET", "OPTIONS"]`).
+* `method` (optional): a *string* or *array* specifying the HTTP
+  methods the head will match. It defaults to `*`, meaning it matches
+  every method, but can be set to a specific method like `GET` or
+  `OPTIONS`, or to an array of accepted methods (eg. `["GET",
+  "OPTIONS"]`).
+* `hostname` (optional): a *string* with a regular expression matching
+  the hostnames this head should handle (by default, `.*`). It matches
+  the `Host` header of the incoming request, although it will not
+  contain the port, just the hostname itself (eg. if a request that
+  has a `Host` header set to `localhost:3000`, the head will check if
+  its `hostname` regular expression matches `localhost`).
 * `handler`: a *function* that receives three parameters: `req`, `res`
   and `next`. This function will be called for every request the head
   has to handle (it's not enough that the URL path in the request
