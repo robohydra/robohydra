@@ -30,7 +30,7 @@ Insert an artificial delay to the requests matching the specified path
 (by default, all paths). Useful to simulate high-latency connections
 and to help reproduce certain race conditions.
 
-Can be configured with variables `delayPath` and `delayMillis` (number
+Can be configured with variables `delaypath` and `delaymillis` (number
 of milliseconds to wait, by default 2000).
 
 

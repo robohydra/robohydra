@@ -17,7 +17,7 @@ description of the different available plugins and how to use them:
 Sets all the appropriate headers so that all CORS requests are
 accepted. To use it, just load the `cors` plugin. If you want to
 accept CORS requests only for certain URL paths, you can set the
-`corsUrlPath` configuration variable (by default, `/.*`) to the
+`corsurlpath` configuration variable (by default, `/.*`) to the
 regular expression path you want.
 
 See `examples/cors/README.md` in the distribution for a full example.
@@ -30,7 +30,7 @@ Insert an artificial delay to the requests matching the specified path
 (by default, all paths). Useful to simulate high-latency connections
 and to help reproduce certain race conditions.
 
-Can be configured with variables `delayPath` and `delayMillis` (number
+Can be configured with variables `delaypath` and `delaymillis` (number
 of milliseconds to wait, by default 2000).
 
 

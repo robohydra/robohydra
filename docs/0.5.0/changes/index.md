@@ -2,82 +2,68 @@
 layout: default
 ---
 
-New in 0.4
-==========
+New in 0.5.0
+============
 
-This is a summary of the changes between RoboHydra 0.3 and RoboHydra
-0.4. For full details, check the
+This is a summary of the changes between RoboHydra 0.4.0 and RoboHydra
+0.5. For full details, check the
 [ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog).
 
+### Tweak high-priority head order
 
-### "Tests" renamed to "scenarios"
+Dynamic heads registered as "high priority" now come *after* the admin
+plugin. That mostly means that (a) you can't replace the Admin UI with
+your own plugin (you'll have to use a different URL) and that (b) you
+won't get all the admin plugin requests in `robohydra.log`.
 
-"Tests" (as in the collection of heads that get attached/detached at
-the same time) are now called "scenarios". It's a more appropriate
-name and much less ambiguous.
+### Deprecated inconsistent names
 
-The use of `tests` in plugins is deprecated, and support for it will
-be dropped the next version.
+Mixed-case configuration variables names for plugins are
+deprecated (ie. variables like `trafficFilePath` become now
+`trafficfilepath`).
 
-### REST API
+Some `roboHydraHeadType` parameter names have been replaced with
+more consistent names. In particular, `defaultProps` becomes
+`defaultPropertyObject` and `parentPropBuilder` becomes
+`parentPropertyBuilder`.
 
-Now there's an actual [REST API](../rest) to easily interact with the
-RoboHydra server: it allows you to check and manipulate the state of
-the heads and scenarios of a given hydra.
+### New head matching possibilities
 
-### External scenarios
+Now all heads accept properties `method` and `hostname` and will only
+match requests that have the same method(s) and/or that have the same
+hostname. See the documentation and the [`advanced-matching`
+example](https://github.com/robohydra/robohydra/blob/master/examples/plugins/advanced-matching/index.js)
+for details.
 
-Scenarios can now be written in their own file in a special directory
-inside the plugin, as opposed to being written inside the plugin's
-`index.js`. This makes it much easier to maintain plugins with many
-scenarios. See the [plugin documentation](../plugins) for details.
+### New head types: delayer, CORS, and proxy-cache
 
-### Property `setHostHeader` now `true` by default
+There are three new standard heads in RoboHydra 0.5.0:
 
-This is a **breaking change**, but I don't expect a lot of people to
-be bitten by this. On the other hand, I'm constantly bitten by the
-old counter-intuitive default value, and it's hard to debug and figure
-out what the problem is if you don't already know that RoboHydra
-doesn't set it by default.
+* `delayer`: delays all requests to a given URL (by default, all of
+  them) by a given number of milliseconds (by default, 2000).
 
-### New "fixtures" module
+* `cors`: accepts all CORS requests for a given URL (by default, all
+  of them).
 
-Plugins now receive a second module, `fixtures`, in the second
-parameter to `getBodyParts`. This new module has a single function,
-`load`, that allows you to load fixtures easily without having to
-worry about paths. See the [plugin documentation](../plugins) for
-details.
+* `proxy-cache`: caches responses to GET requests for a given amount
+  of time time.
 
-### RoboHydra Summoners
+See the [plugin standard library](../plugin-stdlib) documentation for
+more details.
 
-Version 0.4 introduces a new feature, summoners, that allows you to
-use a single RoboHydra server for multiple users. Read the [rationale,
-documentation and examples](../summoners) for more details.
+### Improvements in `RoboHydraHeadStatic`
 
-### Configuration files now optional
+There's a new property `repeatMode` in `RoboHydraHeadStatic` that
+controls how it uses multiple responses. It can be set to
+`round-robin` (default) and `repeat-last`, which just repeats the last
+response forever upon reaching it.
 
-RoboHydra has a new command-line option, `-n`, to avoid reading a
-configuration file. It also has an option `-P` to specify a
-comma-separated list of plugins to load on startup. These two options
-combined allow you to start RoboHydra without any configuration file.
+### Improvements in configuration files
 
-### Standard way to create new classes of heads
+Now configuration files can specify plugin load paths and the port the
+RoboHydra server will listen on.
 
-RoboHydra 0.4 also introduces a standard way to [create your own head
-classes](../custom-heads), the `roboHydraHeadType` function.
+### Misc
 
-### Changes in `registerDynamicHead`
-
-Now the function `registerDynamicHead` adds heads at the _beginning_
-of the `*dynamic*` plugin, not the end. That way, heads added later
-have precedence. Note that this implicitly changes the behaviour of
-the admin web UI, too.
-
-Another change is the addition of the concept of high-priority,
-dynamic heads: see the [documentation](../api) for details and the
-standard `logger` plugin for an example of how to use it.
-
-### Simplified admin UI
-
-The new admin UI is a bit simpler and has been adapted to the changes
-in this version.
+Other bugfixes and improvements, including a Windows absolute path
+bugfix.
