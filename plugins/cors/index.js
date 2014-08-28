@@ -4,7 +4,7 @@ var robohydra     = require("robohydra"),
     RoboHydraHead = heads.RoboHydraHead;
 
 exports.getBodyParts = function(conf) {
-    var corsUrlPath = conf.corsUrlPath || '/.*';
+    var corsUrlPath = conf.corsurlpath || conf.corsUrlPath || '/.*';
 
     conf.robohydra.registerDynamicHead(new RoboHydraHead({
         name: 'cors-manager',
