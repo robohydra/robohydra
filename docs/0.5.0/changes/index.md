@@ -6,7 +6,7 @@ New in 0.5.0
 ============
 
 This is a summary of the changes between RoboHydra 0.4.0 and RoboHydra
-0.5. For full details, check the
+0.5.0. For full details, check the
 [ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog).
 
 ### Tweak high-priority head order
