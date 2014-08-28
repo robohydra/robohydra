@@ -264,9 +264,9 @@
             "name": "headForPath",
             "params": [
                 {
-                    "name": "url",
-                    "description": "URL path the head must match",
-                    "type": "String"
+                    "name": "req",
+                    "description": "Request object the head must match",
+                    "type": "Request"
                 },
                 {
                     "name": "afterHead",

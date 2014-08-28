@@ -353,17 +353,17 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
      * Returns the first head that matches a given URL.
      *
      * @method headForPath
-     * @param {String} url URL path the head must match
+     * @param {Request} req Request object the head must match
      * @param {RoboHydraHead} afterHead If given, only heads after the
      * given one will be considered for matching.
      * @return {RoboHydraHead} First head matching the given URL.
      */
-    RoboHydra.prototype.headForPath = function(url, afterHead) {
+    RoboHydra.prototype.headForPath = function(req, afterHead) {
         var canMatchYet = !afterHead;
         for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
             var plugin = this._plugins[i].plugin;
             for (var j = 0, len2 = plugin.heads.length; j &lt; len2; j++) {
-                if (canMatchYet &amp;&amp; plugin.heads[j].canHandle(url)) {
+                if (canMatchYet &amp;&amp; plugin.heads[j].canHandle(req)) {
                     return {plugin: plugin, head: plugin.heads[j]};
                 }
 
@@ -377,7 +377,7 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
         return undefined;
     };
     RoboHydra.prototype.handle = function(req, res, afterHead) {
-        var r = this.headForPath(req.url, afterHead);
+        var r = this.headForPath(req, afterHead);
         if (r !== undefined) {
             res.statusCode = 200;
             var self = this;
