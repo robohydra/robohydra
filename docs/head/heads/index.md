@@ -59,6 +59,8 @@ following parameters:
   detached when starting RoboHydra. If this is true, RoboHydra will
   behave as if the head wasn't there. Heads can be detached and
   re-attached from the RoboHydra admin interface.
+* `reset` (optional): a *function* that gets executed when the head
+  has to be reset (when the scenario it belongs to is started).
 
 Apart from a normal regular expression, the path string supports the
 special syntax `:foobar` that matches any URL path fragment (eg. the
@@ -68,8 +70,8 @@ path `/articles/:id` would match `/articles/123`,
 object](../api/classes/Request.html) to see how to access these
 parameters.
 
-**NOTE:** parameters `name`, `method` and `detached` are implicitly
-part of all heads, regardless of type.
+**NOTE:** parameters `name`, `method`, `detached` and `reest` are
+implicitly part of all heads, regardless of type.
 
 
 ### The next function
