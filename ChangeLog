@@ -3,6 +3,11 @@ Version 0.x.x (XXXX-XX-XX)
 
 	* Make the 'reset' available for RoboHydraHead.
 
+	* Potential compatibility problem: now scenarios are checked so
+	that they always contain the "heads" property, and don't contain
+	any unknown properties. If you are hit by this your scenarios were
+	broken anyway, and better to be stricter now than later.
+
 Version 0.5 (2014-08-28)
 ------------------------
 

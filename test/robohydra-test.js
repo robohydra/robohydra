@@ -126,9 +126,30 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         hydra.registerPluginObject(pluginInfoObject({
             name: 'simple_plugin',
-            scenarios: {simpleScenario:{}}
+            scenarios: {simpleScenario:{heads:[]}}
         }));
         expect(hydra).toHavePluginList(['simple_plugin']);
+    });
+
+    it("reject scenarios without heads", function() {
+        var hydra = new RoboHydra();
+        expect(function() {
+            hydra.registerPluginObject(pluginInfoObject({
+                name: 'simple_plugin',
+                scenarios: {simpleScenario: {instructions: "No heads lol"}}
+            }));
+        }).toThrow("InvalidRoboHydraPluginException");
+    });
+
+    it("reject scenarios with unknown properties", function() {
+        var hydra = new RoboHydra();
+        expect(function() {
+            hydra.registerPluginObject(pluginInfoObject({
+                name: 'simple_plugin',
+                scenarios: {simpleScenario: {heads: [],
+                                             path: '/wat/no/staph/it'}}
+            }));
+        }).toThrow("InvalidRoboHydraPluginException");
     });
 
     it("can register plugins with one head and one test (deprecated)", function() {
@@ -146,7 +167,7 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject({
             name: 'simple_plugin',
             heads: [simpleRoboHydraHead()],
-            scenarios: {simpleScenario:{}}
+            scenarios: {simpleScenario: {heads: []}}
         }));
         expect(hydra).toHavePluginList(['simple_plugin']);
     });
