@@ -19,7 +19,7 @@ exports.getBodyParts = function(conf) {
                 // make the browser think that the server won't accept
                 // other headers and/or methods.
                 h["access-control-max-age"] = 0;
-                h["access-control-allow-origin"] = reqH.origin;
+                h["access-control-allow-origin"] = '*';
                 if (reqH.hasOwnProperty("access-control-request-method")) {
                     h["access-control-allow-methods"] =
                         reqH["access-control-request-method"];
@@ -32,8 +32,7 @@ exports.getBodyParts = function(conf) {
             } else {
                 var fakeRes = new Response().on('head', function(evt) {
                     if (req.headers.origin) {
-                        evt.headers["access-control-allow-origin"] =
-                            req.headers.origin;
+                        evt.headers["access-control-allow-origin"] = '*';
                     }
                 });
                 fakeRes.chain(res);
