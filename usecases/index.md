@@ -45,7 +45,7 @@ Server Error or invalid data.
 server.
 
 So, let's say you build a client of the [Opera Link
-API](http://dev.opera.com/articles/view/introducing-the-opera-link-api/)
+API](http://www.opera.com/docs/apis/linkrest/)
 and decide to build a test suite for it. The first step would be to
 identify what test cases are useful or interesting to test. In this
 case, let's assume that what you want is to simulate a user data store
