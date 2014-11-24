@@ -111,7 +111,7 @@ interface (ie. `http://localhost:3000/robohydra-admin/scenarios/`) and
 activate each one before starting it. Note that if your client was
 web-based and you were automating your tests with something like
 Selenium, you could easily change the current scenario by using the
-[REST API](/docs/).
+[REST API](/docs/head/rest/).
 
 
 Exploratory testing
