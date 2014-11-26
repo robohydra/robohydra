@@ -209,15 +209,18 @@ has the following properties:
   present.
 * `responses` (optional): an array of responses to send to the client
   (round-robin by default, but see `repeatMode`). Each response in the
-  array can contain the properties `content`, `contentType` and
-  `statusCode`. For each of these properties that is not given, the
-  head's property is used instead. While this property is optional,
-  either this or `content` must be present.
+  array can contain the properties `content`, `contentType`, `headers`
+  and `statusCode`. For each of these properties that is not given,
+  the head's property is used instead. While this property is
+  optional, either this or `content` must be present.
 * `path` (optional): the regular expression matching URL paths to be
   handled by this head. Defaults to `/.*` if not present.
 * `contentType` (optional): the value for the `Content-Type` header in
   the response. If not present and content is an object, defaults to
   `application/json`.
+* `headers` (optional): extra headers to set in the response. The
+  `contentType` property has precedence over the possible value of the
+  `Content-Type` header passed in this property.
 * `statusCode` (optional): the status code for the response. By
   default it's 200.
 * `repeatMode` (optional): the way RoboHydra will repeat the responses
