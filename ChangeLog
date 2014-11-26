@@ -9,7 +9,8 @@ Version 0.x.x (XXXX-XX-XX)
 	broken anyway, and better to be stricter now than later.
 
 	* New property 'headers' for RoboHydraHeadStatic allows the user
-	to set arbitrary headers for the head response(s).
+	to set arbitrary headers for the head response(s). Add support to
+	add headers from the Admin UI.
 
 Version 0.5 (2014-08-28)
 ------------------------
