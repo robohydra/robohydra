@@ -462,6 +462,17 @@ describe("Static content RoboHydra heads", function() {
         });
     });
 
+    it("can set arbitrary headers", function(done) {
+        var headerValue = "some value";
+        var headers = {"X-Random-Header": headerValue};
+        var head = new RoboHydraHeadStatic({content: "<xml/>",
+                                            headers: headers});
+        withResponse(head, '/', function(res) {
+            expect(res.headers['x-random-header']).toEqual(headerValue);
+            done();
+        });
+    });
+
     it("can cycle through an array of responses", function(done) {
         var response1 = "response 1";
         var response2 = "response 2";
@@ -476,7 +487,7 @@ describe("Static content RoboHydra heads", function() {
         ], done);
     });
 
-    it("can be reset and started from scratch", function(done) {
+    it("start again from the first response after resetting", function(done) {
         var response1 = "response 1",
             response2 = "response 2";
         var head = new RoboHydraHeadStatic({
@@ -496,8 +507,11 @@ describe("Static content RoboHydra heads", function() {
         });
     });
 
-    it("use content, statusCode and contentType by default", function(done) {
+    it("use content, statusCode, headers and contentType by default in responses", function(done) {
+        var headerValue = 'we need to drag the waters';
         var defaultContent     = 'It works!';
+        var defaultHeaders     = {'x-quote': headerValue,
+                                  'content-type': 'x-will-be/ignored'};
         var defaultContentType = 'application/x-foobar';
         var defaultStatusCode  = 202;
         var response1    = "response 1";
@@ -513,20 +527,25 @@ describe("Static content RoboHydra heads", function() {
                         {contentType: contentType3}],
             content: defaultContent,
             statusCode: defaultStatusCode,
+            headers: defaultHeaders,
             contentType: defaultContentType
         });
         checkRouting(head, [
             ['/', {content: response1,
                    contentType: contentType1,
+                   headers: {'x-quote': headerValue},
                    statusCode: defaultStatusCode}],
             ['/', {content: response2,
                    contentType: defaultContentType,
+                   headers: {'x-quote': headerValue},
                    statusCode: statusCode2}],
             ['/', {content: defaultContent,
                    contentType: contentType3,
+                   headers: {'x-quote': headerValue},
                    statusCode: defaultStatusCode}],
             ['/', {content: response1,
                    contentType: contentType1,
+                   headers: {'x-quote': headerValue},
                    statusCode: defaultStatusCode}]
         ], done);
     });

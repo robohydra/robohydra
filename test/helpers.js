@@ -31,6 +31,13 @@ var robohydra = require("../lib/robohydra"),
                 this.actualProps.contentType = actual.headers['content-type'];
                 r = r && (this.actualProps.contentType === expectedResponse.contentType);
             }
+            if (expectedResponse.hasOwnProperty('headers')) {
+                this.actualProps.headers = actual.headers;
+                var headersToCheck = Object.keys(expectedResponse.headers);
+                r = r && headersToCheck.every(function(header) {
+                    return actual.headers[header] === expectedResponse.headers[header];
+                });
+            }
             return r;
         },
         assertMessage: "Expected ${0} to produce response '${1}' (was '${actualProps}')!",
