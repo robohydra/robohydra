@@ -29,7 +29,7 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         process.exit(1);
     }
 
-    commander.version('0.3.0+').
+    commander.version('0.5.0000000000000000000001').
         usage("mysetup.conf [confvar=value confvar2=value2 ...]").
         option('-I <path>', 'Adds a new path in the plugin search path list').
         option('-P, --plugins <plugin-list>', 'Load plugins at startup').
