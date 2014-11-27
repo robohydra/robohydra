@@ -1,19 +1,13 @@
 #!/usr/bin/env node
-/*global require, process, console, JSON, Buffer*/
+/*global require, process, console, JSON*/
 
 /*
  * Module dependencies.
  */
 
-var http      = require('http'),
-    https     = require('https'),
-    fs        = require('fs'),
+var fs        = require('fs'),
     commander = require('commander');
-var robohydra    = require('../lib/robohydra'),
-    Request      = robohydra.Request,
-    Response     = robohydra.Response,
-    stringForLog = robohydra.stringForLog;
-var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
+var robohydraServer = require('../lib/robohydraserver').robohydraServer;
 
 
 (function () {
@@ -39,17 +33,17 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
 
 
     // Process the options
-    var extraPluginLoadPath = [], plugins = [];
+    var extraPluginLoadPath = [], extraPlugins = [];
     if (commander.I) {
         extraPluginLoadPath.push(commander.I);
     }
     if (commander.plugins) {
-        plugins = plugins.concat(commander.plugins.split(/,/));
+        extraPlugins = extraPlugins.concat(commander.plugins.split(/,/));
     }
     var args = commander.args;
 
     // Check parameters and load RoboHydra configuration (unless -n)
-    var robohydraConfig = {};
+    var robohydraConfig;
     if (commander.config) {
         if (commander.args.length < 1) {
             showHelpAndDie();
@@ -60,12 +54,15 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         if (! robohydraConfig.plugins) {
             showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
         } else {
-            plugins = plugins.concat(robohydraConfig.plugins);
+            robohydraConfig.plugins =
+                extraPlugins.concat(robohydraConfig.plugins);
         }
+    } else {
+        robohydraConfig = {plugins: extraPlugins};
     }
 
-    var port = robohydraConfig.port || commander.port;
-    extraPluginLoadPath =
+    robohydraConfig.port = robohydraConfig.port || commander.port;
+    robohydraConfig.pluginLoadPaths =
         (robohydraConfig.pluginLoadPaths || []).concat(extraPluginLoadPath);
 
     // After the second parameter, the rest is extra configuration variables
@@ -79,77 +76,18 @@ var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
         }
     }
 
-    var summoner;
-    try {
-        summoner = new RoboHydraSummoner(
-            plugins,
-            robohydraConfig.summoner,
-            {extraVars: extraVars, extraPluginLoadPaths: extraPluginLoadPath}
-        );
-    } catch (e) {
-        console.error(e.message || e);
-        process.exit(1);
-    }
-    // This merely forces a default Hydra to be created. It's nice because
-    // it forces plugins to be loaded, and we get plugin loading errors
-    // early
-    summoner.summonRoboHydraForRequest(new Request({url: '/'}));
 
-    // Routes are all dynamic, so we only need a catch-all here
-    var requestHandler = function(nodeReq, nodeRes) {
-        var reqBody = new Buffer("");
-        var res = new Response().chain(nodeRes).
-            on('end', function(evt) {
-                console.log(stringForLog(nodeReq, evt.response));
-            });
-
-        // Fetch POST data if available
-        nodeReq.addListener("data", function (chunk) {
-            var tmp = new Buffer(reqBody.length + chunk.length);
-            reqBody.copy(tmp);
-            chunk.copy(tmp, reqBody.length);
-            reqBody = tmp;
-        });
-        nodeReq.addListener("end", function () {
-            var req = new Request({
-                url: nodeReq.url,
-                method: nodeReq.method,
-                headers: nodeReq.headers,
-                rawBody: reqBody
-            });
-            summoner.summonRoboHydraForRequest(req).handle(req, res);
-        });
-    };
-
-    var server;
-    if (robohydraConfig.secure) {
-        var sslOptionsObject = {};
-        var keyPath  = robohydraConfig.sslOptions.key,
-            certPath = robohydraConfig.sslOptions.cert;
-        try {
-            sslOptionsObject.key  = fs.readFileSync(keyPath);
-            sslOptionsObject.cert = fs.readFileSync(certPath);
-        } catch(e) {
-            console.error("Could not read the HTTPS key or certificate file.");
-            console.error("Paths were '" + keyPath + "' and '" + certPath + "'.");
-            console.error("You must set properties 'key' and 'cert' inside 'sslOptions'.");
-            process.exit(1);
-        }
-        server = https.createServer(sslOptionsObject, requestHandler);
-    } else {
-        server = http.createServer(requestHandler);
-    }
-
+    var server = robohydraServer(robohydraConfig, extraVars);
 
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
-            console.error("Couldn't listen in port " + port + ", aborting.");
+            console.error("Couldn't listen in port " + robohydraConfig.port + ", aborting.");
         }
     });
-    server.listen(port, function() {
+    server.listen(robohydraConfig.port, function() {
         var protocol = robohydraConfig.secure ? "https" : "http";
-        var adminUrl = protocol + "://localhost:" + port + "/robohydra-admin";
+        var adminUrl = protocol + "://localhost:" + robohydraConfig.port + "/robohydra-admin";
         console.log("RoboHydra ready on port %d - Admin URL: %s",
-                    port, adminUrl);
+                    robohydraConfig.port, adminUrl);
     });
 }());
