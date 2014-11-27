@@ -49,7 +49,7 @@ the configuration keys `path` and `logLevel` could be:
     {"plugins": ["logger",
                  {"name": "my-plugin",
                   "config": {"path": "/var/log/example.log",
-                             "logLevel": "warn"}]}
+                             "logLevel": "warn"}}]}
 
 You can load as many plugins as you want. Remember that the order is
 important: the heads declared in the first will catch requests before

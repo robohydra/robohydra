@@ -38,7 +38,7 @@ configuration keys `path` and `logLevel` could be:
 {"plugins": ["logger",
              {"name": "my-plugin",
               "config": {"path": "/var/log/example.log",
-                         "logLevel": "warn"}]}
+                         "logLevel": "warn"}}]}
 {% endhighlight %}
 
 SSL configuration
