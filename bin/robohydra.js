@@ -43,27 +43,19 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
     var args = commander.args;
 
     // Check parameters and load RoboHydra configuration (unless -n)
-    var robohydraConfig;
+    var fileConfig = {};
     if (commander.config) {
         if (commander.args.length < 1) {
             showHelpAndDie();
         }
         var configPath = args.shift();
         var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
-        robohydraConfig = JSON.parse(robohydraConfigString);
-        if (! robohydraConfig.plugins) {
+        fileConfig = JSON.parse(robohydraConfigString);
+        if (! fileConfig.plugins) {
             showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
-        } else {
-            robohydraConfig.plugins =
-                extraPlugins.concat(robohydraConfig.plugins);
         }
-    } else {
-        robohydraConfig = {plugins: extraPlugins};
     }
-
-    robohydraConfig.port = robohydraConfig.port || commander.port;
-    robohydraConfig.pluginLoadPaths =
-        (robohydraConfig.pluginLoadPaths || []).concat(extraPluginLoadPath);
+    var port = fileConfig.port || commander.port;
 
     // After the second parameter, the rest is extra configuration variables
     var extraVars = {};
@@ -77,17 +69,26 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
     }
 
 
-    var server = createRoboHydraServer(robohydraConfig, extraVars);
+    var server = createRoboHydraServer(
+        {
+            plugins: extraPlugins.concat(fileConfig.plugins || []),
+            pluginLoadPaths: (fileConfig.pluginLoadPaths || []).concat(extraPluginLoadPath),
+            summoner: fileConfig.summoner,
+            secure: fileConfig.secure,
+            sslOptions: fileConfig.sslOptions
+        },
+        extraVars
+    );
 
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
-            console.error("Couldn't listen in port " + robohydraConfig.port + ", aborting.");
+            console.error("Couldn't listen in port " + port + ", aborting.");
         }
     });
-    server.listen(robohydraConfig.port, function() {
-        var protocol = robohydraConfig.secure ? "https" : "http";
-        var adminUrl = protocol + "://localhost:" + robohydraConfig.port + "/robohydra-admin";
+    server.listen(port, function() {
+        var protocol = fileConfig.secure ? "https" : "http";
+        var adminUrl = protocol + "://localhost:" + port + "/robohydra-admin";
         console.log("RoboHydra ready on port %d - Admin URL: %s",
-                    robohydraConfig.port, adminUrl);
+                    port, adminUrl);
     });
 }());
