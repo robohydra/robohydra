@@ -140,6 +140,13 @@
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
+                                <a href="#method_createRoboHydraServer">createRoboHydraServer</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_proxyRequest">proxyRequest</a>
 
                                 
@@ -167,6 +174,209 @@
         
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_createRoboHydraServer" class="method item">
+    <h3 class="name"><code>createRoboHydraServer</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>config</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_robohydraserver.js.html#l10"><code>..&#x2F;robohydra&#x2F;lib&#x2F;robohydraserver.js:10</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Creates a RoboHydra server, similar to <code>http.createServer</code> or
+<code>https.createServer</code>. The returned object is in fact the same as
+with the <code>createServer</code>, so the same methods (<code>listen</code>, <code>on</code>, etc.)
+can be used.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">config</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Server configuration</p>
+
+                    </div>
+
+                    
+                        <ul class="params-list">
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">plugins</code>
+                                    <span class="type">Array</span>
+                                
+
+                                <div class="param-description">
+                                    <p>List of plugins to load: each element
+in the array must be either a string (name of the plugin to load)
+or an object with the keys <code>name</code> (string with the plugin name) and
+<code>config</code> (object with configuration variables for the plugin).</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">summoner</code>
+                                    <span class="type">Object</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Summoner configuration. Right now
+the only valid key is <code>hydraPickerPlugin</code>, the name of the plugin
+containing the hydra picker to use (useful in case there are
+several).</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">pluginLoadPaths</code>
+                                    <span class="type">Array</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Array with extra directories
+to search for RoboHydra plugins.</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">secure</code>
+                                    <span class="type">Boolean</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Whether the RoboHydra server should
+use HTTPS or not.</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">sslOptions</code>
+                                    <span class="type">Object</span>
+                                
+
+                                <div class="param-description">
+                                    <p>SSL options. Only used if
+<code>config.secure</code> is truthy.</p>
+
+                                </div>
+
+                                
+                                    <ul class="params-list">
+                                        
+                                        <li class="param">
+                                            
+                                                <code class="param-name">key</code>
+                                                <span class="type">String</span>
+                                            
+
+                                            <div class="param-description">
+                                                The path to the secret key
+file for the SSL certificate.
+                                            </div>
+                                        </li>
+                                        
+                                        <li class="param">
+                                            
+                                                <code class="param-name">cert</code>
+                                                <span class="type">String</span>
+                                            
+
+                                            <div class="param-description">
+                                                The path to the certificate
+file for the SSL certificate.
+                                            </div>
+                                        </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                            
+                        </ul>
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
 
                 
                     <div id="method_proxyRequest" class="method item">

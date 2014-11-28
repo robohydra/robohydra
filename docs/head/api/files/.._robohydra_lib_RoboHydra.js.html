@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>../robohydra/lib/robohydra.js - RoboHydra public API</title>
+    <title>../robohydra/lib/RoboHydra.js - RoboHydra public API</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -91,22 +91,16 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: ../robohydra/lib/robohydra.js</h1>
+                        <h1 class="file-heading">File: ../robohydra/lib/RoboHydra.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
 var fs     = require(&#x27;fs&#x27;),
     path   = require(&#x27;path&#x27;),
     assert = require(&#x27;assert&#x27;);
-var heads = require(&#x27;./heads&#x27;);
 var utils              = require(&#x27;./utils.js&#x27;),
-    serveStaticFile    = utils.serveStaticFile,
-    proxyRequest       = utils.proxyRequest,
-    stringForLog       = utils.stringForLog,
     extendObject       = utils.extendObject,
-    deprecationWarning = utils.deprecationWarning,
-    Request            = utils.Request,
-    Response           = utils.Response;
+    deprecationWarning = utils.deprecationWarning;
 var exceptions         = require(&#x27;./exceptions.js&#x27;),
     RoboHydraException = exceptions.RoboHydraException,
     DuplicateRoboHydraHeadNameException =
@@ -485,6 +479,25 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
             inflatedPlugin.scenarios[scenarioName] = scenarioDefinition;
         });
 
+        // Check for unknown properties in scenarios
+        for (var scenarioName in inflatedPlugin.scenarios) {
+            var scenario = inflatedPlugin.scenarios[scenarioName];
+            if (!(&#x27;heads&#x27; in scenario)) {
+                throw new InvalidRoboHydraPluginException(
+                    &quot;Scenario &#x27;&quot; + scenarioName + &quot;&#x27; doesn&#x27;t contain any heads&quot;
+                );
+            }
+
+            for (var prop in scenario) {
+                if ([&#x27;heads&#x27;, &#x27;instructions&#x27;].indexOf(prop) === -1) {
+                    throw new InvalidRoboHydraPluginException(
+                        &quot;Invalid scenario property &#x27;&quot; + prop + &quot;&#x27; in &quot; +
+                            &quot;scenario &#x27;&quot; + scenarioName + &quot;&#x27;&quot;
+                    );
+                }
+            }
+        }
+
         // Check and set the name
         if (! this._validatePluginName(pluginInfo.name)) {
             throw new InvalidRoboHydraPluginException(&quot;Invalid plugin name &#x27;&quot; +
@@ -624,18 +637,7 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
     };
 
 
-    exports.RoboHydra          = RoboHydra;
-    exports.Request            = Request;
-    exports.Response           = Response;
-    exports.serveStaticFile    = serveStaticFile;
-    exports.proxyRequest       = proxyRequest;
-    exports.stringForLog       = stringForLog;
-    exports.heads              = heads;
-    exports.roboHydraHeadType  = heads.roboHydraHeadType;
-    exports.RoboHydraException = RoboHydraException;
-    for (var exception in exceptions) {
-        exports[exception] = exceptions[exception];
-    }
+    module.exports = RoboHydra;
 }());
 
     </pre>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>../robohydra/lib/robohydraserver.js - RoboHydra public API</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+          <span class="navbar-brand"><img src="../assets/img/robohydra.png" title="RoboHydra public API"> RoboHydra</span>
+          <ul class="navbar-menu">
+            <li><a href="/">Home</a></span>
+            <li><a href="/docs/tutorial">Tutorial</a></span>
+            <li><a href="/docs">Documentation</a></span>
+          </ul>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: HEAD</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Request.html">Request</a></li>
+            
+                <li><a href="../classes/Response.html">Response</a></li>
+            
+                <li><a href="../classes/robohydra.html">robohydra</a></li>
+            
+                <li><a href="../classes/RoboHydra.html">RoboHydra</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: ../robohydra/lib/robohydraserver.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var http      = require(&#x27;http&#x27;),
+    https     = require(&#x27;https&#x27;),
+    fs        = require(&#x27;fs&#x27;);
+var utils        = require(&quot;../lib/utils&quot;),
+    Request      = utils.Request,
+    Response     = utils.Response,
+    stringForLog = utils.stringForLog;
+var RoboHydraSummoner = require(&#x27;../lib/robohydrasummoner&#x27;).RoboHydraSummoner;
+
+/**
+ * Creates a RoboHydra server, similar to &#x60;http.createServer&#x60; or
+ * &#x60;https.createServer&#x60;. The returned object is in fact the same as
+ * with the &#x60;createServer&#x60;, so the same methods (&#x60;listen&#x60;, &#x60;on&#x60;, etc.)
+ * can be used.
+ *
+ * @method createRoboHydraServer
+ * @for robohydra
+ * @param {Object} config Server configuration
+ * @param {Array} config.plugins List of plugins to load: each element
+ * in the array must be either a string (name of the plugin to load)
+ * or an object with the keys &#x60;name&#x60; (string with the plugin name) and
+ * &#x60;config&#x60; (object with configuration variables for the plugin).
+ * @param {Object} config.summoner Summoner configuration. Right now
+ * the only valid key is &#x60;hydraPickerPlugin&#x60;, the name of the plugin
+ * containing the hydra picker to use (useful in case there are
+ * several).
+ * @param {Array} config.pluginLoadPaths Array with extra directories
+ * to search for RoboHydra plugins.
+ * @param {Boolean} config.secure Whether the RoboHydra server should
+ * use HTTPS or not.
+ * @param {Object} config.sslOptions SSL options. Only used if
+ * &#x60;config.secure&#x60; is truthy.
+ * @param {String} config.sslOptions.key The path to the secret key
+ * file for the SSL certificate.
+ * @param {String} config.sslOptions.cert The path to the certificate
+ * file for the SSL certificate.
+ */
+function createRoboHydraServer(config, extraVars) {
+    var summoner;
+    try {
+        summoner = new RoboHydraSummoner(
+            config.plugins,
+            config.summoner,
+            {extraVars: extraVars,
+             extraPluginLoadPaths: config.pluginLoadPaths}
+        );
+    } catch (e) {
+        console.error(e.message || e);
+        process.exit(1);
+    }
+    // This merely forces a default Hydra to be created. It&#x27;s nice because
+    // it forces plugins to be loaded, and we get plugin loading errors
+    // early
+    summoner.summonRoboHydraForRequest(new Request({url: &quot;/&quot;}));
+
+    // Routes are all dynamic, so we only need a catch-all here
+    var requestHandler = function(nodeReq, nodeRes) {
+        var reqBody = new Buffer(&quot;&quot;);
+        var res = new Response().chain(nodeRes).
+            on(&quot;end&quot;, function(evt) {
+                if (! config.quiet) {
+                    console.log(stringForLog(nodeReq, evt.response));
+                }
+            });
+
+        // Fetch POST data if available
+        nodeReq.addListener(&quot;data&quot;, function (chunk) {
+            var tmp = new Buffer(reqBody.length + chunk.length);
+            reqBody.copy(tmp);
+            chunk.copy(tmp, reqBody.length);
+            reqBody = tmp;
+        });
+        nodeReq.addListener(&quot;end&quot;, function () {
+            var req = new Request({
+                url: nodeReq.url,
+                method: nodeReq.method,
+                headers: nodeReq.headers,
+                rawBody: reqBody
+            });
+            summoner.summonRoboHydraForRequest(req).handle(req, res);
+        });
+    };
+
+    var server;
+    if (config.secure) {
+        var sslOptionsObject = {};
+        var keyPath  = config.sslOptions.key,
+            certPath = config.sslOptions.cert;
+        try {
+            sslOptionsObject.key  = fs.readFileSync(keyPath);
+            sslOptionsObject.cert = fs.readFileSync(certPath);
+        } catch(e) {
+            console.error(&quot;Could not read the HTTPS key or certificate file.&quot;);
+            console.error(&quot;Paths were &#x27;&quot; + keyPath + &quot;&#x27; and &#x27;&quot; + certPath + &quot;&#x27;.&quot;);
+            console.error(&quot;You must set properties &#x27;key&#x27; and &#x27;cert&#x27; inside &#x27;sslOptions&#x27;.&quot;);
+            process.exit(1);
+        }
+        server = https.createServer(sslOptionsObject, requestHandler);
+    } else {
+        server = http.createServer(requestHandler);
+    }
+
+    return server;
+}
+
+
+module.exports.createRoboHydraServer = createRoboHydraServer;
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

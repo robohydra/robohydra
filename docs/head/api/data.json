@@ -7,8 +7,8 @@
         "logo": "/assets/img/robohydra.png"
     },
     "files": {
-        "../robohydra/lib/robohydra.js": {
-            "name": "../robohydra/lib/robohydra.js",
+        "../robohydra/lib/RoboHydra.js": {
+            "name": "../robohydra/lib/RoboHydra.js",
             "modules": {},
             "classes": {
                 "RoboHydra": 1
@@ -16,6 +16,15 @@
             "fors": {
                 "robohydra": 1,
                 "RoboHydra": 1
+            },
+            "namespaces": {}
+        },
+        "../robohydra/lib/robohydraserver.js": {
+            "name": "../robohydra/lib/robohydraserver.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "robohydra": 1
             },
             "namespaces": {}
         },
@@ -55,8 +64,8 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 42,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 36,
             "description": "Dispatches the incoming requests. Normally there is only one of\nthis per server, but there can be several if summoners are\nused.",
             "is_constructor": 1,
             "params": [
@@ -132,8 +141,8 @@
     },
     "classitems": [
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 56,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 50,
             "description": "The currently active scenario, if any. It's an object with the\nkeys \"plugin\" and \"scenario\". If there’s no active scenario,\nit’s \"\\*default\\*\" / \"\\*default\\*\".",
             "itemtype": "property",
             "name": "currentScenario",
@@ -141,8 +150,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 65,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 59,
             "description": "Current scenario/test results. Its keys are plugin names and\nits values are objects with scenario names as keys. The values\nof the latter objects are test results: objects with the keys\nresult (value is undefined if the test doesn’t have any result\nyet, or pass or fail if at least one assertion has run for that\ntest), passes (an array with the description of the passing\nassertions) and failures (ditto for failing assertions).",
             "itemtype": "property",
             "name": "scenarioResults",
@@ -150,8 +159,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 158,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 152,
             "description": "Register the given plugin object at the end of the hydra.",
             "itemtype": "method",
             "name": "registerPluginObject",
@@ -187,8 +196,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 182,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 176,
             "description": "Adds a new (dynamic) head into a hydra. The new head is added\nat the beginning of the appropriate pseudo-plugin (\"*dynamic*\"\nby default, \"*priority-dynamic*\" if the priority is set to\n\"high\"). The order of the plugins is: special admin plugin\n(which is normally not visible in the admin interface!),\n\"*priority-dynamic*\", \"*dynamic*\", \"*current-scenario*\", and\nregular plugins.",
             "itemtype": "method",
             "name": "registerDynamicHead",
@@ -214,8 +223,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 221,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 215,
             "description": "Returns the names of the current plugins, including pseudo-plugins.",
             "itemtype": "method",
             "name": "getPluginNames",
@@ -226,8 +235,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 230,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 224,
             "description": "Returns a list of all current plugins, including pseudo-plugins.",
             "itemtype": "method",
             "name": "getPlugins",
@@ -238,8 +247,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 239,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 233,
             "description": "Returns a plugin given its name.",
             "itemtype": "method",
             "name": "getPlugin",
@@ -257,8 +266,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 255,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 249,
             "description": "Returns the first head that matches a given URL.",
             "itemtype": "method",
             "name": "headForPath",
@@ -281,8 +290,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 320,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 314,
             "description": "Detach the given head.",
             "itemtype": "method",
             "name": "detachHead",
@@ -301,8 +310,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 331,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 325,
             "description": "Attach the given head.",
             "itemtype": "method",
             "name": "attachHead",
@@ -321,8 +330,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 404,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 417,
             "description": "Start the given scenario.",
             "itemtype": "method",
             "name": "startScenario",
@@ -341,8 +350,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 449,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 462,
             "description": "Stop the given scenario.",
             "itemtype": "method",
             "name": "stopScenario",
@@ -361,8 +370,8 @@
             "class": "RoboHydra"
         },
         {
-            "file": "../robohydra/lib/robohydra.js",
-            "line": 497,
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 510,
             "description": "Returns an object with the modules for a given plugin.",
             "itemtype": "method",
             "name": "getModulesObject",
@@ -378,6 +387,60 @@
                 "type": "Object"
             },
             "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/robohydraserver.js",
+            "line": 10,
+            "description": "Creates a RoboHydra server, similar to `http.createServer` or\n`https.createServer`. The returned object is in fact the same as\nwith the `createServer`, so the same methods (`listen`, `on`, etc.)\ncan be used.",
+            "itemtype": "method",
+            "name": "createRoboHydraServer",
+            "params": [
+                {
+                    "name": "config",
+                    "description": "Server configuration",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "plugins",
+                            "description": "List of plugins to load: each element\nin the array must be either a string (name of the plugin to load)\nor an object with the keys `name` (string with the plugin name) and\n`config` (object with configuration variables for the plugin).",
+                            "type": "Array"
+                        },
+                        {
+                            "name": "summoner",
+                            "description": "Summoner configuration. Right now\nthe only valid key is `hydraPickerPlugin`, the name of the plugin\ncontaining the hydra picker to use (useful in case there are\nseveral).",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "pluginLoadPaths",
+                            "description": "Array with extra directories\nto search for RoboHydra plugins.",
+                            "type": "Array"
+                        },
+                        {
+                            "name": "secure",
+                            "description": "Whether the RoboHydra server should\nuse HTTPS or not.",
+                            "type": "Boolean"
+                        },
+                        {
+                            "name": "sslOptions",
+                            "description": "SSL options. Only used if\n`config.secure` is truthy.",
+                            "type": "Object",
+                            "props": [
+                                {
+                                    "name": "key",
+                                    "description": "The path to the secret key\nfile for the SSL certificate.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "cert",
+                                    "description": "The path to the certificate\nfile for the SSL certificate.",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "class": "robohydra"
         },
         {
             "file": "../robohydra/lib/utils.js",
