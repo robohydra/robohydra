@@ -7,7 +7,7 @@
 
 var fs        = require('fs'),
     commander = require('commander');
-var robohydraServer = require('../lib/robohydraserver').robohydraServer;
+var createRoboHydraServer = require('robohydra').createRoboHydraServer;
 
 
 (function () {
@@ -77,7 +77,7 @@ var robohydraServer = require('../lib/robohydraserver').robohydraServer;
     }
 
 
-    var server = robohydraServer(robohydraConfig, extraVars);
+    var server = createRoboHydraServer(robohydraConfig, extraVars);
 
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
