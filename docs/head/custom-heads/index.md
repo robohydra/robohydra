@@ -7,7 +7,7 @@ Custom RoboHydra heads
 Sometimes it's useful to have a custom RoboHydra head class for your
 needs. In those cases, you can create a new class and manually inherit
 from `RoboHydraHead` (or whatever other head you want to base your
-class on) or use then `roboHydraHeadType` function.
+class on) or use then `robohydraHeadType` function.
 
 This function receives a settings object with the following keys:
 
@@ -82,7 +82,7 @@ change the details of the XML formatting. So, our new head class,
 `RoboHydraHeadFriendResponse`, could be written like so:
 
 {% highlight javascript %}
-var RoboHydraHeadFriendResponse = roboHydraHeadType({
+var RoboHydraHeadFriendResponse = robohydraHeadType({
     name: 'friend-response',
     parentClass: heads.RoboHydraHeadStatic,
 
