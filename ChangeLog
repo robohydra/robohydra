@@ -8,6 +8,9 @@ Version 0.x.x (XXXX-XX-XX)
 	any unknown properties. If you are hit by this your scenarios were
 	broken anyway, and better to be stricter now than later.
 
+	* Deprecated function name roboHydraHeadType for the more
+	consistent robohydraHeadType.
+
 	* New property 'headers' for RoboHydraHeadStatic allows the user
 	to set arbitrary headers for the head response(s). Add support to
 	add headers from the Admin UI.
