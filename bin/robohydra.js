@@ -29,6 +29,7 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         option('-P, --plugins <plugin-list>', 'Load plugins at startup').
         option('-n, --no-config', "Don't read a configuration file").
         option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
+        option('-q, --quiet', "Quiet (don't print messages on screen)").
         parse(process.argv);
 
 
@@ -75,7 +76,8 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
             pluginLoadPaths: (fileConfig.pluginLoadPaths || []).concat(extraPluginLoadPath),
             summoner: fileConfig.summoner,
             secure: fileConfig.secure,
-            sslOptions: fileConfig.sslOptions
+            sslOptions: fileConfig.sslOptions,
+            quiet: commander.quiet || fileConfig.quiet
         },
         extraVars
     );
@@ -86,6 +88,9 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         }
     });
     server.listen(port, function() {
+        if (commander.quiet) {
+            return;
+        }
         var protocol = fileConfig.secure ? "https" : "http";
         var adminUrl = protocol + "://localhost:" + port + "/robohydra-admin";
         console.log("RoboHydra ready on port %d - Admin URL: %s",
