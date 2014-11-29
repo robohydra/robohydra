@@ -28,7 +28,7 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         option('-I <path>', 'Adds a new path in the plugin search path list').
         option('-P, --plugins <plugin-list>', 'Load plugins at startup').
         option('-n, --no-config', "Don't read a configuration file").
-        option('-p, --port <port>', 'Listen on this port (default 3000)', 3000).
+        option('-p, --port <port>', 'Listen on this port (default 3000)').
         option('-q, --quiet', "Quiet (don't print messages on screen)").
         parse(process.argv);
 
@@ -56,7 +56,6 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
             showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
         }
     }
-    var port = fileConfig.port || commander.port;
 
     // After the second parameter, the rest is extra configuration variables
     var extraVars = {};
@@ -82,6 +81,7 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         extraVars
     );
 
+    var port = commander.port || fileConfig.port || 3000;
     server.on('error', function (e) {
         if (e.code === 'EADDRINUSE') {
             console.error("Couldn't listen in port " + port + ", aborting.");
