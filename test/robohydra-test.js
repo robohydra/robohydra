@@ -2091,7 +2091,7 @@ describe("Response object", function() {
         expect(callOrder).toEqual(["head", "end"]);
     });
 
-    it("allows easy response chaining", function() {
+    it("allows easy response chaining (deprecated)", function() {
         var headHandler = this.spy();
         var dataHandler = this.spy();
         var endHandler  = this.spy();
@@ -2119,12 +2119,57 @@ describe("Response object", function() {
                                                  response: r1});
     });
 
-    it("triggers implicit head events when chaining", function() {
+    it("allows follow other responses", function() {
+        var headHandler = this.spy();
+        var dataHandler = this.spy();
+        var endHandler  = this.spy();
+        var r1 = new Response().on('head', headHandler).
+                                on('data', dataHandler).
+                                on('end',  endHandler);
+        var r2 = r1.follow(new Response());
+
+        // Do things on r2, expect them to happen on r1
+        var statusCode = 200, headers = {foobar: 'qux'};
+        r2.writeHead(statusCode, headers);
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: headers});
+        var buffer = new Buffer("foobar");
+        r2.write(buffer);
+        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
+                                                  data: buffer});
+        var buffer2 = new Buffer("qux");
+        r2.write(buffer2);
+        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
+                                                  data: buffer2});
+        r2.end();
+        expect(endHandler).toHaveBeenCalledWith({type: 'end',
+                                                 response: r1});
+    });
+
+    it("triggers implicit head events when chaining (deprecated)", function() {
         var headHandler = this.spy();
         var r1 = new Response().on('head', headHandler).
                                 on('data', this.spy()).
                                 on('end',  this.spy());
         var r2 = new Response().chain(r1);
+
+        // Do things on r2, expect them to happen on r1
+        var statusCode = 200, headers = {foobar: 'qux'};
+        r2.statusCode = statusCode;
+        r2.headers    = headers;
+        r2.write("foobar");
+        expect(headHandler).toHaveBeenCalledWith({type: 'head',
+                                                  statusCode: statusCode,
+                                                  headers: headers});
+    });
+
+    it("triggers implicit head events when following", function() {
+        var headHandler = this.spy();
+        var r1 = new Response().on('head', headHandler).
+                                on('data', this.spy()).
+                                on('end',  this.spy());
+        var r2 = r1.follow(new Response());
 
         // Do things on r2, expect them to happen on r1
         var statusCode = 200, headers = {foobar: 'qux'};
