@@ -197,7 +197,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 176,
+            "line": 184,
             "description": "Adds a new (dynamic) head into a hydra. The new head is added\nat the beginning of the appropriate pseudo-plugin (\"*dynamic*\"\nby default, \"*priority-dynamic*\" if the priority is set to\n\"high\"). The order of the plugins is: special admin plugin\n(which is normally not visible in the admin interface!),\n\"*priority-dynamic*\", \"*dynamic*\", \"*current-scenario*\", and\nregular plugins.",
             "itemtype": "method",
             "name": "registerDynamicHead",
@@ -224,7 +224,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 215,
+            "line": 223,
             "description": "Returns the names of the current plugins, including pseudo-plugins.",
             "itemtype": "method",
             "name": "getPluginNames",
@@ -236,7 +236,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 224,
+            "line": 232,
             "description": "Returns a list of all current plugins, including pseudo-plugins.",
             "itemtype": "method",
             "name": "getPlugins",
@@ -248,7 +248,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 233,
+            "line": 241,
             "description": "Returns a plugin given its name.",
             "itemtype": "method",
             "name": "getPlugin",
@@ -267,7 +267,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 249,
+            "line": 257,
             "description": "Returns the first head that matches a given URL.",
             "itemtype": "method",
             "name": "headForPath",
@@ -291,7 +291,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 314,
+            "line": 322,
             "description": "Detach the given head.",
             "itemtype": "method",
             "name": "detachHead",
@@ -311,7 +311,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 325,
+            "line": 333,
             "description": "Attach the given head.",
             "itemtype": "method",
             "name": "attachHead",
@@ -331,7 +331,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 417,
+            "line": 419,
             "description": "Start the given scenario.",
             "itemtype": "method",
             "name": "startScenario",
@@ -351,7 +351,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 462,
+            "line": 464,
             "description": "Stop the given scenario.",
             "itemtype": "method",
             "name": "stopScenario",
@@ -371,7 +371,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 510,
+            "line": 512,
             "description": "Returns an object with the modules for a given plugin.",
             "itemtype": "method",
             "name": "getModulesObject",
@@ -756,9 +756,26 @@
         {
             "file": "../robohydra/lib/utils.js",
             "line": 518,
+            "description": "Follows the given response: as data is written to the given\nresponse object, that same data will be written in the calling\nobject (ie. it honours and replicates streaming). It's similar\nto `copyFrom`, but with the following differences:\n\n* `follow` is to be used _before_ any data is written to the\n  source object (ie. the parameter).\n* `follow` will write data as it is received, instead of\n  everything at once.",
+            "itemtype": "method",
+            "name": "chain",
+            "deprecated": true,
+            "params": [
+                {
+                    "name": "response",
+                    "description": "Response object to chain to the\ncurrent object.",
+                    "type": "Response"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 548,
             "description": "Chains the response given as a parameter to the current\nobject. This means that as data is written to the current\nobject, that same data will be written in the parameter (ie. it\nhonours and replicates streaming). It's similar to `copyFrom`,\nbut with the following differences:\n\n* `chain` is called on the source object, not the target.\n* `chain` is to be used _before_ any data is written to the\n  source object.\n* `chain` will write data as it's received, instead of\n  everything at once.",
             "itemtype": "method",
             "name": "chain",
+            "deprecated": true,
             "params": [
                 {
                     "name": "response",

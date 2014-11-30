@@ -262,6 +262,14 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
      * (ie. an object with the &quot;getBodyParts&quot; function).
      */
     RoboHydra.prototype.registerPluginObject = function(pluginObject) {
+        if (! pluginObject.name) {
+            throw new TypeError(&quot;To register a plugin, you need an object with properties &#x27;name&#x27;, &#x27;path&#x27;, &#x27;config&#x27; and &#x27;module&#x27;&quot;);
+        }
+        if (! this._validatePluginName(pluginObject.name)) {
+            throw new InvalidRoboHydraPluginException(&quot;Invalid plugin name &#x27;&quot; +
+                                                      pluginObject.name + &quot;&#x27;&quot;);
+        }
+
         this._registerPluginObject(this._inflatePlugin(pluginObject));
     };
     RoboHydra.prototype._getPluginInfo = function(pluginName) {
@@ -498,13 +506,7 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
             }
         }
 
-        // Check and set the name
-        if (! this._validatePluginName(pluginInfo.name)) {
-            throw new InvalidRoboHydraPluginException(&quot;Invalid plugin name &#x27;&quot; +
-                                                      pluginInfo.name + &quot;&#x27;&quot;);
-        }
         inflatedPlugin.name = pluginInfo.name;
-
         return inflatedPlugin;
     };
     RoboHydra.prototype.startTest = function(pluginName, testName) {

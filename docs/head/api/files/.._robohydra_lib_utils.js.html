@@ -613,6 +613,36 @@ var exceptions = require(&#x27;./exceptions&#x27;),
         }
     };
     /**
+     * Follows the given response: as data is written to the given
+     * response object, that same data will be written in the calling
+     * object (ie. it honours and replicates streaming). It&#x27;s similar
+     * to &#x60;copyFrom&#x60;, but with the following differences:
+     *
+     * * &#x60;follow&#x60; is to be used _before_ any data is written to the
+     *   source object (ie. the parameter).
+     * * &#x60;follow&#x60; will write data as it is received, instead of
+     *   everything at once.
+     *
+     * @method chain
+     * @deprecated
+     * @param {Response} response Response object to chain to the
+     * current object.
+     */
+    Response.prototype.follow = function(response) {
+        deprecationWarning(&quot;&#x27;chain&#x27; is deprecated, please use &#x27;follow&#x27; on the other/result response instead&quot;);
+        var self = this;
+        response.on(&#x27;head&#x27;, function(evt) {
+            self.writeHead(evt.statusCode, evt.headers);
+        });
+        response.on(&#x27;data&#x27;, function(evt) {
+            self.write(evt.data);
+        });
+        response.on(&#x27;end&#x27;, function() {
+            self.end();
+        });
+        return this;
+    };
+    /**
      * Chains the response given as a parameter to the current
      * object. This means that as data is written to the current
      * object, that same data will be written in the parameter (ie. it
@@ -626,10 +656,12 @@ var exceptions = require(&#x27;./exceptions&#x27;),
      *   everything at once.
      *
      * @method chain
+     * @deprecated
      * @param {Response} response Response object to chain to the
      * current object.
      */
     Response.prototype.chain = function(response) {
+        deprecationWarning(&quot;&#x27;chain&#x27; is deprecated, please use &#x27;follow&#x27; on the other/result response instead&quot;);
         this.on(&#x27;head&#x27;, function(evt) {
             response.writeHead(evt.statusCode, evt.headers);
         });
