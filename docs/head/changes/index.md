@@ -23,3 +23,9 @@ still work, but it's deprecated.
 ### "reset" method available for all heads
 
 The head method "reset" is now available for all heads.
+
+### Add --quiet option
+
+Now RoboHydra can be called with the --quiet option to avoid printing
+any messages on screen. The "quiet" option can also be set from the
+configuration file.

@@ -75,6 +75,18 @@ A port specified on the command line (`-p` option) will have
 precedence over the port number in the configuration file.
 
 
+Quiet
+-----
+
+If you don't want RoboHydra to print anything (except errors) on
+screen, you can use the `quiet` option:
+
+{% highlight json %}
+{"plugins": ["myplugin"],
+ "quiet": true}
+{% endhighlight %}
+
+
 SSL configuration
 -----------------
 
