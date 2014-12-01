@@ -35,7 +35,7 @@ exports.getBodyParts = function(conf) {
                         evt.headers["access-control-allow-origin"] = '*';
                     }
                 });
-                fakeRes.chain(res);
+                res.follow(fakeRes);
 
                 next(req, fakeRes);
             }
