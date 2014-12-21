@@ -153,12 +153,13 @@ function createRoboHydraServer(config, extraVars) {
     // Routes are all dynamic, so we only need a catch-all here
     var requestHandler = function(nodeReq, nodeRes) {
         var reqBody = new Buffer(&quot;&quot;);
-        var res = new Response().chain(nodeRes).
+        var res = new Response().
             on(&quot;end&quot;, function(evt) {
                 if (! config.quiet) {
                     console.log(stringForLog(nodeReq, evt.response));
                 }
             });
+        Response.prototype.follow.call(nodeRes, res);
 
         // Fetch POST data if available
         nodeReq.addListener(&quot;data&quot;, function (chunk) {

@@ -242,15 +242,6 @@ finished. See the <code>end</code> event on the <code>on</code> method documenta
                                 
                             </li>
                         
-                            <li class="index-item method deprecated">
-                                <a href="#method_chain">chain</a>
-
-                                
-                                
-                                    <span class="flag deprecated">deprecated</span>
-                                
-                            </li>
-                        
                             <li class="index-item method">
                                 <a href="#method_copyFrom">copyFrom</a>
 
@@ -260,6 +251,13 @@ finished. See the <code>end</code> event on the <code>on</code> method documenta
                         
                             <li class="index-item method">
                                 <a href="#method_end">end</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_follow">follow</a>
 
                                 
                                 
@@ -384,108 +382,7 @@ finished. See the <code>end</code> event on the <code>on</code> method documenta
             
         
         
-        <a href="../files/.._robohydra_lib_utils.js.html#l518"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:518</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Follows the given response: as data is written to the given
-response object, that same data will be written in the calling
-object (ie. it honours and replicates streaming). It&#39;s similar
-to <code>copyFrom</code>, but with the following differences:</p>
-<ul>
-<li><code>follow</code> is to be used <em>before</em> any data is written to the
-source object (ie. the parameter).</li>
-<li><code>follow</code> will write data as it is received, instead of
-everything at once.</li>
-</ul>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">response</code>
-                        <span class="type"><a href="../classes/Response.html" class="crosslink">Response</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>Response object to chain to the
-current object.</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_chain" class="method item deprecated">
-    <h3 class="name"><code>chain</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>response</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-        <span class="flag deprecated">deprecated</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/.._robohydra_lib_utils.js.html#l548"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:548</code></a>
+        <a href="../files/.._robohydra_lib_utils.js.html#l545"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:545</code></a>
         
         </p>
 
@@ -684,6 +581,104 @@ RoboHydra, this closes the connection.</p>
 
     </div>
 
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_follow" class="method item">
+    <h3 class="name"><code>follow</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>response</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l518"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:518</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Follows the given response: as data is written to the given
+response object, that same data will be written in the calling
+object (ie. it honours and replicates streaming). It&#39;s similar
+to <code>copyFrom</code>, but with the following differences:</p>
+<ul>
+<li><code>follow</code> is to be used <em>before</em> any data is written to the
+source object (ie. the parameter).</li>
+<li><code>follow</code> will write data as it is received, instead of
+everything at once.</li>
+</ul>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">response</code>
+                        <span class="type"><a href="../classes/Response.html" class="crosslink">Response</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Response object to follow.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
     
 
     

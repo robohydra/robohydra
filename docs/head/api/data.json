@@ -758,12 +758,11 @@
             "line": 518,
             "description": "Follows the given response: as data is written to the given\nresponse object, that same data will be written in the calling\nobject (ie. it honours and replicates streaming). It's similar\nto `copyFrom`, but with the following differences:\n\n* `follow` is to be used _before_ any data is written to the\n  source object (ie. the parameter).\n* `follow` will write data as it is received, instead of\n  everything at once.",
             "itemtype": "method",
-            "name": "chain",
-            "deprecated": true,
+            "name": "follow",
             "params": [
                 {
                     "name": "response",
-                    "description": "Response object to chain to the\ncurrent object.",
+                    "description": "Response object to follow.",
                     "type": "Response"
                 }
             ],
@@ -771,7 +770,7 @@
         },
         {
             "file": "../robohydra/lib/utils.js",
-            "line": 548,
+            "line": 545,
             "description": "Chains the response given as a parameter to the current\nobject. This means that as data is written to the current\nobject, that same data will be written in the parameter (ie. it\nhonours and replicates streaming). It's similar to `copyFrom`,\nbut with the following differences:\n\n* `chain` is called on the source object, not the target.\n* `chain` is to be used _before_ any data is written to the\n  source object.\n* `chain` will write data as it's received, instead of\n  everything at once.",
             "itemtype": "method",
             "name": "chain",
