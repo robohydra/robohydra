@@ -137,7 +137,6 @@ exports.getBodyParts = function(conf) {
             new RoboHydraHeadStatic({
                 // ... Same as before ...
             }),
-            
 
             new RoboHydraHead({
                 path: '/slow',
