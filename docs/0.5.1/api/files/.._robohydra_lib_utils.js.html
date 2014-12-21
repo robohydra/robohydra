@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>../robohydra/lib/utils.js - RoboHydra public API</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+          <span class="navbar-brand"><img src="../assets/img/robohydra.png" title="RoboHydra public API"> RoboHydra</span>
+          <ul class="navbar-menu">
+            <li><a href="/">Home</a></span>
+            <li><a href="/docs/tutorial">Tutorial</a></span>
+            <li><a href="/docs">Documentation</a></span>
+          </ul>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: HEAD</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Request.html">Request</a></li>
+            
+                <li><a href="../classes/Response.html">Response</a></li>
+            
+                <li><a href="../classes/robohydra.html">robohydra</a></li>
+            
+                <li><a href="../classes/RoboHydra.html">RoboHydra</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: ../robohydra/lib/utils.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var url   = require(&#x27;url&#x27;),
+    http  = require(&#x27;http&#x27;),
+    https = require(&#x27;https&#x27;),
+    fs    = require(&#x27;fs&#x27;),
+    qs    = require(&#x27;qs&#x27;),
+    mime  = require(&#x27;mime&#x27;);
+var exceptions = require(&#x27;./exceptions&#x27;),
+    InvalidRoboHydraRequestException =
+        exceptions.InvalidRoboHydraRequestException,
+    InvalidRoboHydraResponseException =
+        exceptions.InvalidRoboHydraResponseException,
+    InvalidRoboHydraResponseEventException =
+        exceptions.InvalidRoboHydraResponseEventException;
+
+
+(function () {
+    &quot;use strict&quot;;
+
+    /**
+     * Utility functions.
+     *
+     * @class robohydra
+     */
+
+    /**
+     * Serves a static file with correct headers and such, writing the
+     * result in the given response object.
+     *
+     * @method serveStaticFile
+     * @for robohydra
+     * @param {String} filePath The full path of the file to be served.
+     * @param {Response} res Response object to write the response to.
+     * @param {Object} opts
+     * @param {Object} opts.fs The &#x27;fs&#x27; module (or a mock) to be used
+     * when reading from the filesystem.
+     * @param {Object} opts.mime The &#x27;mime&#x27; module (or a mock) to be
+     * used when figuring out the MIME type for a file.
+     * @param {Object} opts.headers An object with the incoming
+     * request headers (for caching and such).
+     * @param {Array} opts.indexFiles An array with the filenames to
+     * be used as index if the given file path is a directory (by
+     * default, &quot;index.html&quot;, &quot;index.htm&quot;, &quot;home.html&quot; and
+     * &quot;home.htm&quot;).
+     */
+    function serveStaticFile(path, res, opts) {
+        opts = opts || {};
+        var fsObject   = opts.fs      || fs;
+        var mimeObject = opts.mime    || mime;
+        var headers    = opts.headers || {};
+        var indexFiles = opts.indexFiles || [&#x27;index.html&#x27;, &#x27;index.htm&#x27;,
+                                             &#x27;home.html&#x27;,  &#x27;home.htm&#x27;];
+
+        fsObject.stat(path, function(err, stats) {
+            if (!err) {
+                if (stats.isFile()) {
+                    var mtime = stats.mtime,
+                        modifiedSince = headers[&#x27;if-modified-since&#x27;];
+
+                    // Check modification date, if available
+                    if (!modifiedSince || new Date(modifiedSince) &lt; mtime) {
+                        fsObject.readFile(path, function(err, data) {
+                            res.headers[&quot;content-type&quot;]  = mimeObject.lookup(path);
+                            res.headers[&quot;last-modified&quot;] = mtime.toUTCString();
+                            res.send(data);
+                        });
+
+                        // 304 - Not Modified
+                    } else {
+                        res.statusCode = 304;
+                        res.end();
+                    }
+                    // If it&#x27;s a directory, try to serve one of the index files
+                } else if (stats.isDirectory()) {
+                    for (var i = 0, len = indexFiles.length; i &lt; len; i++) {
+                        var indexFilePath = path + &quot;/&quot; + indexFiles[i];
+                        try {
+                            // This will throw an exception if the file is
+                            // not there
+                            fsObject.statSync(indexFilePath);
+                            serveStaticFile(indexFilePath, res, opts);
+                            return;
+                        } catch (e) {
+                            // Ignore if the file is not there; otherwise...
+                            if (e.code !== &#x27;ENOENT&#x27;) {
+                                throw e;
+                            }
+                        }
+                    }
+
+                    res.statusCode = 403;
+                    res.send(&quot;Directory listing forbidden&quot;);
+                }
+
+                // 404 - Not Found
+            } else {
+                res.statusCode = 404;
+                res.send(&quot;Not Found&quot;);
+            }
+        });
+    }
+
+    /**
+     * Proxies the given request to the given URL, writing the result
+     * in the given response object.
+     *
+     * @method proxyRequest
+     * @for robohydra
+     * @param {Request} req The request object to proxy.
+     * @param {Response} res The response object to write the result to.
+     * @param {URL} proxyTo The URL to proxy to, either in the form of
+     * a URL object (result of the url.parse method) or a string.
+     * @param {Object} opts
+     * @param {Function} opts.httpRequestFunction The http.request
+     * function or a mock of it.
+     * @param {Function} opts.httpsRequestFunction The https.request
+     * function or a mock of it.
+     * @param {Boolean} opts.setHostHeader Specifies if the &quot;Host&quot;
+     * header should be set in the proxied request, so pretend as if
+     * the original request was indeed intended for the final
+     * URL. Defaults to false.
+     */
+    function proxyRequest(req, res, proxyTo, opts) {
+        opts = opts || {};
+        var httpRequestFunction  = opts.httpRequestFunction  || http.request;
+        var httpsRequestFunction = opts.httpsRequestFunction || https.request;
+        var setHostHeader = opts.setHostHeader;
+
+        var proxyUrl = proxyTo;
+        if (typeof(proxyTo) === &#x27;string&#x27;) {
+            proxyUrl = url.parse(proxyTo);
+        }
+        var proxyToHost = proxyUrl.hostname;
+        var proxyToPort = proxyUrl.port ||
+                (proxyUrl.protocol === &#x27;https:&#x27; ? 443 : 80);
+        var proxyToPath = proxyUrl.pathname;
+        var requestFunction = (proxyUrl.protocol === &#x27;https:&#x27;) ?
+                httpsRequestFunction : httpRequestFunction;
+        var headers = {};
+        for (var h in req.headers) { headers[h] = req.headers[h]; }
+        if (setHostHeader) {
+            headers.host = proxyToHost +
+                (proxyUrl.port ? &quot;:&quot; + proxyUrl.port : &quot;&quot;);
+        }
+
+        var proxyReq = requestFunction(
+            {host: proxyToHost,
+             port: proxyToPort,
+             method: req.method,
+             path: proxyToPath,
+             headers: headers},
+            function (proxyRes) {
+                // Copy over headers and status code from proxied request
+                res.statusCode = proxyRes.statusCode;
+                res.headers    = proxyRes.headers;
+
+                proxyRes.on(&quot;data&quot;, function (chunk) {
+                    res.write(chunk);
+                });
+
+                proxyRes.on(&quot;end&quot;, function () {
+                    res.end();
+                });
+            });
+
+        proxyReq.on(&#x27;error&#x27;, function (err) {
+            res.statusCode = 502;
+            res.send(&#x27;Bad Gateway! Could not proxy request. Invalid host or proxy destination down? Reported error was: &#x27; + err);
+        });
+
+        if (req.rawBody) {
+            proxyReq.write(req.rawBody);
+        }
+        proxyReq.end();
+    }
+
+
+    function stringForLog(req, res) {
+        var remoteAddr = req.socket &amp;&amp; req.socket.remoteAddress || &quot;-&quot;;
+        var date = new Date().toUTCString();
+        var method = req.method;
+        var url = req.url;
+        var httpVersion = req.httpVersionMajor + &#x27;.&#x27; + req.httpVersionMinor;
+        var status = res.statusCode;
+        var resContentLength = res.headers[&#x27;content-length&#x27;] || &quot;-&quot;;
+        var referrer = req.headers.referer || req.headers.referrer || &quot;-&quot;;
+        var userAgent = req.headers[&#x27;user-agent&#x27;] || &quot;-&quot;;
+
+        return remoteAddr + &quot; - - [&quot; + date + &quot;] \&quot;&quot; + method + &quot; &quot; +
+            url + &quot; HTTP/&quot; + httpVersion + &quot;\&quot; &quot; + status + &quot; &quot; +
+            resContentLength + &quot; \&quot;&quot; + referrer + &quot;\&quot; \&quot;&quot; + userAgent + &quot;\&quot;&quot;;
+    }
+
+
+    /*
+     *  This function extends the given object with any number of
+     *  other objects (parameters two, three, etc.), and returns it.
+     */
+    function extendObject(obj) {
+        for (var i = 1, len = arguments.length; i &lt; len; i++) {
+            for (var p in arguments[i]) {
+                if (arguments[i].hasOwnProperty(p)) {
+                    obj[p] = arguments[i][p];
+                }
+            }
+        }
+
+        return obj;
+    }
+
+
+    function deprecationWarning(msg) {
+        var prefix       = &quot;*** WARNING: &quot;,
+            suffix       = &quot; ***&quot;,
+            borderLength = msg.length + prefix.length + suffix.length,
+            border       = new Array(borderLength + 1).join(&quot;*&quot;);
+        console.warn(border);
+        console.warn(prefix + msg + suffix);
+        console.warn(border);
+    }
+
+
+    /**
+     * Represents an incoming client request.
+     * @class Request
+     * @constructor
+     * @param {Object} props
+     * @param {String} props.url Request URL
+     * @param {String} props.method Request method (&quot;GET&quot;, &quot;POST&quot;, ...)
+     * @param {Object} props.headers Request headers
+     * @param {Buffer} props.rawBody Request body, if any
+     */
+    /**
+     * Request URL path, including GET parameters (eg. &#x60;/foo&#x60;,
+     * &#x60;/bar/qux&#x60;, &#x60;/articles?order=date&#x60;).
+     *
+     * @attribute url
+     * @type String
+     */
+    /**
+     * Request method, normalised to uppercase.
+     *
+     * @attribute method
+     * @type String
+     */
+    /**
+     * Request headers. Note that the header names are Node-style
+     * (ie. lowercase).
+     *
+     * @attribute headers
+     * @type Object
+     */
+    /**
+     * Request body, if the body was parseable. Otherwise,
+     * &#x60;undefined&#x60;.
+     *
+     * @attribute rawBody
+     * @type Buffer
+     */
+    /**
+     * Request body parameters.
+     *
+     * @attribute bodyParams
+     * @type Object
+     */
+    /**
+     * Request query parameters (&quot;GET&quot; parameters).
+     *
+     * @attribute queryParams
+     * @type Object
+     */
+    /**
+     * Request query parameters (&quot;GET&quot; parameters).
+     *
+     * @attribute getParams
+     * @type Object
+     * @deprecated
+     */
+    /**
+     * Request URL path captured parameters. Note that this attribute
+     * is only available in request objects passed directly by
+     * RoboHydra, not in user-created request objects.
+     *
+     * When defining URL paths, expressions like &#x60;:id&#x60; or &#x60;:user&#x60; can
+     * be used as part of the regular expression (eg. &#x60;/save/:id&#x60; or
+     * &#x60;/:user/preferences&#x60;). These expressions will match any URL
+     * path fragment, and the matched contents will be available in
+     * the &#x60;params&#x60; object in the request object. For example, if you
+     * have a head for path &#x60;/articles/:articleid/view&#x60; and you
+     * receive a request for
+     * &#x60;/articles/introduction-to-robohydra/view&#x60;, the request object
+     * will have a &#x60;params&#x60; property with a single property,
+     * &#x60;articleid&#x60; with value &#x60;introduction-to-robohydra&#x60;.
+     *
+     * @attribute params
+     * @type Object
+     */
+    function Request(props) {
+        // From the constructor parameter
+        this.url     = props.url;
+        this.method  = (props.method || &#x27;GET&#x27;).toUpperCase();
+        this.headers = extendObject({}, props.headers || {});
+        this.rawBody = props.rawBody || new Buffer(&quot;&quot;);
+        this.bodyParams = qs.parse(this.rawBody.toString());
+
+        // Calculated
+        this.queryParams = url.parse(this.url, true).query;
+        Object.defineProperty(this, &quot;getParams&quot;, {
+            get: function() {
+                deprecationWarning(&quot;&#x27;getParams&#x27; is deprecated, use &#x27;queryParams&#x27; instead&quot;);
+                return this.queryParams;
+            }
+        });
+
+        if (this.url === undefined) {
+            throw new InvalidRoboHydraRequestException(&#x27;url&#x27;, this.url);
+        }
+    }
+
+
+
+    /**
+     * Represents a server response.
+     * @class Response
+     * @constructor
+     * @param {Function} cb Callback to be used when the response is
+     * finished. See the &#x60;end&#x60; event on the &#x60;on&#x60; method documentation.
+     */
+    /**
+     * Response body.
+     *
+     * @attribute body
+     * @type Buffer
+     */
+    /**
+     * Response status code (by default, &#x60;200&#x60;).
+     *
+     * @attribute statusCode
+     * @type Integer
+     */
+    /**
+     * Response headers. Note that the header names are Node-style
+     * (ie. lowercase).
+     *
+     * @attribute headers
+     * @type Object
+     */
+    /**
+     * Whether the response is finished.
+     *
+     * @attribute ended
+     * @type Boolean
+     */
+    function Response(cb) {
+        this.body       = new Buffer(0);
+        this.statusCode = 200;
+        this.headers    = {};
+        this.ended      = false;
+        var endHandlers = [];
+        if (typeof cb === &#x27;function&#x27;) { endHandlers.push(cb); }
+        this._eventHandlers = {head: [], data: [], end: endHandlers};
+    }
+    Response.prototype._fireEvent = function(eventName, evtObject) {
+        var eventHandlers = this._eventHandlers[eventName];
+        if (eventHandlers.length) {
+            var finalEventObject = {};
+            for (var p in evtObject) { finalEventObject[p] = evtObject[p]; }
+            evtObject.type = eventName;
+            for (var i = 0, len = eventHandlers.length; i &lt; len; i++) {
+                eventHandlers[i].call(this, evtObject);
+            }
+            return true;
+        }
+        return false;
+    };
+    /**
+     * Sets and writes the response headers.
+     *
+     * @method writeHead
+     * @param {Integer} statusCode The response&#x27;s status code.
+     * @param {Object} headers The response&#x27;s headers.
+     */
+    Response.prototype.writeHead = function(statusCode, headers) {
+        this.statusCode = statusCode;
+        this.headers    = headers || {};
+        if (this._fireEvent(&#x27;head&#x27;, {statusCode: this.statusCode,
+                                     headers: this.headers})) {
+            this._hasWrittenHead = true;
+        }
+    };
+    /**
+     * Appends data to the response body. This method allows a
+     * RoboHydra head to write the response body in chunks, and the
+     * response will be sent in chunks to the client (so you could,
+     * say, send data, then wait, then send more data, wait, then
+     * close the connection).
+     *
+     * @method write
+     * @param {Buffer} chunk Data to add to the current response
+     * body. This parameter can be a string, too.
+     */
+    Response.prototype.write = function(chunk) {
+        chunk = chunk || &quot;&quot;;
+        if (typeof chunk === &#x27;string&#x27;) {
+            chunk = new Buffer(chunk);
+        }
+        var tmp = new Buffer(this.body.length + chunk.length);
+        this.body.copy(tmp);
+        chunk.copy(tmp, this.body.length);
+        this.body = tmp;
+        if (! this._hasWrittenHead) {
+            this._fireEvent(&#x27;head&#x27;, {statusCode: this.statusCode,
+                                     headers: this.headers});
+            this._hasWrittenHead = true;
+        }
+        this._fireEvent(&#x27;data&#x27;, {data: chunk});
+        this._hasWrittenBody = true;
+    };
+    /**
+     * Appends the given data to the response body and closes
+     * it. Equivalent to calling the &#x60;write&#x60; method, then &#x60;end&#x60;.
+     *
+     * @method send
+     * @param {Buffer} data to add to the response body.
+     */
+    Response.prototype.send = function(data) {
+        this.write(data);
+        this.end();
+    };
+    /**
+     * Marks the response as complete and calls the &#x27;end&#x27;
+     * callback. When called in the response object provided by
+     * RoboHydra, this closes the connection.
+     *
+     * @method end
+     */
+    Response.prototype.end = function() {
+        if (! this._hasWrittenHead) {
+            this._fireEvent(&#x27;head&#x27;, {statusCode: this.statusCode,
+                                     headers: this.headers});
+        }
+
+        if (! this._hasWrittenBody &amp;&amp; this.body.length) {
+            this._fireEvent(&#x27;data&#x27;, {data: this.body});
+        }
+
+        this.ended = true;
+        if (! this._fireEvent(&#x27;end&#x27;, {response: this})) {
+            throw new InvalidRoboHydraResponseException(this);
+        }
+    };
+    /**
+     * Copies the response given as a parameter into the current
+     * response object. This is intended to be used when the response
+     * given as a parameter is already finished.
+     *
+     * @method copyFrom
+     * @param {Response} res Response object to copy.
+     */
+    Response.prototype.copyFrom = function(res) {
+        var self = this;
+        [&#x27;statusCode&#x27;, &#x27;headers&#x27;, &#x27;body&#x27;].forEach(function(prop) {
+            self[prop] = res[prop];
+        });
+    };
+    /**
+     * Forwards the response given as a parameter. That is, copies the
+     * given response in the current object, then marks the given
+     * object as finished.
+     *
+     * @method forward
+     * @param {Response} res The response object to forward.
+     */
+    Response.prototype.forward = function(res) {
+        this.copyFrom(res);
+        this.end();
+    };
+    /**
+     * Adds a callback to the given event. An event can have more than
+     * one callback. All callbacks for an event will be called in
+     * order when the event is triggered.
+     *
+     * The callback function will receive a single parameter, &#x60;event&#x60;,
+     * an object with the property &#x60;type&#x60; set to the event type, plus
+     * different properties according to the event fired. It returns
+     * the response object.
+     *
+     * The list of response object events is:
+     *
+     * * &#x60;head&#x60;: Fired when the header is written. Event objects for
+     * this event contain two properties, &#x60;statusCode&#x60; and
+     * &#x60;headers&#x60;.
+     * * &#x60;data&#x60;: Fired when there is data written in the response
+     * object. Event objects for this event contain a single property,
+     * &#x60;data&#x60;, an instance of &#x60;Buffer&#x60;.
+     * * &#x60;end&#x60;: Fired when the response is finished. Event objects for
+     * this event contain a single property, &#x60;response&#x60;, the response
+     * object that fired the event.
+     *
+     * For responses you have created yourself to pass to the &#x60;next&#x60;
+     * function, the &#x60;end&#x60; event would typically be used to inspect or
+     * modify the response contents, then write data to the response
+     * object you received, possibly with the help of the methods
+     * below.
+     *
+     * @method on
+     * @param {String} eventName The name of the event to attach the
+     * callback to. Possible event names are &#x60;head&#x60;, &#x60;data&#x60; and &#x60;end&#x60;.
+     * @param {Function} cb The callback to attach to the given event.
+     */
+    Response.prototype.on = function(eventName, cb) {
+        if (this._eventHandlers.hasOwnProperty(eventName)) {
+            this._eventHandlers[eventName].push(cb);
+            return this;
+        } else {
+            throw new InvalidRoboHydraResponseEventException(eventName);
+        }
+    };
+    /**
+     * Follows the given response: as data is written to the given
+     * response object, that same data will be written in the calling
+     * object (ie. it honours and replicates streaming). It&#x27;s similar
+     * to &#x60;copyFrom&#x60;, but with the following differences:
+     *
+     * * &#x60;follow&#x60; is to be used _before_ any data is written to the
+     *   source object (ie. the parameter).
+     * * &#x60;follow&#x60; will write data as it is received, instead of
+     *   everything at once.
+     *
+     * @method follow
+     * @param {Response} response Response object to follow.
+     */
+    Response.prototype.follow = function(response) {
+        var self = this;
+        response.on(&#x27;head&#x27;, function(evt) {
+            self.writeHead(evt.statusCode, evt.headers);
+        });
+        response.on(&#x27;data&#x27;, function(evt) {
+            self.write(evt.data);
+        });
+        response.on(&#x27;end&#x27;, function() {
+            self.end();
+        });
+        return this;
+    };
+    /**
+     * Chains the response given as a parameter to the current
+     * object. This means that as data is written to the current
+     * object, that same data will be written in the parameter (ie. it
+     * honours and replicates streaming). It&#x27;s similar to &#x60;copyFrom&#x60;,
+     * but with the following differences:
+     *
+     * * &#x60;chain&#x60; is called on the source object, not the target.
+     * * &#x60;chain&#x60; is to be used _before_ any data is written to the
+     *   source object.
+     * * &#x60;chain&#x60; will write data as it&#x27;s received, instead of
+     *   everything at once.
+     *
+     * @method chain
+     * @deprecated
+     * @param {Response} response Response object to chain to the
+     * current object.
+     */
+    Response.prototype.chain = function(response) {
+        deprecationWarning(&quot;&#x27;chain&#x27; is deprecated, please use &#x27;follow&#x27; on the other/result response instead&quot;);
+        this.on(&#x27;head&#x27;, function(evt) {
+            response.writeHead(evt.statusCode, evt.headers);
+        });
+        this.on(&#x27;data&#x27;, function(evt) {
+            response.write(evt.data);
+        });
+        this.on(&#x27;end&#x27;, function() {
+            response.end();
+        });
+        return this;
+    };
+
+
+
+    exports.serveStaticFile    = serveStaticFile;
+    exports.proxyRequest       = proxyRequest;
+    exports.stringForLog       = stringForLog;
+    exports.extendObject       = extendObject;
+    exports.deprecationWarning = deprecationWarning;
+    exports.Request            = Request;
+    exports.Response           = Response;
+}());
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

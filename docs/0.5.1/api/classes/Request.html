@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Request - RoboHydra public API</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+          <span class="navbar-brand"><img src="../assets/img/robohydra.png" title="RoboHydra public API"> RoboHydra</span>
+          <ul class="navbar-menu">
+            <li><a href="/">Home</a></span>
+            <li><a href="/docs/tutorial">Tutorial</a></span>
+            <li><a href="/docs">Documentation</a></span>
+          </ul>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: HEAD</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Request.html">Request</a></li>
+            
+                <li><a href="../classes/Response.html">Response</a></li>
+            
+                <li><a href="../classes/robohydra.html">robohydra</a></li>
+            
+                <li><a href="../classes/RoboHydra.html">RoboHydra</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>Request Class</h1>
+<div class="box meta">
+    
+
+    
+
+    
+        <div class="foundat">
+            Defined in: <a href="../files/.._robohydra_lib_utils.js.html#l222"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:222</code></a>
+        </div>
+    
+
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>Represents an incoming client request.</p>
+
+</div>
+
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_Request" class="method item">
+    <h3 class="name"><code>Request</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>props</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l222"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:222</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">props</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                        <ul class="params-list">
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">url</code>
+                                    <span class="type">String</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Request URL</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">method</code>
+                                    <span class="type">String</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Request method (&quot;GET&quot;, &quot;POST&quot;, ...)</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">headers</code>
+                                    <span class="type">Object</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Request headers</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">rawBody</code>
+                                    <span class="type">Buffer</span>
+                                
+
+                                <div class="param-description">
+                                    <p>Request body, if any</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                        </ul>
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+    </div>
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+        
+        
+            <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+
+            
+
+            
+                <div class="index-section attrs">
+                    <h3>Attributes</h3>
+
+                    <ul class="index-list attrs">
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_bodyParams">bodyParams</a>
+                            </li>
+                        
+                            <li class="index-item attr deprecated">
+                                <a href="#attr_getParams">getParams</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_headers">headers</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_method">method</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_params">params</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_queryParams">queryParams</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_rawBody">rawBody</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_url">url</a>
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+        </div>
+
+        
+
+        
+
+        
+            <div id="attrs" class="api-class-tabpanel">
+                <h2 class="off-left">Attributes</h2>
+
+                
+                    <div id="attr_bodyParams" class="attr item">
+    <a name="config_bodyParams"></a> 
+    <h3 class="name"><code>bodyParams</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l259"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:259</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request body parameters.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_getParams" class="attr item deprecated">
+    <a name="config_getParams"></a> 
+    <h3 class="name"><code>getParams</code></h3>
+    <span class="type">Object</span>
+
+    
+        <span class="flag deprecated">deprecated</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l271"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:271</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request query parameters (&quot;GET&quot; parameters).</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_headers" class="attr item">
+    <a name="config_headers"></a> 
+    <h3 class="name"><code>headers</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l245"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:245</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request headers. Note that the header names are Node-style
+(ie. lowercase).</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_method" class="attr item">
+    <a name="config_method"></a> 
+    <h3 class="name"><code>method</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l239"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:239</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request method, normalised to uppercase.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_params" class="attr item">
+    <a name="config_params"></a> 
+    <h3 class="name"><code>params</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l278"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:278</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request URL path captured parameters. Note that this attribute
+is only available in request objects passed directly by
+RoboHydra, not in user-created request objects.</p>
+<p>When defining URL paths, expressions like <code>:id</code> or <code>:user</code> can
+be used as part of the regular expression (eg. <code>/save/:id</code> or
+<code>/:user/preferences</code>). These expressions will match any URL
+path fragment, and the matched contents will be available in
+the <code>params</code> object in the request object. For example, if you
+have a head for path <code>/articles/:articleid/view</code> and you
+receive a request for
+<code>/articles/introduction-to-robohydra/view</code>, the request object
+will have a <code>params</code> property with a single property,
+<code>articleid</code> with value <code>introduction-to-robohydra</code>.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_queryParams" class="attr item">
+    <a name="config_queryParams"></a> 
+    <h3 class="name"><code>queryParams</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l265"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:265</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request query parameters (&quot;GET&quot; parameters).</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_rawBody" class="attr item">
+    <a name="config_rawBody"></a> 
+    <h3 class="name"><code>rawBody</code></h3>
+    <span class="type">Buffer</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l252"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:252</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request body, if the body was parseable. Otherwise,
+<code>undefined</code>.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_url" class="attr item">
+    <a name="config_url"></a> 
+    <h3 class="name"><code>url</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_utils.js.html#l232"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:232</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Request URL path, including GET parameters (eg. <code>/foo</code>,
+<code>/bar/qux</code>, <code>/articles?order=date</code>).</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
