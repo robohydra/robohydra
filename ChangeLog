@@ -1,4 +1,4 @@
-Version 0.x.x (XXXX-XX-XX)
+Version 0.5.1 (2014-12-21)
 --------------------------
 
 	* Make the 'reset' available for RoboHydraHead.
@@ -11,9 +11,26 @@ Version 0.x.x (XXXX-XX-XX)
 	* Deprecated function name roboHydraHeadType for the more
 	consistent robohydraHeadType.
 
-	* New property 'headers' for RoboHydraHeadStatic allows the user
+	* Deprecated configuration name corsUrlPath for the more
+	consistent corsurlpath in the cors plugin.
+
+	* Deprecated method "chain" in Response objects. See the new
+	method "follow" below.
+
+	* New property "headers" for RoboHydraHeadStatic allows the user
 	to set arbitrary headers for the head response(s). Add support to
 	add headers from the Admin UI.
+
+	* RoboHydra is now easier to embed in your own programs. See the
+	"createRoboHydraServer" function.
+
+	* New command-line option --quiet to suppress non-error messages
+	to the console.
+
+	* New method "follow" in Response objects. Similar to "chain", but
+	called on the receiving object.
+
+	* Other bugfixes and smaller improvements.
 
 Version 0.5 (2014-08-28)
 ------------------------
