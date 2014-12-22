@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: documentation
 ---
 
 New in 0.4
