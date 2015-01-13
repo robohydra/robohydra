@@ -2,7 +2,7 @@
   "name": "robohydra",
   "version": "0.5.100000000000001",
   "bin": "./bin/robohydra.js",
-  "main": "./lib/robohydra.js",
+  "main": "./lib/exports.js",
   "scripts": {
       "test": "node_modules/.bin/buster-test"
   },

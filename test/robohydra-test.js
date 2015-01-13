@@ -3,10 +3,10 @@
 var buster = require("buster"),
     samsam = require("samsam");
 var path = require("path");
-var robohydra = require("../lib/robohydra"),
-    RoboHydra = robohydra.RoboHydra,
-    Request   = robohydra.Request,
-    Response  = robohydra.Response;
+var RoboHydra = require("../lib/RoboHydra");
+var utils = require("../lib/utils"),
+    Request   = utils.Request,
+    Response  = utils.Response;
 var heads               = require("../lib/heads"),
     RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
     RoboHydraHead       = heads.RoboHydraHead;

@@ -2,10 +2,10 @@ var buster = require("buster"),
     samsam = require("samsam");
 var expect = buster.expect;
 var path = require("path");
-var robohydra = require("../lib/robohydra"),
-    heads     = robohydra.heads,
-    Request   = robohydra.Request,
-    Response  = robohydra.Response;
+var RoboHydraHead = require("../lib/heads").RoboHydraHead;
+var utils = require("../lib/utils"),
+    Request   = utils.Request,
+    Response  = utils.Response;
 
 
 (function () {
@@ -252,7 +252,7 @@ var robohydra = require("../lib/robohydra"),
     }
 
     function headWithPass(path, hydraUtils, assertionMessage) {
-        return new heads.RoboHydraHead({
+        return new RoboHydraHead({
             path: path,
             handler: function(req, res) {
                 hydraUtils.assert.equal(1, 1, assertionMessage);
@@ -262,7 +262,7 @@ var robohydra = require("../lib/robohydra"),
     }
 
     function headWithFail(path, hydraUtils, assertionMessage) {
-        return new heads.RoboHydraHead({
+        return new RoboHydraHead({
             path: path,
             handler: function(req, res) {
                 hydraUtils.assert.equal(1, 0, assertionMessage);

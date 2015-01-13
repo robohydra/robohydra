@@ -2,7 +2,7 @@
 
 var buster = require("buster");
 var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
-var Request = require("../lib/robohydra").Request;
+var Request = require("../lib/utils").Request;
 var path = require('path');
 
 buster.spec.expose();
