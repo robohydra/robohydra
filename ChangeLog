@@ -1,7 +1,8 @@
-Version 0.x.x (xxxx-xx-xx)
---------------------------
+Version 0.5.1a (2015-01-14)
+---------------------------
 
-	* Some change
+	* Fix some compatibility problem with Windows and Mac OS X (in the
+	last release there were two files call the same except for case).
 
 
 Version 0.5.1 (2014-12-21)
