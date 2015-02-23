@@ -1,5 +1,6 @@
 var buster = require("buster"),
-    samsam = require("samsam");
+    samsam = require("samsam"),
+    sinon = require("sinon");
 var expect = buster.expect;
 var path = require("path");
 var RoboHydraHead = require("../lib/heads").RoboHydraHead;
@@ -138,6 +139,18 @@ var utils = require("../lib/utils"),
                 checkRouting(head, list.slice(1), cb);
             });
         }
+    }
+
+    function checkWebSocketRouting(head, list, cb) {
+        var fakeSocket;
+
+        for (var i = 0, len = list.length; i < len; i++) {
+            fakeSocket = {send: sinon.spy()};
+            head.handle(simpleReq(list[0][0]), fakeSocket);
+            expect(fakeSocket.send.calledWith(list[0][1])).toBe(true);
+        }
+
+        cb();
     }
 
     function fakeFs(fileMap) {
@@ -300,13 +313,14 @@ var utils = require("../lib/utils"),
                 module: require(path.join(pluginPath, 'index.js'))};
     }
 
-    exports.withResponse         = withResponse;
-    exports.checkRouting         = checkRouting;
-    exports.fakeFs               = fakeFs;
-    exports.fakeHttpRequest      = fakeHttpRequest;
-    exports.simpleReq            = simpleReq;
-    exports.headWithFail         = headWithFail;
-    exports.headWithPass         = headWithPass;
-    exports.pluginInfoObject     = pluginInfoObject;
-    exports.pluginObjectFromPath = pluginObjectFromPath;
+    exports.withResponse          = withResponse;
+    exports.checkRouting          = checkRouting;
+    exports.checkWebSocketRouting = checkWebSocketRouting;
+    exports.fakeFs                = fakeFs;
+    exports.fakeHttpRequest       = fakeHttpRequest;
+    exports.simpleReq             = simpleReq;
+    exports.headWithFail          = headWithFail;
+    exports.headWithPass          = headWithPass;
+    exports.pluginInfoObject      = pluginInfoObject;
+    exports.pluginObjectFromPath  = pluginObjectFromPath;
 }());

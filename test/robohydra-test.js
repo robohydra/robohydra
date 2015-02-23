@@ -7,9 +7,10 @@ var RoboHydra = require("../lib/RoboHydra");
 var utils = require("../lib/utils"),
     Request   = utils.Request,
     Response  = utils.Response;
-var heads               = require("../lib/heads"),
-    RoboHydraHeadStatic = heads.RoboHydraHeadStatic,
-    RoboHydraHead       = heads.RoboHydraHead;
+var heads                  = require("../lib/heads"),
+    RoboHydraHeadStatic    = heads.RoboHydraHeadStatic,
+    RoboHydraHead          = heads.RoboHydraHead,
+    RoboHydraWebSocketHead = heads.RoboHydraWebSocketHead;
 var helpers              = require("./helpers"),
     simpleReq            = helpers.simpleReq,
     headWithFail         = helpers.headWithFail,
@@ -63,6 +64,14 @@ function simpleRoboHydraHead(path, content, moreProps) {
                               content: content || 'foo'},
                              moreProps);
     return new RoboHydraHeadStatic(props);
+}
+
+function simpleRoboHydraWebSocketHead(path, handler, moreProps) {
+    "use strict";
+    var props = extendObject({path:    path    || '/.*',
+                              handler: handler || function() {}},
+                             moreProps || {});
+    return new RoboHydraWebSocketHead(props);
 }
 
 describe("RoboHydras", function() {
@@ -131,6 +140,15 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginList(['simple_plugin']);
     });
 
+    it("can register plugins with websocket heads", function() {
+        var hydra = new RoboHydra();
+        hydra.registerPluginObject(pluginInfoObject({
+            name: 'simple_plugin',
+            heads: [simpleRoboHydraWebSocketHead()]
+        }));
+        expect(hydra).toHavePluginList(['simple_plugin']);
+    });
+
     it("reject scenarios without heads", function() {
         var hydra = new RoboHydra();
         expect(function() {
@@ -190,7 +208,7 @@ describe("RoboHydras", function() {
         var hydra = new RoboHydra();
         var plugin1 = {name: 'plugin1',
                        heads: [simpleRoboHydraHead('/robohydra-admin',
-                                               'RoboHydra Admin UI')]};
+                                                   'RoboHydra Admin UI')]};
         var plugin2 = {name: 'plugin2',
                        heads: [simpleRoboHydraHead('/.*', 'Not Found')]};
         hydra.registerPluginObject(pluginInfoObject(plugin1));
@@ -316,9 +334,9 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
                                                      heads: heads}));
         hydra.handle(simpleReq('/'), new Response(function() {
-                                       expect(this.statusCode).toEqual(404);
-                                       done();
-                                   }));
+            expect(this.statusCode).toEqual(404);
+            done();
+        }));
     });
 
     it("don't allow registering a plugin with duplicate head names", function() {
@@ -690,9 +708,9 @@ describe("RoboHydras", function() {
             path: '/foo',
             handler: function(req, res, next) {
                 next(req, new Response(function() {
-                              finalRes = this;
-                              res.end();
-                          }));
+                    finalRes = this;
+                    res.end();
+                }));
             }});
         hydra.registerPluginObject(pluginInfoObject({
             name: 'plugin',
@@ -919,14 +937,14 @@ describe("RoboHydra test system (deprecated)", function() {
         hydra.startTest('plugin', 'someTest');
         hydra.startTest('plugin', 'anotherTest');
         var res = new Response(function() {
-                      expect(res.statusCode).toEqual(404);
+            expect(res.statusCode).toEqual(404);
 
-                      var res2 = new Response(function() {
-                                     expect(res2.statusCode).toEqual(200);
-                                     done();
-                                 });
-                      hydra.handle(new Request({url: path2}), res2);
-                  });
+            var res2 = new Response(function() {
+                expect(res2.statusCode).toEqual(200);
+                done();
+            });
+            hydra.handle(new Request({url: path2}), res2);
+        });
         hydra.handle(simpleReq(path), res);
     });
 
@@ -1473,14 +1491,14 @@ describe("RoboHydra scenario system", function() {
         hydra.startScenario('plugin', 'someTest');
         hydra.startScenario('plugin', 'anotherTest');
         var res = new Response(function() {
-                      expect(res.statusCode).toEqual(404);
+            expect(res.statusCode).toEqual(404);
 
-                      var res2 = new Response(function() {
-                                     expect(res2.statusCode).toEqual(200);
-                                     done();
-                                 });
-                      hydra.handle(new Request({url: path2}), res2);
-                  });
+            var res2 = new Response(function() {
+                expect(res2.statusCode).toEqual(200);
+                done();
+            });
+            hydra.handle(new Request({url: path2}), res2);
+        });
         hydra.handle(simpleReq(path), res);
     });
 
