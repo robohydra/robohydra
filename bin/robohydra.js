@@ -23,10 +23,18 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         process.exit(1);
     }
 
+    function commaList(val) {
+        return val.split(/,/);
+    }
+
+    function colonList(val) {
+        return val.split(/:/);
+    }
+
     commander.version('0.5.200000000000001').
         usage("mysetup.conf [confvar=value confvar2=value2 ...]").
-        option('-I <path>', 'Adds a new path in the plugin search path list').
-        option('-P, --plugins <plugin-list>', 'Load plugins at startup').
+        option('-I <path>', 'Adds a new path in the plugin search path list', colonList).
+        option('-P, --plugins <plugin-list>', 'Load plugins at startup', commaList).
         option('-n, --no-config', "Don't read a configuration file").
         option('-p, --port <port>', 'Listen on this port (default 3000)').
         option('-q, --quiet', "Quiet (don't print messages on screen)").
@@ -36,10 +44,10 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
     // Process the options
     var extraPluginLoadPath = [], extraPlugins = [];
     if (commander.I) {
-        extraPluginLoadPath.push(commander.I);
+        extraPluginLoadPath = extraPluginLoadPath.concat(commander.I);
     }
     if (commander.plugins) {
-        extraPlugins = extraPlugins.concat(commander.plugins.split(/,/));
+        extraPlugins = extraPlugins.concat(commander.plugins);
     }
     var args = commander.args;
 

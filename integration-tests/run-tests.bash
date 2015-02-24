@@ -36,6 +36,10 @@ p "Plugin load path order"
 check
 $RHBIN -n -I robohydra/priority-plugins -P precedence
 
+p "Plugin load path order, several directories"
+check
+$RHBIN -n -I robohydra/bad-priority-plugins:robohydra/priority-plugins -P precedence
+
 p "Plugin load path order (file)"
 check
 $RHBIN precedence.conf
