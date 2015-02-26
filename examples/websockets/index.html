@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <title>WebSocket RoboHydra example</title>
+    <meta charset="utf-8" />
+  </head>
+
+  <body>
+    <div id="server-messages">
+      <h1>WebSocket messages</h1>
+    </div>
+
+    <p>This is a test client for the WebSocket capabilities in
+    RoboHydra. To try it out,
+    execute <tt>./node_modules/.bin/robohydra -n -I examples/plugins
+    -P websockets</tt> and reload this page.</p>
+
+    <form>
+      <input type="text" id="message-text" placeholder="Message to send via WebSocket" />
+      <button id="send-message-button">Send message</button>
+    </form>
+
+    <script type="text/javascript">
+      var serverMessageDiv = document.getElementById('server-messages');
+      var messageTextInput = document.getElementById('message-text');
+      var connection = new WebSocket('ws://localhost:3000/echo');
+
+      connection.onopen = function () {
+          console.log("Opened connection to the server");
+          connection.send("Ping");
+      };
+
+      connection.onclose = function (e) {
+          console.log("Connection closed?");
+      };
+
+      connection.onerror = function (e) {
+          var textNode = document.createTextNode('ERROR: ' + JSON.stringify(e));
+          serverMessageDiv.appendChild(textNode);
+      };
+
+      connection.onmessage = function (msg) {
+          var textNode = document.createElement('div');
+          textNode.appendChild(document.createTextNode('server: ' + msg.data));
+          serverMessageDiv.appendChild(textNode);
+      };
+
+      var sendButton = document.getElementById('send-message-button');
+      sendButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log("Sending message to server: " + messageTextInput.value);
+          connection.send(messageTextInput.value);
+      }, false);
+    </script>
+  </body>
+</html>
