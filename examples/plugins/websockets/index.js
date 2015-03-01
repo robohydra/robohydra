@@ -26,11 +26,10 @@ module.exports.getBodyParts = function() {
                 name: 'static-files',
                 mountPath: '/',
                 documentRoot: 'examples/websockets'
-            })
-        ],
+            }),
 
-        webSocketHeads: [
             new RoboHydraWebSocketHead({
+                name: 'ws-receiver',
                 path: '/.*',
                 handler: function(req, sock) {
                     console.log("Hey, I received a connection from URL path " + req.url);

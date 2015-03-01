@@ -5,7 +5,7 @@ var utils   = require("../lib/utils"),
     Request = utils.Request;
 var helpers               = require("./helpers"),
     checkWebSocketRouting = helpers.checkWebSocketRouting,
-    simpleReq             = helpers.simpleReq;
+    simpleWsReq           = helpers.simpleWsReq;
 var heads                  = require("../lib/heads"),
     RoboHydraWebSocketHead = heads.RoboHydraWebSocketHead;
 
@@ -44,10 +44,10 @@ describe("Generic RoboHydraWebSocket heads", function() {
             }
         });
 
-        expect(head).toHandle('/foobar');
-        expect(head).not.toHandle('/foobar2');
-        expect(head).not.toHandle('/foobar/2');
-        expect(head).not.toHandle('/');
+        expect(head).toHandle(simpleWsReq('/foobar'));
+        expect(head).not.toHandle(simpleWsReq('/foobar2'));
+        expect(head).not.toHandle(simpleWsReq('/foobar/2'));
+        expect(head).not.toHandle(simpleWsReq('/'));
     });
 
     it("can match paths with regular expressions", function(done) {
@@ -73,10 +73,16 @@ describe("Generic RoboHydraWebSocket heads", function() {
                                                        handler: function() {}});
         expect(detachedHead.attached()).toEqual(false);
 
-        var normalHead = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
+        var normalHead = new RoboHydraWebSocketHead({
+            path: '/',
+            handler: function() {}
+        });
         expect(normalHead.attached()).toEqual(true);
 
-        var explicitHead = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
+        var explicitHead = new RoboHydraWebSocketHead({
+            path: '/',
+            handler: function() {}
+        });
         expect(explicitHead.attached()).toEqual(true);
     });
 
@@ -110,15 +116,15 @@ describe("Generic RoboHydraWebSocket heads", function() {
                                                       handler: function() {}});
         headDynamic.detach();
 
-        var paths = ['/foo', '/foo/bar'];
+        var reqs = [simpleWsReq('/foo'), simpleWsReq('/foo/bar')];
         [headStatic, headDynamic].forEach(function(head) {
-            expect(head).not.toHandle('/');
-            paths.forEach(function(path) {
+            expect(head).not.toHandle(simpleWsReq('/'));
+            reqs.forEach(function(path) {
                 expect(head).not.toHandle(path);
             });
             head.attach();
-            expect(head).not.toHandle('/');
-            paths.forEach(function(path) {
+            expect(head).not.toHandle(simpleWsReq('/'));
+            reqs.forEach(function(path) {
                 expect(head).toHandle(path);
             });
         });
@@ -131,10 +137,10 @@ describe("Generic RoboHydraWebSocket heads", function() {
 
         var head = new RoboHydraWebSocketHead({path: '/foo/ba*', handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(path);
+            expect(head).toHandle(simpleWsReq(path));
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(path);
+            expect(head).not.toHandle(simpleWsReq(path));
         });
     });
 
@@ -147,10 +153,10 @@ describe("Generic RoboHydraWebSocket heads", function() {
         var head = new RoboHydraWebSocketHead({path: '/:controller/:action/:id',
                                                handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(path);
+            expect(head).toHandle(simpleWsReq(path));
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(path);
+            expect(head).not.toHandle(simpleWsReq(path));
         });
     });
 
@@ -160,10 +166,18 @@ describe("Generic RoboHydraWebSocket heads", function() {
                                                hostname: 'example.com',
                                                handler: handler});
 
-        expect(head).toHandle(new Request({url: '/',
-                                           headers: {host: 'example.com'}}));
-        expect(head).not.toHandle(new Request({url: '/',
-                                               headers: {host: 'localhost'}}));
+        expect(head).toHandle(new Request({
+            url: '/',
+            upgrade: true,
+            headers: {host: 'example.com',
+                      upgrade: 'websocket'}
+        }));
+        expect(head).not.toHandle(new Request({
+            url: '/',
+            upgrade: true,
+            headers: {host: 'localhost',
+                      upgrade: 'websocket'}
+        }));
     });
 
     it("dispatch treats hostname as regex", function() {
@@ -174,19 +188,23 @@ describe("Generic RoboHydraWebSocket heads", function() {
 
         expect(head).not.toHandle(new Request({
             url: '/',
-            headers: {host: 'example.com'}
+            upgrade: true,
+            headers: {host: 'example.com', upgrade: 'websocket'}
         }));
         expect(head).not.toHandle(new Request({
             url: '/',
-            headers: {host: 'www.local'}
+            upgrade: true,
+            headers: {host: 'www.local', upgrade: 'websocket'}
         }));
         expect(head).toHandle(new Request({
             url: '/',
-            headers: {host: 'localhost'}
+            upgrade: true,
+            headers: {host: 'localhost', upgrade: 'websocket'}
         }));
         expect(head).toHandle(new Request({
             url: '/',
-            headers: {host: 'localserver'}
+            upgrade: true,
+            headers: {host: 'localserver', upgrade: 'websocket'}
         }));
     });
 
@@ -198,7 +216,9 @@ describe("Generic RoboHydraWebSocket heads", function() {
 
         expect(head).toHandle(new Request({
             url: '/',
-            headers: {host: 'example.com:3000'}
+            upgrade: true,
+            headers: {host: 'example.com:3000',
+                      upgrade: 'websocket'}
         }));
     });
 
@@ -213,17 +233,17 @@ describe("Generic RoboHydraWebSocket heads", function() {
             }
         });
 
-        head.handle(simpleReq('/article/show/123'));
+        head.handle(simpleWsReq('/article/show/123'));
         expect(controller).toEqual('article');
         expect(action).toEqual('show');
         expect(id).toEqual('123');
 
-        head.handle(simpleReq('/page/edit/456/'));
+        head.handle(simpleWsReq('/page/edit/456/'));
         expect(controller).toEqual('page');
         expect(action).toEqual('edit');
         expect(id).toEqual('456');
 
-        head.handle(simpleReq('/widget/search/term?page=2'));
+        head.handle(simpleWsReq('/widget/search/term?page=2'));
         expect(controller).toEqual('widget');
         expect(action).toEqual('search');
         expect(id).toEqual('term');

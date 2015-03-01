@@ -146,7 +146,7 @@ var utils = require("../lib/utils"),
 
         for (var i = 0, len = list.length; i < len; i++) {
             fakeSocket = {send: sinon.spy()};
-            head.handle(simpleReq(list[0][0]), fakeSocket);
+            head.handle(simpleWsReq(list[0][0]), fakeSocket);
             expect(fakeSocket.send.calledWith(list[0][1])).toBe(true);
         }
 
@@ -264,6 +264,16 @@ var utils = require("../lib/utils"),
         });
     }
 
+    function simpleWsReq(path) {
+        return new Request({
+            url: path,
+            upgrade: true,
+            headers: {
+                upgrade: 'websocket'
+            }
+        });
+    }
+
     function headWithPass(path, hydraUtils, assertionMessage) {
         return new RoboHydraHead({
             path: path,
@@ -319,6 +329,7 @@ var utils = require("../lib/utils"),
     exports.fakeFs                = fakeFs;
     exports.fakeHttpRequest       = fakeHttpRequest;
     exports.simpleReq             = simpleReq;
+    exports.simpleWsReq           = simpleWsReq;
     exports.headWithFail          = headWithFail;
     exports.headWithPass          = headWithPass;
     exports.pluginInfoObject      = pluginInfoObject;
