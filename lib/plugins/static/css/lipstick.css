@@ -1683,6 +1683,7 @@ pre code, pre kbd, pre var, pre samp {
 }
 
 .table.striped tbody tr:nth-child(odd) th, .table.striped tbody tr:nth-child(odd) td {
+  border-bottom: 1px solid #dbdbdb;
   border-top: 1px solid #dbdbdb;
   background-color: #f6f6f6;
 }

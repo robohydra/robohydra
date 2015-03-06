@@ -31,3 +31,19 @@
 .hydra-name {
     font-family: monospace;
 }
+td.description{
+    border-top-color: transparent !important;
+    border-bottom: solid 1px #cdcdcd !important;
+    background-color: #FFFFDA !important;
+}
+td.description > div{
+    margin-bottom: 0px;
+}
+td.description.closed{
+    height: 6px;
+    padding: 0px;
+    background-color: #ababab !important;
+}
+td.description.closed > div{
+    display: none;
+}
