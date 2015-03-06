@@ -70,7 +70,7 @@ path `/articles/:id` would match `/articles/123`,
 object](../api/classes/Request.html) to see how to access these
 parameters.
 
-**NOTE:** parameters `name`, `method`, `detached` and `reest` are
+**NOTE:** parameters `name`, `method`, `detached` and `reset` are
 implicitly part of all heads, regardless of type.
 
 
