@@ -20,6 +20,7 @@ exports.getBodyParts = function(conf) {
                 // other headers and/or methods.
                 h["access-control-max-age"] = 0;
                 h["access-control-allow-origin"] = '*';
+                h["access-control-allow-credentials"] = true;
                 if (reqH.hasOwnProperty("access-control-request-method")) {
                     h["access-control-allow-methods"] =
                         reqH["access-control-request-method"];
@@ -33,6 +34,7 @@ exports.getBodyParts = function(conf) {
                 var fakeRes = new Response().on('head', function(evt) {
                     if (req.headers.origin) {
                         evt.headers["access-control-allow-origin"] = '*';
+                        evt.headers["access-control-allow-credentials"] = true;
                     }
                 });
                 res.follow(fakeRes);
