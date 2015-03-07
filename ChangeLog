@@ -1,8 +1,13 @@
 Version 0.x.x (xxxx-xx-xx)
 --------------------------
 
+	* WebSocket support! See the documentation for details.
+
 	* Accept a list of extra plugin load directories (as opposed to
-	only one)
+	only one).
+
+	* CORS plugin: always set the Access-Control-Allow-Credentials
+	header to true to allow credentials to be passed.
 
 
 Version 0.5.2 (2015-01-16)
