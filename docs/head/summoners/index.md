@@ -64,7 +64,7 @@ However, now, by default, it's more something like this:
 The (crucial) difference is that there's no assumption that there's a
 single hydra in the server. Now there's a RoboHydra summoner that
 looks at the request, then decides which hydra should dispatch it.  A
-summoner is simply a Javascript function that computer the id of the
+summoner is simply a Javascript function that computes the id of the
 hydra that will process the request. If this is the first request to
 that hydra, the hydra will be created transparently. Thus, in the
 general case, a request is processed like so:
