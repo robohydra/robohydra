@@ -25,6 +25,7 @@ Reference documentation
 * [Configuration](configuration/) &mdash; RoboHydra configuration file format
 * [Writing plugins](plugins/) &mdash; plugin format
 * [RoboHydra heads](heads/) &mdash; how the different types of heads work
+* [Defining scenarios](scenarios/) &mdash; defining scenarios for eg. test suites
 * [WebSocket support](websockets/) &mdash; WebSocket support in RoboHydra
 * [Standard plugins](plugin-stdlib/) &mdash; plugin standard library
 * [Custom RoboHydra heads](custom-heads/) &mdash; how to create your own classes of heads
