@@ -6,8 +6,9 @@ var utils   = require("../lib/utils"),
 var helpers               = require("./helpers"),
     checkWebSocketRouting = helpers.checkWebSocketRouting,
     simpleWsReq           = helpers.simpleWsReq;
-var heads                  = require("../lib/heads"),
-    RoboHydraWebSocketHead = heads.RoboHydraWebSocketHead;
+var heads                       = require("../lib/heads"),
+    RoboHydraWebSocketHead      = heads.RoboHydraWebSocketHead,
+    RoboHydraWebSocketHeadProxy = heads.RoboHydraWebSocketHeadProxy;
 
 buster.spec.expose();
 var expect = buster.expect;
@@ -247,5 +248,241 @@ describe("Generic RoboHydraWebSocket heads", function() {
         expect(controller).toEqual('widget');
         expect(action).toEqual('search');
         expect(id).toEqual('term');
+    });
+});
+
+describe("RoboHydraWebSocketProxy heads", function() {
+    "use strict";
+
+    it("proxy connections", function(done) {
+        var head = new RoboHydraWebSocketHeadProxy({
+            mountPath: '/foo/',
+            proxyTo: 'ws://example.com/bar',
+            webSocketConstructor: function(url) {
+                this.on = function() {};
+                expect(url).toEqual('ws://example.com/bar/qux');
+                done();
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {on: function() {},
+                                              close: function() {}});
+    });
+
+    it("send data to the final server", function(done) {
+        var expectedMessage = "Test WebSocket message";
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            webSocketConstructor: function() {
+                this.on = function() {};
+                this.send = function(msg) {
+                    expect(msg).toEqual(expectedMessage);
+                    done();
+                };
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function(event, f) {
+                if (event === 'message') {
+                    f(expectedMessage);
+                }
+            },
+            close: function() {}
+        });
+    });
+
+    it("brings data back from the final server", function(done) {
+        var expectedMessage = "Test WebSocket message";
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            webSocketConstructor: function() {
+                this.on = function(event, f) {
+                    if (event === 'message') {
+                        f(expectedMessage);
+                    }
+                };
+                this.send = function() {};
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function() {},
+            send: function(msg) {
+                expect(msg).toEqual(expectedMessage);
+                done();
+            },
+            close: function() {}
+        });
+    });
+
+    it("close the socket when the final server closes", function(done) {
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            webSocketConstructor: function() {
+                this.on = function(event, f) {
+                    if (event === 'close') {
+                        f();
+                    }
+                };
+                this.send = function() {};
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function() {},
+            send: function() {},
+            close: function() {
+                expect(true).toEqual(true);
+                done();
+            }
+        });
+    });
+
+    it("close the final server socket when the client closes", function(done) {
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            webSocketConstructor: function() {
+                this.on = function() {};
+                this.close = function() {
+                    expect(true).toEqual(true);
+                    done();
+                };
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function(event, f) {
+                if (event === 'close') {
+                    f();
+                }
+            },
+            close: function() {}
+        });
+    });
+
+    it("can change the data before it's sent to the final server", function(done) {
+        var message = "Original message",
+            appendedBit = " (edited)";
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            preProcessor: function(msg) {
+                return msg + appendedBit;
+            },
+            webSocketConstructor: function() {
+                this.on = function() {};
+                this.send = function(msg) {
+                    expect(msg).toEqual(message + appendedBit);
+                    done();
+                };
+                this.close = function() {};
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function(event, f) {
+                if (event === 'message') {
+                    f(message);
+                }
+            },
+            close: function() {}
+        });
+    });
+
+    it("can change the data before it's returned from the final server", function(done) {
+        var message = "Original message",
+            appendedBit = " (edited)";
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            postProcessor: function(msg) {
+                return msg + appendedBit;
+            },
+            webSocketConstructor: function() {
+                this.on = function(event, f) {
+                    if (event === 'message') {
+                        f(message);
+                    }
+                };
+                this.send = function() {};
+                this.close = function() {};
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function() {},
+            send: function(msg) {
+                expect(msg).toEqual(message + appendedBit);
+                done();
+            },
+            close: function() {}
+        });
+    });
+
+    it("can prevent the data from being sent to the final server", function(done) {
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            preProcessor: function() {
+                // This means ignoring the data
+                return;
+            },
+            webSocketConstructor: function() {
+                this.on = function() {};
+                this.send = function() {
+                    expect(true).toEqual(false);
+                };
+                this.close = function() {
+                    expect(true).toEqual(true);
+                    done();
+                };
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function(event, f) {
+                switch (event) {
+                case 'message':
+                    f("Something");
+                    break;
+                case 'close':
+                    f();
+                }
+            },
+            send: function() {},
+            close: function() {}
+        });
+    });
+
+    it("can prevent the data from being received by the client", function(done) {
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            postProcessor: function() {
+                // This means ignoring the data
+                return;
+            },
+            webSocketConstructor: function() {
+                this.on = function(event, f) {
+                    if (event === 'message') {
+                        f("Some message");
+                    }
+                };
+                this.send = function() {};
+                this.close = function() {
+                    expect(true).toEqual(true);
+                    done();
+                };
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function(event, f) {
+                if (event === 'close') {
+                    f();
+                }
+            },
+            send: function() {
+                expect(true).toEqual(false);
+            },
+            close: function() {}
+        });
     });
 });

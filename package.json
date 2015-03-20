@@ -12,7 +12,8 @@
     "qs":        ">= 0.4.2",
     "commander": ">= 0.6.0",
     "markdown":  ">= 0.3.1",
-    "websocket.io": ">= 0.2.1"
+    "websocket.io": ">= 0.2.1",
+    "ws": ">= 0.7.0"
   },
   "devDependencies": {
     "buster": ">= 0.7.0",
