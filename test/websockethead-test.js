@@ -419,12 +419,67 @@ describe("RoboHydraWebSocketProxy heads", function() {
         });
     });
 
+    it("sends data to the final server when processors return nothing", function(done) {
+        var message = "Original message";
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            preProcessor: function() {
+                return;
+            },
+            webSocketConstructor: function() {
+                this.on = function() {};
+                this.send = function(msg) {
+                    expect(msg).toEqual(message);
+                    done();
+                };
+                this.close = function() {};
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function(event, f) {
+                if (event === 'message') {
+                    f(message);
+                }
+            },
+            close: function() {}
+        });
+    });
+
+    it("sends data to the final server when processors return nothing", function(done) {
+        var message = "Original message";
+        var head = new RoboHydraWebSocketHeadProxy({
+            proxyTo: 'ws://example.com',
+            postProcessor: function(msg) {
+                return msg;
+            },
+            webSocketConstructor: function() {
+                this.on = function(event, f) {
+                    if (event === 'message') {
+                        f(message);
+                    }
+                };
+                this.send = function() {};
+                this.close = function() {};
+            }
+        });
+
+        head.handle(simpleWsReq('/foo/qux'), {
+            on: function() {},
+            send: function(msg) {
+                expect(msg).toEqual(message);
+                done();
+            },
+            close: function() {}
+        });
+    });
+
     it("can prevent the data from being sent to the final server", function(done) {
         var head = new RoboHydraWebSocketHeadProxy({
             proxyTo: 'ws://example.com',
             preProcessor: function() {
                 // This means ignoring the data
-                return;
+                return false;
             },
             webSocketConstructor: function() {
                 this.on = function() {};
@@ -458,7 +513,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
             proxyTo: 'ws://example.com',
             postProcessor: function() {
                 // This means ignoring the data
-                return;
+                return false;
             },
             webSocketConstructor: function() {
                 this.on = function(event, f) {
