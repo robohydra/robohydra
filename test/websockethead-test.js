@@ -21,20 +21,21 @@ describe("Generic RoboHydraWebSocket heads", function() {
             /*jshint nonew: false*/
             new RoboHydraWebSocketHead({path: '/'});
         }).toThrow("InvalidRoboHydraHeadException");
-
-        expect(function() {
-            /*jshint nonew: false*/
-            new RoboHydraWebSocketHead({handler: function() {}});
-        }).toThrow("InvalidRoboHydraHeadException");
     });
 
     it("can have a name", function() {
         var head = new RoboHydraWebSocketHead({name: 'foo',
-                                               path: '/', handler: function() {}});
+                                               handler: function() {}});
         expect(head.name).toEqual('foo');
 
         var namelessHead = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
         expect(namelessHead.name).not.toBeDefined();
+    });
+
+    it("match all paths by default", function() {
+        var head = new RoboHydraWebSocketHead({handler: function() {}});
+
+        expect(head).toBeDefined();
     });
 
     it("can match simple paths", function() {
