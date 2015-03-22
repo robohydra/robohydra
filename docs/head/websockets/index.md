@@ -12,9 +12,9 @@ with HTTP/HTTPS, but WebSocket heads are slightly different.
 The basic WebSocket head
 ------------------------
 
-Currently there's only one WebSocket-enabled head,
-`RoboHydraWebSocketHead`. This would be be equivalent to
-`RoboHydraHead` for WebSockets. It has the following properties.
+The basic WebSocket-enabled head is called
+`RoboHydraWebSocketHead`. This would be the WebSocket-enabled
+equivalent to `RoboHydraHead`. It has the following properties.
 
 * `name` (optional): a *string* with a symbolic name for the head.
 * `path`: a *string* with a regular expression matching the paths this
@@ -69,11 +69,15 @@ Normally, you will want to save the given socket in a variable to use
 it afterwards. If you do so, make sure you save it in a variable
 _local to the `getBodyParts` function_.
 
+**Note:** As event handling (eg. receiving messages from a WebSocket)
+happens outside of the regular request flow, unhandled exceptions
+_will_ crash RoboHydra. Be careful and make sure you catch all
+exceptions!
 
-Examples
---------
 
-_To try out any of these heads you can use the WebSocket client at [`examples/websockets/index.html`](https://github.com/robohydra/robohydra/blob/master/examples/websockets/index.html)._
+### Examples
+
+_To try out any of the following heads you can use the WebSocket client at [`examples/websockets/index.html`](https://github.com/robohydra/robohydra/blob/master/examples/websockets/index.html)._
 
 This is a simple "echo service" WebSocket head. It simply echoes back
 whatever is written to the socket:
@@ -138,3 +142,31 @@ module.exports.getBodyParts = function() {
     };
 };
 {% endhighlight %}
+
+
+RoboHydraWebSocketHeadProxy
+---------------------------
+
+Apart from the basic WebSocket-enabled head, there is another one
+called `RoboHydraWebSocketHeadProxy`. This is somewhat similar to
+`RoboHydraHeadProxy` in that it can proxy WebSocket connections to
+another URL, and will send the data back and forth. It has the
+following properties:
+
+* `proxyTo`: the root URL the requests are going to be proxied to.
+* `mountPath` (optional): the path to "mount" the head in. This works
+  a bit differently than the `path` property in other heads. In this
+  case, it's not a regular expression, but a path under which
+  everything is considered handled by the head. It defaults to `/`.
+* `preProcess` (optional): a *function* that will be executed before
+  sending client data to the server. The function will receive one
+  parameter, namely the data to be sent. If this function returns
+  `false`, no data will not be sent at all; if it returns another
+  value, that value will be sent instead; if no value is returned, the
+  regular value will be sent.
+* `postProcess` (optional): a *function* that will be executed before
+  sending server data back to the client. The function will receive one
+  parameter, namely the data to be sent. If this function returns
+  `false`, no data will not be sent at all; if it returns another
+  value, that value will be sent instead; if no value is returned, the
+  regular value will be sent.
