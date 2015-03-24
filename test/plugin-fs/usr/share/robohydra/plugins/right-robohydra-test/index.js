@@ -10,7 +10,7 @@ exports.getBodyParts = function() {
             })
         ],
 
-        tests: {
+        scenarios: {
             robohydra1: {
                 heads: [
                     new RoboHydraHeadStatic({

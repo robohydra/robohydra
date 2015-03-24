@@ -36,6 +36,7 @@ describe("RoboHydra picking system", function() {
 
     it("detects non-existent, specified picking functions", function() {
         expect(function() {
+            /*jshint nonew: false */
             new RoboHydraSummoner(
                 [{name: 'simple-authenticator', config: {}},
                  {name: 'url-query-authenticator', config: {}}],
@@ -47,6 +48,7 @@ describe("RoboHydra picking system", function() {
 
     it("detects specified picking plugins without a picker function", function() {
         expect(function() {
+            /*jshint nonew: false */
             new RoboHydraSummoner(
                 [{name: 'simple-authenticator', config: {}},
                  {name: 'url-query-authenticator', config: {}},
@@ -95,17 +97,17 @@ describe("RoboHydra picking system", function() {
         var hydra1 = summoner.summonRoboHydraForRequest(new Request({
             url: '/?user=user1'
         }));
-        hydra1.startTest('right-robohydra-test', 'robohydra1');
+        hydra1.startScenario('right-robohydra-test', 'robohydra1');
         hydra1.randomProperty = 'user 1';
 
         var hydra2 = summoner.summonRoboHydraForRequest(new Request({
             url: '/?user=user2'
         }));
-        hydra2.startTest('right-robohydra-test', 'robohydra2');
+        hydra2.startScenario('right-robohydra-test', 'robohydra2');
 
         expect(hydra2.randomProperty).not.toBeDefined();
-        expect(hydra1.currentTest.test).toEqual('robohydra1');
-        expect(hydra2.currentTest.test).toEqual('robohydra2');
+        expect(hydra1.currentScenario.scenario).toEqual('robohydra1');
+        expect(hydra2.currentScenario.scenario).toEqual('robohydra2');
     });
 
     it("Hydras know their own name", function() {
