@@ -154,34 +154,40 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
      */
 
     /**
-     * Current scenario/test results. Its keys are plugin names and
+     * Current test (assertion) results. Its keys are plugin names and
      * its values are objects with scenario names as keys. The values
      * of the latter objects are test results: objects with the keys
-     * result (value is undefined if the test doesn’t have any result
-     * yet, or pass or fail if at least one assertion has run for that
-     * test), passes (an array with the description of the passing
-     * assertions) and failures (ditto for failing assertions).
+     * &quot;result&quot; (value is _undefined_ if the test doesn’t have any
+     * result yet, or the strings &quot;pass&quot; or &quot;fail&quot; if at least one
+     * assertion has run for that test), &quot;passes&quot; (an array with the
+     * description of the passing assertions) and &quot;failures&quot; (ditto
+     * for failing assertions). Assertion results obtained outside of
+     * a scenario are stored under the plugin name &quot;\*default\*&quot; and the
+     * scenario name &quot;\*default\*&quot;.
+     *
+     * @property {Object} testResults
+     */
+    /**
+     * Deprecated alias for testResults, please use testResults instead.
      *
      * @property {Object} scenarioResults
-     */
+     * @deprecated
+    */
     var RoboHydra = function(extraVars) {
         this.extraVars       = extendObject({}, extraVars || {});
         this._plugins        = [];
         this._headMap        = {};
         this.currentScenario = {plugin:   &#x27;*default*&#x27;,
                                 scenario: &#x27;*default*&#x27;};
-        // Deprecated, only kept for compatibility for a while
-        Object.defineProperty(this, &#x27;currentTest&#x27;, {
+        this.testResults = {&#x27;*default*&#x27;: {&#x27;*default*&#x27;: {result: undefined,
+                                                        passes: [],
+                                                        failures: []}}};
+        Object.defineProperty(this, &#x27;scenarioResults&#x27;, {
             get: function() {
-                return {plugin: this.currentScenario.plugin,
-                        test: this.currentScenario.scenario};
+                deprecationWarning(&quot;scenarioResults is deprecated, please use testResults instead&quot;);
+                return this.testResults;
             }
         });
-        this.scenarioResults = {&#x27;*default*&#x27;: {&#x27;*default*&#x27;: {result: undefined,
-                                                            passes: [],
-                                                            failures: []}}};
-        // Deprecated, only kept for compatibility for a while
-        this.testResults = this.scenarioResults;
 
         // Register special plugins
         // Admin
@@ -222,16 +228,10 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
     };
     RoboHydra.prototype._emptyPluginStructure = function(plugin) {
         var pluginToRegister = {
-            name:      plugin.name,
-            heads:     plugin.heads     || [],
-            scenarios: plugin.scenarios || {}
+            name:           plugin.name,
+            heads:          plugin.heads     || [],
+            scenarios:      plugin.scenarios || {}
         };
-        // Deprecated, only kept for compatibility for a while
-        if (plugin.tests) {
-            deprecationWarning(&quot;Using &#x27;tests&#x27; in a plugin is deprecated, please use &#x27;scenarios&#x27; instead&quot;);
-            pluginToRegister.scenarios = plugin.tests;
-        }
-        pluginToRegister.tests = pluginToRegister.scenarios;
 
         return {headMap: {}, plugin: pluginToRegister};
     };
@@ -301,9 +301,9 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
         }
 
         var pseudoPluginName = prio === &#x27;high&#x27; ? &#x27;*priority-dynamic*&#x27; : &#x27;*dynamic*&#x27;;
-        this._registerHeads([head], pseudoPluginName);
+        this._registerHeadsInPseudoPlugin([head], pseudoPluginName);
     };
-    RoboHydra.prototype._registerHeads = function(heads, pseudoPluginName) {
+    RoboHydra.prototype._registerHeadsInPseudoPlugin = function(heads, pseudoPluginName) {
         var done = false;
         for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
             if (this._plugins[i].plugin.name === pseudoPluginName) {
@@ -398,6 +398,19 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
             res.send(&quot;Not Found&quot;);
         }
     };
+    RoboHydra.prototype.webSocketHandle = function(req, socket) {
+        for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
+            var plugin = this._plugins[i].plugin;
+            for (var j = 0, len2 = plugin.heads.length; j &lt; len2; j++) {
+                if (plugin.heads[j].canHandle(req)) {
+                    plugin.heads[j].handle(req, socket);
+                    return;
+                }
+            }
+        }
+
+        socket.close();
+    };
     RoboHydra.prototype.findHead = function(pluginName, headName) {
         for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
             if (this._plugins[i].plugin.name === pluginName) {
@@ -463,7 +476,7 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
 
         // Check for unknown properties
         for (var prop in inflatedPlugin) {
-            if ([&#x27;heads&#x27;, &#x27;tests&#x27;, &#x27;scenarios&#x27;].indexOf(prop) === -1) {
+            if ([&#x27;heads&#x27;, &#x27;scenarios&#x27;].indexOf(prop) === -1) {
                 throw new InvalidRoboHydraPluginException(
                     &quot;Invalid plugin property &#x27;&quot; + prop + &quot;&#x27;&quot;
                 );
@@ -509,10 +522,6 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
         inflatedPlugin.name = pluginInfo.name;
         return inflatedPlugin;
     };
-    RoboHydra.prototype.startTest = function(pluginName, testName) {
-        deprecationWarning(&quot;startTest is deprecated, please use startScenario&quot;);
-        this.startScenario(pluginName, testName);
-    };
     /**
      * Start the given scenario.
      *
@@ -542,7 +551,7 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
             heads.forEach(function(head) {
                 head.reset();
             });
-            this._registerHeads(heads, &#x27;*current-scenario*&#x27;);
+            this._registerHeadsInPseudoPlugin(heads, &#x27;*current-scenario*&#x27;);
 
             this.testResults[pluginName] = this.testResults[pluginName] || {};
             this.testResults[pluginName][scenarioName] = {
@@ -553,10 +562,6 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
         } else {
             throw new InvalidRoboHydraScenarioException(pluginName, scenarioName);
         }
-    };
-    RoboHydra.prototype.stopTest = function() {
-        deprecationWarning(&quot;stopTest is deprecated, please use stopScenario&quot;);
-        this.stopScenario();
     };
     /**
      * Stop the given scenario.

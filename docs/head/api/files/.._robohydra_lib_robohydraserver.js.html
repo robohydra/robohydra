@@ -95,14 +95,47 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var http      = require(&#x27;http&#x27;),
-    https     = require(&#x27;https&#x27;),
-    fs        = require(&#x27;fs&#x27;);
+var http  = require(&#x27;http&#x27;),
+    https = require(&#x27;https&#x27;),
+    ws    = require(&#x27;websocket.io&#x27;),
+    fs    = require(&#x27;fs&#x27;);
 var utils        = require(&quot;../lib/utils&quot;),
     Request      = utils.Request,
     Response     = utils.Response,
     stringForLog = utils.stringForLog;
 var RoboHydraSummoner = require(&#x27;../lib/robohydrasummoner&#x27;).RoboHydraSummoner;
+
+function makeRequestHandler(config, summoner) {
+    // Routes are all dynamic, so we only need a catch-all here
+    return function(nodeReq, nodeRes) {
+        var reqBody = new Buffer(&quot;&quot;);
+        var res = new Response().
+            on(&quot;end&quot;, function(evt) {
+                if (! config.quiet) {
+                    console.log(stringForLog(nodeReq, evt.response));
+                }
+            });
+        Response.prototype.follow.call(nodeRes, res);
+
+        // Fetch POST data if available
+        nodeReq.addListener(&quot;data&quot;, function (chunk) {
+            var tmp = new Buffer(reqBody.length + chunk.length);
+            reqBody.copy(tmp);
+            chunk.copy(tmp, reqBody.length);
+            reqBody = tmp;
+        });
+        nodeReq.addListener(&quot;end&quot;, function () {
+            var req = new Request({
+                url: nodeReq.url,
+                method: nodeReq.method,
+                headers: nodeReq.headers,
+                rawBody: reqBody
+            });
+            summoner.summonRoboHydraForRequest(req).handle(req, res);
+        });
+    };
+}
+
 
 /**
  * Creates a RoboHydra server, similar to &#x60;http.createServer&#x60; or
@@ -150,53 +183,35 @@ function createRoboHydraServer(config, extraVars) {
     // early
     summoner.summonRoboHydraForRequest(new Request({url: &quot;/&quot;}));
 
-    // Routes are all dynamic, so we only need a catch-all here
-    var requestHandler = function(nodeReq, nodeRes) {
-        var reqBody = new Buffer(&quot;&quot;);
-        var res = new Response().
-            on(&quot;end&quot;, function(evt) {
-                if (! config.quiet) {
-                    console.log(stringForLog(nodeReq, evt.response));
-                }
-            });
-        Response.prototype.follow.call(nodeRes, res);
-
-        // Fetch POST data if available
-        nodeReq.addListener(&quot;data&quot;, function (chunk) {
-            var tmp = new Buffer(reqBody.length + chunk.length);
-            reqBody.copy(tmp);
-            chunk.copy(tmp, reqBody.length);
-            reqBody = tmp;
-        });
-        nodeReq.addListener(&quot;end&quot;, function () {
-            var req = new Request({
-                url: nodeReq.url,
-                method: nodeReq.method,
-                headers: nodeReq.headers,
-                rawBody: reqBody
-            });
-            summoner.summonRoboHydraForRequest(req).handle(req, res);
-        });
-    };
-
-    var server;
+    var handler = makeRequestHandler(config, summoner),
+        server;
     if (config.secure) {
-        var sslOptionsObject = {};
         var keyPath  = config.sslOptions.key,
             certPath = config.sslOptions.cert;
-        try {
-            sslOptionsObject.key  = fs.readFileSync(keyPath);
-            sslOptionsObject.cert = fs.readFileSync(certPath);
-        } catch(e) {
-            console.error(&quot;Could not read the HTTPS key or certificate file.&quot;);
-            console.error(&quot;Paths were &#x27;&quot; + keyPath + &quot;&#x27; and &#x27;&quot; + certPath + &quot;&#x27;.&quot;);
-            console.error(&quot;You must set properties &#x27;key&#x27; and &#x27;cert&#x27; inside &#x27;sslOptions&#x27;.&quot;);
-            process.exit(1);
+
+        if (!keyPath) {
+            throw new Error(&quot;Need sslOptions.key if secure is set to true&quot;);
         }
-        server = https.createServer(sslOptionsObject, requestHandler);
+        if (!certPath) {
+            throw new Error(&quot;Need sslOptions.cert if secure is set to true&quot;);
+        }
+
+        server = https.createServer({
+            key: fs.readFileSync(keyPath),
+            cert: fs.readFileSync(certPath)
+        }, handler);
     } else {
-        server = http.createServer(requestHandler);
+        server = http.createServer(handler);
     }
+
+    var wsServer = ws.attach(server);
+    wsServer.on(&quot;connection&quot;, function(client) {
+        // Make sure there&#x27;s at least one handler for the &#x27;error&#x27;
+        // event so that the server doesn&#x27;t die when a client closes
+        // the websocket connection
+        client.on(&quot;error&quot;, function() {});
+        summoner.summonRoboHydraForRequest(client.req).webSocketHandle(client.req, client);
+    });
 
     return server;
 }

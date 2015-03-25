@@ -331,8 +331,17 @@ command-line parameters in the &quot;robohydra&quot; executable.</p>
                                 
                             </li>
                         
-                            <li class="index-item property">
+                            <li class="index-item property deprecated">
                                 <a href="#property_scenarioResults">scenarioResults</a>
+
+                                
+                                
+                                    <span class="flag deprecated">deprecated</span>
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_testResults">testResults</a>
 
                                 
                                 
@@ -400,7 +409,7 @@ command-line parameters in the &quot;robohydra&quot; executable.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l333"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:333</code></a>
+        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l346"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:346</code></a>
         
         </p>
 
@@ -512,7 +521,7 @@ command-line parameters in the &quot;robohydra&quot; executable.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l322"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:322</code></a>
+        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l335"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:335</code></a>
         
         </p>
 
@@ -622,7 +631,7 @@ detach.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l512"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:512</code></a>
+        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l517"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:517</code></a>
         
         </p>
 
@@ -1405,7 +1414,7 @@ plugin-specific configuration. Optional.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l419"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:419</code></a>
+        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l428"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:428</code></a>
         
         </p>
 
@@ -1517,7 +1526,7 @@ the scenario to start.</p>
             
         
         
-        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l464"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:464</code></a>
+        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l469"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:469</code></a>
         
         </p>
 
@@ -1636,8 +1645,55 @@ it’s &quot;*default*&quot; / &quot;*default*&quot;.</p>
 </div>
 
                 
-                    <div id="property_scenarioResults" class="property item">
+                    <div id="property_scenarioResults" class="property item deprecated">
     <h3 class="name"><code>scenarioResults</code></h3>
+    <span class="type">Object</span>
+
+    
+        <span class="flag deprecated">deprecated</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l73"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:73</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Deprecated alias for testResults, please use testResults instead.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_testResults" class="property item">
+    <h3 class="name"><code>testResults</code></h3>
     <span class="type">Object</span>
 
     
@@ -1669,13 +1725,16 @@ it’s &quot;*default*&quot; / &quot;*default*&quot;.</p>
     </div>
 
     <div class="description">
-        <p>Current scenario/test results. Its keys are plugin names and
+        <p>Current test (assertion) results. Its keys are plugin names and
 its values are objects with scenario names as keys. The values
 of the latter objects are test results: objects with the keys
-result (value is undefined if the test doesn’t have any result
-yet, or pass or fail if at least one assertion has run for that
-test), passes (an array with the description of the passing
-assertions) and failures (ditto for failing assertions).</p>
+&quot;result&quot; (value is <em>undefined</em> if the test doesn’t have any
+result yet, or the strings &quot;pass&quot; or &quot;fail&quot; if at least one
+assertion has run for that test), &quot;passes&quot; (an array with the
+description of the passing assertions) and &quot;failures&quot; (ditto
+for failing assertions). Assertion results obtained outside of
+a scenario are stored under the plugin name &quot;*default*&quot; and the
+scenario name &quot;*default*&quot;.</p>
 
     </div>
 
