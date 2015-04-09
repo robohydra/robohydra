@@ -77,7 +77,7 @@ exceptions!
 
 ### Examples
 
-_To try out any of the following heads you can use the WebSocket client at [`examples/websockets/index.html`](https://github.com/robohydra/robohydra/blob/master/examples/websockets/index.html)._
+_To try out any of the following heads you can use the WebSocket client at [`examples/plugins/websockets/static/index.html`](https://github.com/robohydra/robohydra/blob/master/examples/plugins/websockets/static/index.html)._
 
 This is a simple "echo service" WebSocket head. It simply echoes back
 whatever is written to the socket:
@@ -158,15 +158,82 @@ following properties:
   a bit differently than the `path` property in other heads. In this
   case, it's not a regular expression, but a path under which
   everything is considered handled by the head. It defaults to `/`.
-* `preProcess` (optional): a *function* that will be executed before
+* `preProcessor` (optional): a *function* that will be executed before
   sending client data to the server. The function will receive one
   parameter, namely the data to be sent. If this function returns
   `false`, no data will not be sent at all; if it returns another
   value, that value will be sent instead; if no value is returned, the
   regular value will be sent.
-* `postProcess` (optional): a *function* that will be executed before
-  sending server data back to the client. The function will receive one
-  parameter, namely the data to be sent. If this function returns
-  `false`, no data will not be sent at all; if it returns another
-  value, that value will be sent instead; if no value is returned, the
-  regular value will be sent.
+* `postProcessor` (optional): a *function* that will be executed
+  before sending server data back to the client. The function will
+  receive one parameter, namely the data to be sent. If this function
+  returns `false`, no data will not be sent at all; if it returns
+  another value, that value will be sent instead; if no value is
+  returned, the regular value will be sent.
+
+### Examples
+
+Simply print to the console the traffic between client and sever,
+without changing anything:
+
+{% highlight javascript %}
+var heads                       = require("robohydra").heads,
+    RoboHydraWebSocketHeadProxy = heads.RoboHydraWebSocketHeadProxy;
+
+module.exports.getBodyParts = function() {
+    return {
+        heads: [
+            new RoboHydraWebSocketHeadProxy({
+                proxyTo: 'ws://my-server.example.com',
+                preProcessor: function(data) {
+                    console.log('From the client: ' + data);
+                },
+                postProcessor: function(data) {
+                    console.log('From the server: ' + data);
+                }
+            })
+        ]
+    };
+};
+{% endhighlight %}
+
+Now, change messages from the server to uppercase:
+
+{% highlight javascript %}
+var heads                       = require("robohydra").heads,
+    RoboHydraWebSocketHeadProxy = heads.RoboHydraWebSocketHeadProxy;
+
+module.exports.getBodyParts = function() {
+    return {
+        heads: [
+            new RoboHydraWebSocketHeadProxy({
+                proxyTo: 'ws://my-server.example.com',
+                postProcessor: function(data) {
+                    return data.toUpperCase();
+                }
+            })
+        ]
+    };
+};
+{% endhighlight %}
+
+Finally, avoid sending to the server any client messages matching ERROR:
+{% highlight javascript %}
+var heads                       = require("robohydra").heads,
+    RoboHydraWebSocketHeadProxy = heads.RoboHydraWebSocketHeadProxy;
+
+module.exports.getBodyParts = function() {
+    return {
+        heads: [
+            new RoboHydraWebSocketHeadProxy({
+                proxyTo: 'ws://my-server.example.com',
+                preProcessor: function(data) {
+                    if (/ERROR/.test(data)) {
+                        return false;
+                    }
+                }
+            })
+        ]
+    };
+};
+{% endhighlight %}
