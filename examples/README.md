@@ -70,3 +70,7 @@ Description
 * advanced-matching.conf loads a plugin that demonstrates advanced
   head matching, using the HTTP method or the hostname of the incoming
   request.
+
+* websockets.conf loads a plugin that demonstrates simple WebSocket
+  capabilities. To use it, you can load http://localhost:3000 in a
+  browser and follow the instructions.

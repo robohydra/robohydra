@@ -1,3 +1,4 @@
+var path = require("path");
 var heads                   = require("robohydra").heads,
     RoboHydraHead           = heads.RoboHydraHead,
     RoboHydraWebSocketHead  = heads.RoboHydraWebSocketHead,
@@ -25,16 +26,14 @@ module.exports.getBodyParts = function() {
             new RoboHydraHeadFilesystem({
                 name: 'static-files',
                 mountPath: '/',
-                documentRoot: 'examples/websockets'
+                documentRoot: path.join(__dirname, 'static')
             }),
 
             new RoboHydraWebSocketHead({
                 name: 'ws-receiver',
                 path: '/.*',
                 handler: function(req, sock) {
-                    console.log("Hey, I received a connection from URL path " + req.url);
-
-                    sock.send('test data');
+                    sock.send('Server initialized');
                     sock.on('message', function(msg) {
                         console.log("Received mesage " + msg);
                         sock.send("Received '" + msg + "' from the client");
