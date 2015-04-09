@@ -74,3 +74,9 @@ Description
 * websockets.conf loads a plugin that demonstrates simple WebSocket
   capabilities. To use it, you can load http://localhost:3000 in a
   browser and follow the instructions.
+
+* websockets-proxy.conf loads a plugin that demonstrates simple
+  WebSocket proxying capabilities. You will also need to run the
+  previous example (websockets.conf) in another terminal for this to
+  work. Once both are running, you can load http://localhost:3001
+  (note the different port!) in a browser and follow the instructions.

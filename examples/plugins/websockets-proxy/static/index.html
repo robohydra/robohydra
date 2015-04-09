@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <title>WebSocket RoboHydra example</title>
+    <meta charset="utf-8" />
+    <style type="text/css" media="screen">
+      body {
+        font-family: "Gill Sans Extrabold", Helvetica, sans-serif;
+        margin-left: 20px;
+        margin-right: 20px;
+      }
+
+      #server-messages, .yellow {
+        background-color: #ffb;
+      }
+
+      #server-messages {
+        padding: 10px;
+        width: 80%;
+      }
+
+      .footnote {
+        margin-top: 2ex;
+        font-size: 80%;
+        font-style: italic;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>WebSocket proxy test client</h1>
+
+    <p>This is a test client for the WebSocket <em>proxying</em>
+    capabilities in RoboHydra. You should also have loaded
+    the <tt>websockets</tt> example plugin (eg. by
+    running <code>robohydra examples/websockets.conf</code> in another
+    terminal).</p>
+
+    <p>You can send messages to the WebSocket proxy (which will relay
+    to the echo server) using the textbox below, and see the
+    locally-timestamped messages received from the server in
+    the <span class="yellow">yellow</span> box below.</p>
+
+    <p>The proxy won't let through <em>client</em> messages matching
+    "php" (those messages won't be printed in the terminal from which
+    you started the <tt>websockets</tt> example plugin), and will
+    uppercase messages from the server before sending back to the
+    client.</p>
+
+    <form>
+      <input type="text" id="message-text" autofocus="autofocus" placeholder="Message to send via WebSocket" />
+      <button id="send-message-button">Send message</button>
+    </form>
+
+    <div id="server-messages"></div>
+
+    <div class="footnote">Feel free to open the Developer Console to
+    see some more debugging messages...</div>
+
+    <script type="text/javascript">
+      var serverMessageDiv = document.getElementById('server-messages');
+      var messageTextInput = document.getElementById('message-text');
+      var connection = new WebSocket('ws://localhost:3001/echo');
+
+      connection.onopen = function () {
+          console.log("Opened connection to the server");
+          connection.send("Ping");
+      };
+
+      connection.onclose = function (e) {
+          console.log("Connection closed?");
+      };
+
+      connection.onerror = function (e) {
+          var textNode = document.createTextNode('ERROR: ' + JSON.stringify(e));
+          serverMessageDiv.appendChild(textNode);
+      };
+
+      connection.onmessage = function (msg) {
+          function pad(value) {
+              return value < 10 ? '0' + value : value;
+          }
+          var textNode = document.createElement('div'),
+              now      = new Date(),
+              text     = pad(now.getHours()) + ':' +
+                             pad(now.getMinutes()) + ':' +
+                             pad(now.getSeconds()) + ' - ' + msg.data;
+          textNode.appendChild(document.createTextNode(text));
+          serverMessageDiv.appendChild(textNode);
+      };
+
+      var sendButton = document.getElementById('send-message-button');
+      sendButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log("Sending message to server: " + messageTextInput.value);
+          connection.send(messageTextInput.value);
+      }, false);
+    </script>
+  </body>
+</html>
