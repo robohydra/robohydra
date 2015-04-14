@@ -1,12 +1,11 @@
 ---
 layout: default
 ---
-<div class="message warning">
-  <img src="/static/img/dialog-warning.png"/>
+<div class="message info">
+  <img src="/static/img/dialog-information.png"/>
 
-  <strong>Oi!</strong> This is documentation is for an older version
-  of RoboHydra. Unless you know you're using version 0.5.1, please
-  read the <a href="../">documentation for the latest version</a>.
+  <strong>Pssst!</strong> If you're using RoboHydra from Git, check
+  the <a href="../head">documentation for the Git version</a>.
 </div>
 
 Tutorials
@@ -24,6 +23,8 @@ Reference documentation
 * [Configuration](configuration/) &mdash; RoboHydra configuration file format
 * [Writing plugins](plugins/) &mdash; plugin format
 * [RoboHydra heads](heads/) &mdash; how the different types of heads work
+* [Defining scenarios](scenarios/) &mdash; defining scenarios for eg. test suites
+* [WebSocket support](websockets/) &mdash; WebSocket support in RoboHydra
 * [Standard plugins](plugin-stdlib/) &mdash; plugin standard library
 * [Custom RoboHydra heads](custom-heads/) &mdash; how to create your own classes of heads
 * [RoboHydra summoners](summoners/) &mdash; how to keep a single server for multiple users
