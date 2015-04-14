@@ -1,13 +1,21 @@
-Version 0.x.x (xxxx-xx-xx)
+Version 0.6.0 (2015-04-14)
 --------------------------
 
-	* WebSocket support! See the documentation for details.
+	* WebSocket support! There are two WebSocket heads available:
+	RoboHydraWebSocketHead, a basic head similar to RoboHydraHead, and
+	RoboHydraWebSocketHeadProxy, similar to RoboHydraHeadProxy but
+	allowing filtering and blocking of data sent in either
+	direction. See the documentation for details.
 
 	* Accept a list of extra plugin load directories (as opposed to
 	only one).
 
 	* CORS plugin: always set the Access-Control-Allow-Credentials
 	header to true to allow credentials to be passed.
+
+	* Finally decided in favour of the name "testResults" instead of
+	"scenarioResults" (and mark the latter as deprecated). Drop many
+	names that have been deprecated for a long time.
 
 
 Version 0.5.2 (2015-01-16)
