@@ -4,15 +4,6 @@ layout: documentation
 RoboHydra Summoners
 ===================
 
-<div class="message warning">
-  <img src="/static/img/dialog-warning.png"/>
-
-  This feature is experimental and might change dramatically, or even
-  disappear, before RoboHydra 1.0. Please give feedback to the <a
-  href="https://groups.google.com/forum/#!forum/robohydra">mailing
-  list</a>!
-</div>
-
 What
 ----
 

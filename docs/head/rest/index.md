@@ -171,3 +171,36 @@ least one assertion in the "passes" list and no assertions in the
     }
 }
 {% endhighlight %}
+
+
+Summoner (list of hydras)
+-------------------------
+
+    http://localhost:3000/robohydra-admin/rest/summoner
+
+This call gives the list of current hydras. Example output
+(reformatted for readability):
+
+{% highlight json %}
+{
+    "hydras": [
+        "anonymous",
+        "foo",
+        "bar"
+    ]
+}
+{% endhighlight %}
+
+Single hydra
+------------
+
+    http://localhost:3000/robohydra-admin/rest/hydras/<HYDRANAME>
+
+This call allows you to delete a hydra. You can either use the DELETE
+verb or the POST verb with `active=false` as a body parameter,
+form-encoded. That is, these two calls are equivalent:
+
+    $ curl -X DELETE http://localhost:3000/robohydra-admin/rest/hydras/foo
+    $ curl -X POST -d "active=false" http://localhost:3000/robohydra-admin/rest/hydras/foo
+
+The output will be empty and the status code will be 204 No Content.
