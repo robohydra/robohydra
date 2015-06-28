@@ -2,6 +2,7 @@ Version 0.x.x (xxxx-xx-xx)
 --------------------------
 
 	* Allow inspection and deletion of hydras spawned by the summoner.
+	* Replayer plugin: big improvements, mostly in the UI.
 
 Version 0.6.0 (2015-04-14)
 --------------------------

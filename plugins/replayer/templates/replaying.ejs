@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="<%= baseUrl %>/static/favicon.ico" />
+    <link href="<%= baseUrl %>/static/css/lipstick.css" rel="stylesheet">
+    <link href="<%= baseUrl %>/static/css/robohydra.css" rel="stylesheet">
+    <script src="<%= baseUrl %>/static/js/robohydra.js"></script>
+
+    <!-- HTML5 shiv -->
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span12 pod">
+          <div class="pod-body">
+            <h1>Replay mode started</h1>
+
+            <p>From now on, this RoboHydra server will respond with
+            traffic from <strong><code><%= trafficFilePath
+            %></code></strong> (ie. RoboHydra
+            will <strong>not</strong> reverse proxy real traffic from
+            <%= proxyToUrl %> or any other site).</p>
+
+            <% if (trafficFiles.length > 1) { %>
+              <p>You can replay traffic from one of these files instead:</p>
+
+              <ul>
+                <% trafficFiles.forEach(function (filePath) { %>
+                  <% if (filePath === trafficFilePath) { return; } %>
+                  <li><a href="/start-replaying?trafficFilePath=<%= filePath %>"><%= filePath %></a></li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p>There are no other traffic files (<code>*.json</code>) in the current directory.</p>
+            <% } %>
+
+            <p>You can also go to
+            the <a href="/start-recording">Recording Mode
+            configuration</a> and save some more traffic.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

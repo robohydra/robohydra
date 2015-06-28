@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="<%= baseUrl %>/static/favicon.ico" />
+    <link href="<%= baseUrl %>/static/css/lipstick.css" rel="stylesheet">
+    <link href="<%= baseUrl %>/static/css/robohydra.css" rel="stylesheet">
+    <script src="<%= baseUrl %>/static/js/robohydra.js"></script>
+
+    <!-- HTML5 shiv -->
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span12 pod">
+          <div class="pod-body">
+            <h1>Recording Mode</h1>
+
+            <p>You can record all the traffic to <%= proxyToUrl %>
+            now: simply visit the site through <a href="#"
+            id="robohydra-link">RoboHydra</a> and the traffic will be
+            recorded in whichever file you choose below.</p>
+
+            <p>When you're done you can replay that traffic by visiting
+            /start-replaying?trafficFilePath=robohydra-replayer.json.</p>
+
+            <form action="/start-recording" class="form pod-body">
+              <label for="recording-file">File to record traffic to:</label>
+              <input id="recording-file" type="text" name="trafficFilePath" placeholder="File name (eg. robohydra-replayer.json)" value="<%= trafficFilePath %>" />
+
+              <button type="submit" class="btn primary">Record</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      window.addEventListener("load", function() {
+        var robohydraLink = document.getElementById("robohydra-link"),
+            url = location.protocol + "//" + location.host;
+
+        robohydraLink.textContent = url;
+        robohydraLink.href = url;
+      }, false);
+    </script>
+  </body>
+</html>
