@@ -139,9 +139,9 @@ requests to `http://localhost:3000/foobar` will go to
 `http://myserver.example.com/api/foobar`. The traffic will be saved in
 a file `robohydra-replayer.json` in the current directory by default,
 but a different filename can be specified in the `trafficfilepath`
-configuration variable. Note that this traffic file is relatively easy
-to fiddle with, which makes it easy to make variations of the traffic
-for testing.
+configuration variable or through GET parameters. Note that this
+traffic file is relatively easy to fiddle with, which makes it easy to
+make variations of the traffic for testing.
 
 Once you have some traffic that you want to replay (recorded in the
 same session or simply a file you had pre-recorded in a previous
