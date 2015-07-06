@@ -1,7 +1,8 @@
 /*global describe, it*/
 
 var buster = require("buster"),
-    zlib   = require("zlib");
+    zlib   = require("zlib"),
+    fs     = require("fs");
 var helpers         = require("./helpers"),
     checkRouting    = helpers.checkRouting,
     withResponse    = helpers.withResponse,
@@ -17,7 +18,8 @@ var heads                   = require("../lib/heads"),
     RoboHydraHeadFilesystem = heads.RoboHydraHeadFilesystem,
     RoboHydraHeadProxy      = heads.RoboHydraHeadProxy,
     RoboHydraHeadFilter     = heads.RoboHydraHeadFilter,
-    RoboHydraHeadWatchdog   = heads.RoboHydraHeadWatchdog;
+    RoboHydraHeadWatchdog   = heads.RoboHydraHeadWatchdog,
+    RoboHydraHeadReplayer   = heads.RoboHydraHeadReplayer;
 var InvalidRoboHydraHeadException =
         require("../lib/exceptions").InvalidRoboHydraHeadException;
 
@@ -1607,6 +1609,144 @@ describe("RoboHydra watchdog heads", function() {
                 res.headers['content-encoding'] = 'deflate';
                 res.send(data);
             });
+        });
+    });
+});
+
+describe("RoboHydra traffic replayer heads", function() {
+    "use strict";
+
+    it("accept traffic as objects or strings", function() {
+        expect(function() {
+            var traffic = {"/": [{statusCode: 200, headers: {}, body: ""}]};
+
+            /*jshint nonew: false*/
+            new RoboHydraHeadReplayer({
+                traffic: traffic
+            });
+
+            new RoboHydraHeadReplayer({
+                traffic: JSON.stringify(traffic)
+            });
+        }).not.toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("complain if traffic is neither an object or a string", function() {
+        expect(function() {
+            /*jshint nonew: false*/
+            new RoboHydraHeadReplayer({
+                traffic: 0
+            });
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("complain if traffic is a non-JSON string", function() {
+        expect(function() {
+            /*jshint nonew: false*/
+            new RoboHydraHeadReplayer({
+                traffic: "this is not JSON :-("
+            });
+        }).toThrow("InvalidRoboHydraHeadException");
+    });
+
+    it("return 404 on non-mentioned paths", function(done) {
+        var head = new RoboHydraHeadReplayer({
+            traffic: {"/foo": [{statusCode: 200, headers: [], body: "Zm9v"}]}
+        });
+
+        withResponse(head, '/', function(res) {
+            expect(res.statusCode).toEqual(404);
+            done();
+        });
+    });
+
+    it("returns 404 if there are no responses for the given path", function(done) {
+        var head = new RoboHydraHeadReplayer({
+            traffic: {"/foo": []}
+        });
+
+        withResponse(head, '/foo', function(res) {
+            expect(res.statusCode).toEqual(404);
+            done();
+        });
+    });
+
+    it("replicate full responses stored in traffic", function(done) {
+        var head = new RoboHydraHeadReplayer({
+            traffic: {"/foo": [{statusCode: 201, headers: {}, body: "Zm9v"}],
+                      "/bar": [{statusCode: 301,
+                                headers: {location: "/foo"},
+                                body: "YmFy"}]}
+        });
+
+        checkRouting(head, [
+            ['/foo', {statusCode: 201, content: "foo"}],
+            ['/bar', {statusCode: 301,
+                      headers: {location: "/foo"},
+                      content: "bar"}]
+        ], done);
+    });
+
+    it("round-robin through responses for a given path", function(done) {
+        var head = new RoboHydraHeadReplayer({
+            traffic: {"/foo": [{statusCode: 200, headers: {}, body: "dW5v"},
+                               {statusCode: 200, headers: {}, body: "ZG9z"}]}
+        });
+
+        checkRouting(head, [
+            ['/foo', "uno"],
+            ['/foo', "dos"],
+            ['/foo', "uno"]
+        ], done);
+    });
+
+    it("can reset indices", function(done) {
+        var head = new RoboHydraHeadReplayer({
+            traffic: {"/foo": [{statusCode: 200, headers: {}, body: "dW5v"},
+                               {statusCode: 200, headers: {}, body: "ZG9z"},
+                               {statusCode: 200, headers: {}, body: "dHJl"}]}
+        });
+
+        checkRouting(head, [
+            ['/foo', "uno"],
+            ['/foo', "dos"]
+        ], function() {
+            head.reset();
+
+            withResponse(head, '/foo', function(res) {
+                expect(res.body.toString()).toEqual("uno");
+                done();
+            });
+        });
+    });
+
+    it("send binary data correctly", function(done) {
+        var imageFilePath = 'lib/plugins/static/img/robohydra.png',
+            imageDataB64 = fs.readFileSync(imageFilePath).toString('base64'),
+            head = new RoboHydraHeadReplayer({
+                traffic: {"/img/robohydra.png": [
+                    {statusCode: 200,
+                     headers: {},
+                     body: imageDataB64}
+                ]}
+            });
+
+        withResponse(head, '/img/robohydra.png', function(res) {
+            expect(res.body.toString('base64')).toEqual(imageDataB64);
+            done();
+        });
+    });
+
+    it("use defaults for headers and statusCode", function(done) {
+        var head = new RoboHydraHeadReplayer({
+            traffic: {"/foo": [{body: "Zm9v"}]}
+        });
+
+        withResponse(head, '/foo', function(res) {
+            expect(Object.keys(res.headers).length).toEqual(0);
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.toString()).toEqual("foo");
+            done();
         });
     });
 });
