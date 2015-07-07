@@ -11,6 +11,7 @@ exports.getBodyParts = function(conf) {
 
     conf.robohydra.registerDynamicHead(new RoboHydraHead({
         name: 'delayer',
+        detached: delayDisabled,
         path: delayPath,
         handler: function(req, res, next) {
             setTimeout(function() {
@@ -23,7 +24,6 @@ exports.getBodyParts = function(conf) {
         heads: [
             new RoboHydraHead({
                 name: 'delayer-config',
-                detached: delayDisabled,
                 path: '/robohydra-admin/delay/:delayValue',
                 handler: function(req, res) {
                     delayMilliseconds = parseInt(req.params.delayValue, 10);
