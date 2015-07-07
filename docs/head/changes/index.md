@@ -14,3 +14,8 @@ This is a summary of the changes between RoboHydra 0.6.0 and RoboHydra
 
 If you're using [summoners](../summoners/), now you can delete hydras
 created by it using the Admin web UI, or the [REST API](../rest/).
+
+### Plugin improvements
+
+Big improvements in the `replayer` plugin UI; added `delaydisabled`
+option to the `delayer` plugin to disable it on startup.

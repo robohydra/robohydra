@@ -30,8 +30,10 @@ Insert an artificial delay to the requests matching the specified path
 (by default, all paths). Useful to simulate high-latency connections
 and to help reproduce certain race conditions.
 
-Can be configured with variables `delaypath` and `delaymillis` (number
-of milliseconds to wait, by default 2000).
+Can be configured with variables `delaypath`, `delaymillis` (number of
+milliseconds to wait, by default 2000), and `delaydisabled` (if given
+a truthy value, it disables the delay on startup; the appropriate head
+can of course be attached later to enable the delay).
 
 
 `frontend-dev-proxy`
