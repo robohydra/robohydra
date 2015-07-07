@@ -6,7 +6,8 @@ exports.getBodyParts = function(conf) {
     "use strict";
 
     var delayMilliseconds = conf.delaymillis || 2000,
-        delayPath = conf.delaypath || '/.*';
+        delayPath = conf.delaypath || '/.*',
+        delayDisabled = !!conf.delaydisabled;
 
     conf.robohydra.registerDynamicHead(new RoboHydraHead({
         name: 'delayer',
@@ -22,6 +23,7 @@ exports.getBodyParts = function(conf) {
         heads: [
             new RoboHydraHead({
                 name: 'delayer-config',
+                detached: delayDisabled,
                 path: '/robohydra-admin/delay/:delayValue',
                 handler: function(req, res) {
                     delayMilliseconds = parseInt(req.params.delayValue, 10);
