@@ -459,3 +459,55 @@ new RoboHydraHeadWatchdog({
     }
 })
 {% endhighlight %}
+
+
+### RoboHydraHeadReplayer
+This head replays the given traffic. The traffic is a JSON string or
+an object. It has the following properties:
+
+* `traffic`: a JSON string or an object describing the traffic to
+  replay in the same format saved by the [`replayer`
+  plugin](../plugin-stdlib/). Essentially, it's an object with URL
+  paths as keys, and arrays as values. Each value in the array is a
+  response that will be used in a round-robin fashion, consisting of
+  three keys: `statusCode` (optional), `headers` (optional) and
+  `body` (mandatory, in base64 format).
+
+#### Examples
+
+Let's say that we have saved the traffic for the interaction between a
+client and a very simple API server that has two endpoints: `/login`
+and `/timeline`. That interaction only had one call to `/login`, and
+two calls to `/timeline` that yielded two different results. If we
+replay that traffic, the client will always receive the same response
+when trying to login, but it will alternatively receive the first and
+the second saved responses when trying to fetch the timeline:
+
+{% highlight javascript %}
+new RoboHydraHeadReplayer({
+    traffic: {
+        "/login": [
+            {statusCode: 200,
+             headers: {},
+             body: "eyJzdGF0dXMiOiAib2sifQ=="}
+        ],
+        "/timeline": [
+            {statusCode: 200,
+             headers: {},
+             body: "eyJ0aW1lbGluZSI6W3sibXNnIjoiSGkhIn1dfQ=="},
+            {statusCode: 200,
+             headers: {},
+             body: "eyJ0aW1lbGluZSI6W3sibXNnIjoiTmV3In0seyJtc2ciOiJIaSEifV19"}
+         ]
+    }
+})
+{% endhighlight %}
+
+If we have the traffic saved, it's much more likely that we just want
+to load it from a file:
+
+{% highlight javascript %}
+new RoboHydraHeadReplayer({
+    traffic: JSON.parse(fs.readFileSync('timeline-add.json'))
+})
+{% endhighlight %}
