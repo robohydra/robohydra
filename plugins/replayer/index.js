@@ -172,6 +172,6 @@ exports.getBodyParts = function(conf) {
                 proxyTo: proxyToUrl,
                 setHostHeader: true
             })
-                             ]
+        ]
     };
 };
