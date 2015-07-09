@@ -9,7 +9,7 @@ function kill_rh {
 }
 
 function wait_for_server {
-    max_times=100
+    max_times=200
     count=0
     while [ $count -lt $max_times ]; do
         curl http://localhost:${1:-3000} &>/dev/null
