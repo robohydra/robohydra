@@ -1,6 +1,6 @@
 {
   "name": "robohydra",
-  "version": "0.6.0000000000001",
+  "version": "0.6.1",
   "bin": "./bin/robohydra.js",
   "main": "./lib/exports.js",
   "scripts": {

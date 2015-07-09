@@ -1,8 +1,16 @@
-Version 0.x.x (xxxx-xx-xx)
+Version 0.6.1 (2015-07-09)
 --------------------------
 
 	* Allow inspection and deletion of hydras spawned by the summoner.
+	Finally consider it fit for production, not an experiment.
+
 	* Replayer plugin: big improvements, mostly in the UI.
+
+	* New RoboHydraHeadReplayer head: it allows you to easily replay
+	traffic files recorded with the replayer plugin.
+
+	* Other small improvements, like fixes in the CORS plugin and a
+	new option "delaydisabled" for the delayer plugin.
 
 Version 0.6.0 (2015-04-14)
 --------------------------
