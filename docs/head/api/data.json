@@ -346,7 +346,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 428,
+            "line": 429,
             "description": "Start the given scenario.",
             "itemtype": "method",
             "name": "startScenario",
@@ -366,7 +366,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 469,
+            "line": 470,
             "description": "Stop the given scenario.",
             "itemtype": "method",
             "name": "stopScenario",
@@ -386,7 +386,7 @@
         },
         {
             "file": "../robohydra/lib/RoboHydra.js",
-            "line": 517,
+            "line": 518,
             "description": "Returns an object with the modules for a given plugin.",
             "itemtype": "method",
             "name": "getModulesObject",

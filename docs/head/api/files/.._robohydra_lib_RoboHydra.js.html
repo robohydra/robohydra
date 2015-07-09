@@ -466,7 +466,8 @@ var exceptions         = require(&#x27;./exceptions.js&#x27;),
     };
     RoboHydra.prototype._inflatePlugin = function(pluginInfo) {
         var finalPluginConfig = extendObject({
-            robohydra: this, path: pluginInfo.path
+            robohydra: this,
+            path: pluginInfo.path
         }, pluginInfo.config, this.extraVars);
         var modulesObject = this.getModulesObject(finalPluginConfig);
         var inflatedPlugin = pluginInfo.module.getBodyParts(
