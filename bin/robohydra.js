@@ -31,7 +31,7 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         return val.split(/:/);
     }
 
-    commander.version('0.6.1').
+    commander.version('0.6.10000000000001').
         usage("mysetup.conf [confvar=value confvar2=value2 ...]").
         option('-I <path>', 'Adds a new path in the plugin search path list', colonList).
         option('-P, --plugins <plugin-list>', 'Load plugins at startup', commaList).
