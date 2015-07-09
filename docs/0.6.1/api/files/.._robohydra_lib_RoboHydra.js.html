@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>../robohydra/lib/RoboHydra.js - RoboHydra public API</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+          <span class="navbar-brand"><img src="../assets/img/robohydra.png" title="RoboHydra public API"> RoboHydra</span>
+          <ul class="navbar-menu">
+            <li><a href="/">Home</a></span>
+            <li><a href="/docs/tutorial">Tutorial</a></span>
+            <li><a href="/docs">Documentation</a></span>
+          </ul>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: HEAD</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/Request.html">Request</a></li>
+            
+                <li><a href="../classes/Response.html">Response</a></li>
+            
+                <li><a href="../classes/robohydra.html">robohydra</a></li>
+            
+                <li><a href="../classes/RoboHydra.html">RoboHydra</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: ../robohydra/lib/RoboHydra.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var fs     = require(&#x27;fs&#x27;),
+    path   = require(&#x27;path&#x27;),
+    assert = require(&#x27;assert&#x27;);
+var utils              = require(&#x27;./utils.js&#x27;),
+    extendObject       = utils.extendObject,
+    deprecationWarning = utils.deprecationWarning;
+var exceptions         = require(&#x27;./exceptions.js&#x27;),
+    RoboHydraException = exceptions.RoboHydraException,
+    DuplicateRoboHydraHeadNameException =
+        exceptions.DuplicateRoboHydraHeadNameException,
+    InvalidRoboHydraConfigurationException =
+        exceptions.InvalidRoboHydraConfigurationException,
+    InvalidRoboHydraPluginException =
+        exceptions.InvalidRoboHydraPluginException,
+    RoboHydraPluginNotFoundException =
+        exceptions.RoboHydraPluginNotFoundException,
+    InvalidRoboHydraNextParametersException =
+        exceptions.InvalidRoboHydraNextParametersException,
+    RoboHydraHeadNotFoundException =
+        exceptions.RoboHydraHeadNotFoundException,
+    InvalidRoboHydraScenarioException =
+        exceptions.InvalidRoboHydraScenarioException;
+
+
+(function () {
+    &quot;use strict&quot;;
+
+    var DYNAMIC_HEAD_PRIORITIES = [&#x27;normal&#x27;, &#x27;high&#x27;];
+
+    /**
+     * All RoboHydra public API.
+     *
+     * @class robohydra
+     */
+
+    /**
+     * Dispatches the incoming requests. Normally there is only one of
+     * this per server, but there can be several if summoners are
+     * used.
+     *
+     * @class RoboHydra
+     * @for robohydra
+     * @constructor
+     * @param {Object} extraVars An optional object with the extra
+     * configuration variables. These take precedence over any other
+     * configuration variables elsewhere, and are the values passed as
+     * command-line parameters in the &quot;robohydra&quot; executable.
+     */
+
+    /**
+     * The currently active scenario, if any. It&#x27;s an object with the
+     * keys &quot;plugin&quot; and &quot;scenario&quot;. If there’s no active scenario,
+     * it’s &quot;\*default\*&quot; / &quot;\*default\*&quot;.
+     *
+     * @property {Object} currentScenario
+     * @for RoboHydra
+     */
+
+    /**
+     * Current test (assertion) results. Its keys are plugin names and
+     * its values are objects with scenario names as keys. The values
+     * of the latter objects are test results: objects with the keys
+     * &quot;result&quot; (value is _undefined_ if the test doesn’t have any
+     * result yet, or the strings &quot;pass&quot; or &quot;fail&quot; if at least one
+     * assertion has run for that test), &quot;passes&quot; (an array with the
+     * description of the passing assertions) and &quot;failures&quot; (ditto
+     * for failing assertions). Assertion results obtained outside of
+     * a scenario are stored under the plugin name &quot;\*default\*&quot; and the
+     * scenario name &quot;\*default\*&quot;.
+     *
+     * @property {Object} testResults
+     */
+    /**
+     * Deprecated alias for testResults, please use testResults instead.
+     *
+     * @property {Object} scenarioResults
+     * @deprecated
+    */
+    var RoboHydra = function(extraVars) {
+        this.extraVars       = extendObject({}, extraVars || {});
+        this._plugins        = [];
+        this._headMap        = {};
+        this.currentScenario = {plugin:   &#x27;*default*&#x27;,
+                                scenario: &#x27;*default*&#x27;};
+        this.testResults = {&#x27;*default*&#x27;: {&#x27;*default*&#x27;: {result: undefined,
+                                                        passes: [],
+                                                        failures: []}}};
+        Object.defineProperty(this, &#x27;scenarioResults&#x27;, {
+            get: function() {
+                deprecationWarning(&quot;scenarioResults is deprecated, please use testResults instead&quot;);
+                return this.testResults;
+            }
+        });
+
+        // Register special plugins
+        // Admin
+        var adminPlugin = require(&#x27;./plugins/admin.js&#x27;);
+        var adminPluginConfig = extendObject(this.extraVars,
+                                             {robohydra: this});
+        adminPlugin.heads = adminPlugin.getBodyParts(adminPluginConfig);
+        this._registerPluginObject(adminPlugin);
+        // High priority, dynamic heads
+        this._registerPluginObject({name: &#x27;*priority-dynamic*&#x27;});
+        // Dynamic heads
+        this._registerPluginObject({name: &#x27;*dynamic*&#x27;});
+        // Current scenario heads
+        this._registerPluginObject({name: &#x27;*current-scenario*&#x27;});
+    };
+    RoboHydra.prototype._validatePluginName = function(pluginName) {
+        return (typeof(pluginName) === &#x27;string&#x27; &amp;&amp;
+                pluginName.match(new RegExp(&#x27;^[a-z0-9_-]+$&#x27;, &#x27;i&#x27;)));
+    };
+    RoboHydra.prototype._addHeadsToPluginStructure = function(heads, pluginStructure) {
+        var anonymousHeadCount = 0;
+        (heads || []).forEach(function(head) {
+            // Calculate head name if not specified
+            if (head.name === undefined) {
+                head.name = &#x27;anonymousHead&#x27; + anonymousHeadCount;
+                anonymousHeadCount++;
+                while (pluginStructure.headMap.hasOwnProperty(head.name)) {
+                    head.name = &#x27;anonymousHead&#x27; + anonymousHeadCount;
+                    anonymousHeadCount++;
+                }
+            }
+
+            if (pluginStructure.headMap.hasOwnProperty(head.name)) {
+                throw new DuplicateRoboHydraHeadNameException(head.name);
+            }
+            pluginStructure.headMap[head.name] = head;
+        });
+    };
+    RoboHydra.prototype._emptyPluginStructure = function(plugin) {
+        var pluginToRegister = {
+            name:           plugin.name,
+            heads:          plugin.heads     || [],
+            scenarios:      plugin.scenarios || {}
+        };
+
+        return {headMap: {}, plugin: pluginToRegister};
+    };
+    RoboHydra.prototype._registerPluginObject = function(plugin) {
+        var name = plugin.name;
+        if (this._getPluginInfo(plugin.name)) {
+            throw new InvalidRoboHydraConfigurationException(
+                &quot;Duplicate plugin &#x27;&quot; + name + &quot;&#x27;&quot;);
+        }
+
+        var pluginInternalStructure = this._emptyPluginStructure(plugin);
+        this._addHeadsToPluginStructure(plugin.heads, pluginInternalStructure);
+        this._plugins.push(pluginInternalStructure);
+    };
+    /**
+     * Register the given plugin object at the end of the hydra.
+     *
+     * @method registerPluginObject
+     * @param {Object} pluginObject
+     * @param {String} pluginObject.name The name of the plugin. Must
+     * be exclusively comprised of ASCII letters, numbers, underscores
+     * and dashes. Mandatory.
+     * @param {String} pluginObject.path The path to the plugin
+     * directory. Mandatory.
+     * @param {Object} pluginObject.config An object with the
+     * plugin-specific configuration. Optional.
+     * @param {Object} pluginObject.module The plugin module itself
+     * (ie. an object with the &quot;getBodyParts&quot; function).
+     */
+    RoboHydra.prototype.registerPluginObject = function(pluginObject) {
+        if (! pluginObject.name) {
+            throw new TypeError(&quot;To register a plugin, you need an object with properties &#x27;name&#x27;, &#x27;path&#x27;, &#x27;config&#x27; and &#x27;module&#x27;&quot;);
+        }
+        if (! this._validatePluginName(pluginObject.name)) {
+            throw new InvalidRoboHydraPluginException(&quot;Invalid plugin name &#x27;&quot; +
+                                                      pluginObject.name + &quot;&#x27;&quot;);
+        }
+
+        this._registerPluginObject(this._inflatePlugin(pluginObject));
+    };
+    RoboHydra.prototype._getPluginInfo = function(pluginName) {
+        var pluginList = this._plugins.filter(function(p) {
+                             return p.plugin.name === pluginName;
+                         });
+        return pluginList.length ? pluginList[0] : undefined;
+    };
+    /**
+     * Adds a new (dynamic) head into a hydra. The new head is added
+     * at the beginning of the appropriate pseudo-plugin (&quot;*dynamic*&quot;
+     * by default, &quot;*priority-dynamic*&quot; if the priority is set to
+     * &quot;high&quot;). The order of the plugins is: special admin plugin
+     * (which is normally not visible in the admin interface!),
+     * &quot;*priority-dynamic*&quot;, &quot;*dynamic*&quot;, &quot;*current-scenario*&quot;, and
+     * regular plugins.
+     *
+     * @method registerDynamicHead
+     * @param {RoboHydraHead} head The head to add
+     * @param {Object} opts Options
+     * @param {String} opts.priority The priority of the head. Can be
+     * &quot;normal&quot; or &quot;high&quot;
+     */
+    RoboHydra.prototype.registerDynamicHead = function(head, opts) {
+        opts = opts || {};
+        var prio = opts.priority || &#x27;normal&#x27;;
+        if (DYNAMIC_HEAD_PRIORITIES.indexOf(prio) === -1) {
+            throw new RoboHydraException(&quot;Invalid head priority &#x27;&quot; + prio + &quot;&#x27;&quot;);
+        }
+
+        var pseudoPluginName = prio === &#x27;high&#x27; ? &#x27;*priority-dynamic*&#x27; : &#x27;*dynamic*&#x27;;
+        this._registerHeadsInPseudoPlugin([head], pseudoPluginName);
+    };
+    RoboHydra.prototype._registerHeadsInPseudoPlugin = function(heads, pseudoPluginName) {
+        var done = false;
+        for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
+            if (this._plugins[i].plugin.name === pseudoPluginName) {
+                this._addHeadsToPluginStructure(heads, this._plugins[i]);
+                Array.prototype.unshift.apply(this._plugins[i].plugin.heads,
+                                              heads);
+                done = true;
+            }
+        }
+        if (! done) {
+            throw new RoboHydraException(&quot;Internal error: couldn&#x27;t find the plugin &#x27;&quot; + pseudoPluginName + &quot;&#x27;&quot;);
+        }
+    };
+    /**
+     * Returns the names of the current plugins, including pseudo-plugins.
+     *
+     * @method getPluginNames
+     * @return {Array} An array with the names of the plugins in the hydra.
+     */
+    RoboHydra.prototype.getPluginNames = function() {
+        return this.getPlugins().map(function(p) { return p.name; });
+    };
+    /**
+     * Returns a list of all current plugins, including pseudo-plugins.
+     *
+     * @method getPlugins
+     * @return {Array} An array containing all plugins in the hydra.
+     */
+    RoboHydra.prototype.getPlugins = function() {
+        return this._plugins.map(function(v) { return v.plugin; });
+    };
+    /**
+     * Returns a plugin given its name.
+     *
+     * @method getPlugin
+     * @param {String} pluginName The name of the plugin
+     * @return {Object} The plugin with the given name
+     */
+    RoboHydra.prototype.getPlugin = function(pluginName) {
+        var pluginList = this._plugins.filter(function(p) {
+            return p.plugin.name === pluginName;
+        });
+        if (pluginList.length) {
+            return pluginList[0].plugin;
+        }
+        throw new RoboHydraPluginNotFoundException(pluginName);
+    };
+    /**
+     * Returns the first head that matches a given URL.
+     *
+     * @method headForPath
+     * @param {Request} req Request object the head must match
+     * @param {RoboHydraHead} afterHead If given, only heads after the
+     * given one will be considered for matching.
+     * @return {RoboHydraHead} First head matching the given URL.
+     */
+    RoboHydra.prototype.headForPath = function(req, afterHead) {
+        var canMatchYet = !afterHead;
+        for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
+            var plugin = this._plugins[i].plugin;
+            for (var j = 0, len2 = plugin.heads.length; j &lt; len2; j++) {
+                if (canMatchYet &amp;&amp; plugin.heads[j].canHandle(req)) {
+                    return {plugin: plugin, head: plugin.heads[j]};
+                }
+
+                if (typeof afterHead === &#x27;object&#x27; &amp;&amp;
+                    this._plugins[i].plugin.name === afterHead.plugin.name &amp;&amp;
+                    plugin.heads[j].name  === afterHead.head.name) {
+                    canMatchYet = true;
+                }
+            }
+        }
+        return undefined;
+    };
+    RoboHydra.prototype.handle = function(req, res, afterHead) {
+        var r = this.headForPath(req, afterHead);
+        if (r !== undefined) {
+            res.statusCode = 200;
+            var self = this;
+            r.head.handle(req, res, function(req2, res2) {
+                if (arguments.length !== 2) {
+                    throw new InvalidRoboHydraNextParametersException(
+                        r.plugin,
+                        r.head,
+                        arguments
+                    );
+                }
+                self.handle(req2, res2, r);
+            });
+        } else {
+            res.statusCode = 404;
+            res.send(&quot;Not Found&quot;);
+        }
+    };
+    RoboHydra.prototype.webSocketHandle = function(req, socket) {
+        for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
+            var plugin = this._plugins[i].plugin;
+            for (var j = 0, len2 = plugin.heads.length; j &lt; len2; j++) {
+                if (plugin.heads[j].canHandle(req)) {
+                    plugin.heads[j].handle(req, socket);
+                    return;
+                }
+            }
+        }
+
+        socket.close();
+    };
+    RoboHydra.prototype.findHead = function(pluginName, headName) {
+        for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
+            if (this._plugins[i].plugin.name === pluginName) {
+                var head = this._plugins[i].headMap[headName];
+                if (head === undefined) {
+                    throw new RoboHydraHeadNotFoundException(pluginName, headName);
+                } else {
+                    return head;
+                }
+            }
+        }
+        throw new RoboHydraHeadNotFoundException(pluginName, headName);
+    };
+    RoboHydra.prototype.isHeadAttached = function(pluginName, headName) {
+        // This will throw an exception if the head is not found
+        var head = this.findHead(pluginName, headName);
+        return head.attached();
+    };
+    /**
+     * Detach the given head.
+     *
+     * @method detachHead
+     * @param {String} pluginName The name of the plugin containing the head to
+     * detach.
+     * @param {String} headName The name of the head to detach.
+     */
+    RoboHydra.prototype.detachHead = function(pluginName, headName) {
+        this.findHead(pluginName, headName).detach();
+    };
+    /**
+     * Attach the given head.
+     *
+     * @method attachHead
+     * @param {String} pluginName The name of the plugin containing the head to
+     * (re-)attach.
+     * @param {String} headName The name of the head to (re-)attach.
+     */
+    RoboHydra.prototype.attachHead = function(pluginName, headName) {
+        this.findHead(pluginName, headName).attach();
+    };
+    RoboHydra.prototype._jsFilesIn = function(testDir) {
+        var testFiles = [];
+        try {
+            testFiles = fs.readdirSync(testDir).filter(function(fname) {
+                return (/\.js/).test(fname);
+            });
+        } catch(e) {
+            if (e.code !== &#x27;ENOENT&#x27;) {
+                throw e;
+            }
+        }
+        return testFiles;
+    };
+    RoboHydra.prototype._inflatePlugin = function(pluginInfo) {
+        var finalPluginConfig = extendObject({
+            robohydra: this,
+            path: pluginInfo.path
+        }, pluginInfo.config, this.extraVars);
+        var modulesObject = this.getModulesObject(finalPluginConfig);
+        var inflatedPlugin = pluginInfo.module.getBodyParts(
+            finalPluginConfig,
+            modulesObject
+        );
+
+        // Check for unknown properties
+        for (var prop in inflatedPlugin) {
+            if ([&#x27;heads&#x27;, &#x27;scenarios&#x27;].indexOf(prop) === -1) {
+                throw new InvalidRoboHydraPluginException(
+                    &quot;Invalid plugin property &#x27;&quot; + prop + &quot;&#x27;&quot;
+                );
+            }
+        }
+
+        // Loads any external scenario files
+        var scenarioDir = path.join(pluginInfo.path, &#x27;scenarios&#x27;);
+        this._jsFilesIn(scenarioDir).forEach(function(scenarioFile) {
+            var scenarioModule = require(path.join(scenarioDir, scenarioFile));
+            var scenarioDefinition =
+                    scenarioModule.getBodyParts(finalPluginConfig,
+                                                modulesObject);
+            var scenarioName = scenarioFile.replace(/\.js$/, &#x27;&#x27;);
+            inflatedPlugin.scenarios = inflatedPlugin.scenarios || {};
+            if (scenarioName in inflatedPlugin.scenarios) {
+                throw new InvalidRoboHydraPluginException(&quot;Scenario &#x27;&quot; +
+                                                          scenarioName +
+                                                          &quot;&#x27; is duplicated&quot;);
+            }
+            inflatedPlugin.scenarios[scenarioName] = scenarioDefinition;
+        });
+
+        // Check for unknown properties in scenarios
+        for (var scenarioName in inflatedPlugin.scenarios) {
+            var scenario = inflatedPlugin.scenarios[scenarioName];
+            if (!(&#x27;heads&#x27; in scenario)) {
+                throw new InvalidRoboHydraPluginException(
+                    &quot;Scenario &#x27;&quot; + scenarioName + &quot;&#x27; doesn&#x27;t contain any heads&quot;
+                );
+            }
+
+            for (var prop in scenario) {
+                if ([&#x27;heads&#x27;, &#x27;instructions&#x27;].indexOf(prop) === -1) {
+                    throw new InvalidRoboHydraPluginException(
+                        &quot;Invalid scenario property &#x27;&quot; + prop + &quot;&#x27; in &quot; +
+                            &quot;scenario &#x27;&quot; + scenarioName + &quot;&#x27;&quot;
+                    );
+                }
+            }
+        }
+
+        inflatedPlugin.name = pluginInfo.name;
+        return inflatedPlugin;
+    };
+    /**
+     * Start the given scenario.
+     *
+     * @method startScenario
+     * @param {String} pluginName The name of the plugin containing
+     * the scenario to start.
+     * @param {String} scenarioName The name of the scenario to start.
+     */
+    RoboHydra.prototype.startScenario = function(pluginName, scenarioName) {
+        this.stopScenario();
+
+        var found = false;
+        var scenarioPlugin, i, len;
+        for (i = 0, len = this._plugins.length; i &lt; len; i++) {
+            if (this._plugins[i].plugin.name === pluginName) {
+                if (this._plugins[i].plugin.scenarios.hasOwnProperty(scenarioName)) {
+                    scenarioPlugin = this._plugins[i].plugin;
+                    this.currentScenario = {plugin:   pluginName,
+                                            scenario: scenarioName};
+                    found = true;
+                }
+            }
+        }
+
+        if (found) {
+            var heads = scenarioPlugin.scenarios[scenarioName].heads;
+            heads.forEach(function(head) {
+                head.reset();
+            });
+            this._registerHeadsInPseudoPlugin(heads, &#x27;*current-scenario*&#x27;);
+
+            this.testResults[pluginName] = this.testResults[pluginName] || {};
+            this.testResults[pluginName][scenarioName] = {
+                result: undefined,
+                passes: [],
+                failures: []
+            };
+        } else {
+            throw new InvalidRoboHydraScenarioException(pluginName, scenarioName);
+        }
+    };
+    /**
+     * Stop the given scenario.
+     *
+     * @method stopScenario
+     * @param {String} pluginName The name of the plugin containing
+     * the scenario to stop.
+     * @param {String} scenarioName The name of the scenario to stop.
+     */
+    RoboHydra.prototype.stopScenario = function() {
+        this.currentScenario = {plugin: &#x27;*default*&#x27;, scenario: &#x27;*default*&#x27;};
+
+        for (var i = 0, len = this._plugins.length; i &lt; len; i++) {
+            if (this._plugins[i].plugin.name === &#x27;*current-scenario*&#x27;) {
+                this._plugins[i] =
+                    this._emptyPluginStructure({name: &#x27;*current-scenario*&#x27;});
+            }
+        }
+    };
+    RoboHydra.prototype.getAssertionFunction = function(assertion) {
+        var thisRoboHydra = this;
+        return function() {
+            var currentScenarioPlugin = thisRoboHydra.currentScenario.plugin,
+                currentScenarioName   = thisRoboHydra.currentScenario.scenario;
+            var result =
+                    thisRoboHydra.testResults[currentScenarioPlugin][currentScenarioName];
+
+            var assertionFunction = assert[assertion];
+            var message = arguments[assertionFunction.length-1] ||
+                    &quot;*unnamed-assertion*&quot;;
+
+            try {
+                assertionFunction.apply(assert, arguments);
+
+                result.passes.push(message);
+                result.result = result.result || &#x27;pass&#x27;;
+            }
+            catch (e) {
+                if (e instanceof assert.AssertionError) {
+                    result.failures.push(message);
+                    result.result = &#x27;fail&#x27;;
+                    return false;
+                } else {
+                    throw e;
+                }
+            }
+            return true;
+        };
+    };
+    /**
+     * Returns an object with the modules for a given plugin.
+     *
+     * @method getModulesObject
+     * @param {Object} conf The full, resolved configuration for the
+     * plugin the module object is for.
+     * @return {Object} Object with the names of the available modules
+     * as keys, and objects with functions as values.
+     */
+    RoboHydra.prototype.getModulesObject = function(conf) {
+        var utilsObject = {assert: {}, fixtures: {}};
+
+        // Assertions
+        for (var assertion in assert) {
+            if (assert.hasOwnProperty(assertion) &amp;&amp; typeof assert[assertion] === &#x27;function&#x27;) {
+                utilsObject.assert[assertion] =
+                    this.getAssertionFunction(assertion);
+            }
+        }
+
+        // Fixture loading (TODO: add caching?)
+        utilsObject.fixtures.load = function(fixturePath) {
+            var normalizedFixturePath = path.normalize(fixturePath);
+            var sanitizedFixturePath =
+                    normalizedFixturePath.replace(new RegExp(&quot;\\.\\.&quot;, &quot;g&quot;), &quot;&quot;);
+            var stringPath = path.join(conf.path, &quot;fixtures&quot;, sanitizedFixturePath);
+            return fs.readFileSync(stringPath);
+        };
+
+        return utilsObject;
+    };
+
+
+    module.exports = RoboHydra;
+}());
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

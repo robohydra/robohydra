@@ -1,0 +1,804 @@
+{
+    "project": {
+        "name": "RoboHydra public API",
+        "description": "Public RoboHydra functions and classes available to plugins",
+        "version": "HEAD",
+        "url": "http://robohydra.org/docs",
+        "logo": "/assets/img/robohydra.png"
+    },
+    "files": {
+        "../robohydra/lib/RoboHydra.js": {
+            "name": "../robohydra/lib/RoboHydra.js",
+            "modules": {},
+            "classes": {
+                "RoboHydra": 1
+            },
+            "fors": {
+                "robohydra": 1,
+                "RoboHydra": 1
+            },
+            "namespaces": {}
+        },
+        "../robohydra/lib/robohydraserver.js": {
+            "name": "../robohydra/lib/robohydraserver.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "robohydra": 1
+            },
+            "namespaces": {}
+        },
+        "../robohydra/lib/utils.js": {
+            "name": "../robohydra/lib/utils.js",
+            "modules": {},
+            "classes": {
+                "robohydra": 1,
+                "Request": 1,
+                "Response": 1
+            },
+            "fors": {
+                "robohydra": 1
+            },
+            "namespaces": {}
+        }
+    },
+    "modules": {},
+    "classes": {
+        "robohydra": {
+            "name": "robohydra",
+            "shortname": "robohydra",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "../robohydra/lib/utils.js",
+            "line": 19,
+            "description": "Utility functions."
+        },
+        "RoboHydra": {
+            "name": "RoboHydra",
+            "shortname": "RoboHydra",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 36,
+            "description": "Dispatches the incoming requests. Normally there is only one of\nthis per server, but there can be several if summoners are\nused.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "extraVars",
+                    "description": "An optional object with the extra\nconfiguration variables. These take precedence over any other\nconfiguration variables elsewhere, and are the values passed as\ncommand-line parameters in the \"robohydra\" executable.",
+                    "type": "Object"
+                }
+            ]
+        },
+        "Request": {
+            "name": "Request",
+            "shortname": "Request",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "../robohydra/lib/utils.js",
+            "line": 222,
+            "description": "Represents an incoming client request.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "props",
+                    "description": "",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "url",
+                            "description": "Request URL",
+                            "type": "String"
+                        },
+                        {
+                            "name": "method",
+                            "description": "Request method (\"GET\", \"POST\", ...)",
+                            "type": "String"
+                        },
+                        {
+                            "name": "headers",
+                            "description": "Request headers",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "upgrade",
+                            "description": "Whether or not the request is an\nupgrade request",
+                            "type": "Buffer"
+                        },
+                        {
+                            "name": "rawBody",
+                            "description": "Request body, if any",
+                            "type": "Buffer"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Response": {
+            "name": "Response",
+            "shortname": "Response",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "../robohydra/lib/utils.js",
+            "line": 324,
+            "description": "Represents a server response.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "cb",
+                    "description": "Callback to be used when the response is\nfinished. See the `end` event on the `on` method documentation.",
+                    "type": "Function"
+                }
+            ]
+        }
+    },
+    "classitems": [
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 50,
+            "description": "The currently active scenario, if any. It's an object with the\nkeys \"plugin\" and \"scenario\". If there’s no active scenario,\nit’s \"\\*default\\*\" / \"\\*default\\*\".",
+            "itemtype": "property",
+            "name": "currentScenario",
+            "type": "Object",
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 59,
+            "description": "Current test (assertion) results. Its keys are plugin names and\nits values are objects with scenario names as keys. The values\nof the latter objects are test results: objects with the keys\n\"result\" (value is _undefined_ if the test doesn’t have any\nresult yet, or the strings \"pass\" or \"fail\" if at least one\nassertion has run for that test), \"passes\" (an array with the\ndescription of the passing assertions) and \"failures\" (ditto\nfor failing assertions). Assertion results obtained outside of\na scenario are stored under the plugin name \"\\*default\\*\" and the\nscenario name \"\\*default\\*\".",
+            "itemtype": "property",
+            "name": "testResults",
+            "type": "Object",
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 73,
+            "description": "Deprecated alias for testResults, please use testResults instead.",
+            "itemtype": "property",
+            "name": "scenarioResults",
+            "type": "Object",
+            "deprecated": true,
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 152,
+            "description": "Register the given plugin object at the end of the hydra.",
+            "itemtype": "method",
+            "name": "registerPluginObject",
+            "params": [
+                {
+                    "name": "pluginObject",
+                    "description": "",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "name",
+                            "description": "The name of the plugin. Must\nbe exclusively comprised of ASCII letters, numbers, underscores\nand dashes. Mandatory.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "path",
+                            "description": "The path to the plugin\ndirectory. Mandatory.",
+                            "type": "String"
+                        },
+                        {
+                            "name": "config",
+                            "description": "An object with the\nplugin-specific configuration. Optional.",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "module",
+                            "description": "The plugin module itself\n(ie. an object with the \"getBodyParts\" function).",
+                            "type": "Object"
+                        }
+                    ]
+                }
+            ],
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 184,
+            "description": "Adds a new (dynamic) head into a hydra. The new head is added\nat the beginning of the appropriate pseudo-plugin (\"*dynamic*\"\nby default, \"*priority-dynamic*\" if the priority is set to\n\"high\"). The order of the plugins is: special admin plugin\n(which is normally not visible in the admin interface!),\n\"*priority-dynamic*\", \"*dynamic*\", \"*current-scenario*\", and\nregular plugins.",
+            "itemtype": "method",
+            "name": "registerDynamicHead",
+            "params": [
+                {
+                    "name": "head",
+                    "description": "The head to add",
+                    "type": "RoboHydraHead"
+                },
+                {
+                    "name": "opts",
+                    "description": "Options",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "priority",
+                            "description": "The priority of the head. Can be\n\"normal\" or \"high\"",
+                            "type": "String"
+                        }
+                    ]
+                }
+            ],
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 223,
+            "description": "Returns the names of the current plugins, including pseudo-plugins.",
+            "itemtype": "method",
+            "name": "getPluginNames",
+            "return": {
+                "description": "An array with the names of the plugins in the hydra.",
+                "type": "Array"
+            },
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 232,
+            "description": "Returns a list of all current plugins, including pseudo-plugins.",
+            "itemtype": "method",
+            "name": "getPlugins",
+            "return": {
+                "description": "An array containing all plugins in the hydra.",
+                "type": "Array"
+            },
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 241,
+            "description": "Returns a plugin given its name.",
+            "itemtype": "method",
+            "name": "getPlugin",
+            "params": [
+                {
+                    "name": "pluginName",
+                    "description": "The name of the plugin",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "The plugin with the given name",
+                "type": "Object"
+            },
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 257,
+            "description": "Returns the first head that matches a given URL.",
+            "itemtype": "method",
+            "name": "headForPath",
+            "params": [
+                {
+                    "name": "req",
+                    "description": "Request object the head must match",
+                    "type": "Request"
+                },
+                {
+                    "name": "afterHead",
+                    "description": "If given, only heads after the\ngiven one will be considered for matching.",
+                    "type": "RoboHydraHead"
+                }
+            ],
+            "return": {
+                "description": "First head matching the given URL.",
+                "type": "RoboHydraHead"
+            },
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 335,
+            "description": "Detach the given head.",
+            "itemtype": "method",
+            "name": "detachHead",
+            "params": [
+                {
+                    "name": "pluginName",
+                    "description": "The name of the plugin containing the head to\ndetach.",
+                    "type": "String"
+                },
+                {
+                    "name": "headName",
+                    "description": "The name of the head to detach.",
+                    "type": "String"
+                }
+            ],
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 346,
+            "description": "Attach the given head.",
+            "itemtype": "method",
+            "name": "attachHead",
+            "params": [
+                {
+                    "name": "pluginName",
+                    "description": "The name of the plugin containing the head to\n(re-)attach.",
+                    "type": "String"
+                },
+                {
+                    "name": "headName",
+                    "description": "The name of the head to (re-)attach.",
+                    "type": "String"
+                }
+            ],
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 429,
+            "description": "Start the given scenario.",
+            "itemtype": "method",
+            "name": "startScenario",
+            "params": [
+                {
+                    "name": "pluginName",
+                    "description": "The name of the plugin containing\nthe scenario to start.",
+                    "type": "String"
+                },
+                {
+                    "name": "scenarioName",
+                    "description": "The name of the scenario to start.",
+                    "type": "String"
+                }
+            ],
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 470,
+            "description": "Stop the given scenario.",
+            "itemtype": "method",
+            "name": "stopScenario",
+            "params": [
+                {
+                    "name": "pluginName",
+                    "description": "The name of the plugin containing\nthe scenario to stop.",
+                    "type": "String"
+                },
+                {
+                    "name": "scenarioName",
+                    "description": "The name of the scenario to stop.",
+                    "type": "String"
+                }
+            ],
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/RoboHydra.js",
+            "line": 518,
+            "description": "Returns an object with the modules for a given plugin.",
+            "itemtype": "method",
+            "name": "getModulesObject",
+            "params": [
+                {
+                    "name": "conf",
+                    "description": "The full, resolved configuration for the\nplugin the module object is for.",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Object with the names of the available modules\nas keys, and objects with functions as values.",
+                "type": "Object"
+            },
+            "class": "RoboHydra"
+        },
+        {
+            "file": "../robohydra/lib/robohydraserver.js",
+            "line": 43,
+            "description": "Creates a RoboHydra server, similar to `http.createServer` or\n`https.createServer`. The returned object is in fact the same as\nwith the `createServer`, so the same methods (`listen`, `on`, etc.)\ncan be used.",
+            "itemtype": "method",
+            "name": "createRoboHydraServer",
+            "params": [
+                {
+                    "name": "config",
+                    "description": "Server configuration",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "plugins",
+                            "description": "List of plugins to load: each element\nin the array must be either a string (name of the plugin to load)\nor an object with the keys `name` (string with the plugin name) and\n`config` (object with configuration variables for the plugin).",
+                            "type": "Array"
+                        },
+                        {
+                            "name": "summoner",
+                            "description": "Summoner configuration. Right now\nthe only valid key is `hydraPickerPlugin`, the name of the plugin\ncontaining the hydra picker to use (useful in case there are\nseveral).",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "pluginLoadPaths",
+                            "description": "Array with extra directories\nto search for RoboHydra plugins.",
+                            "type": "Array"
+                        },
+                        {
+                            "name": "secure",
+                            "description": "Whether the RoboHydra server should\nuse HTTPS or not.",
+                            "type": "Boolean"
+                        },
+                        {
+                            "name": "sslOptions",
+                            "description": "SSL options. Only used if\n`config.secure` is truthy.",
+                            "type": "Object",
+                            "props": [
+                                {
+                                    "name": "key",
+                                    "description": "The path to the secret key\nfile for the SSL certificate.",
+                                    "type": "String"
+                                },
+                                {
+                                    "name": "cert",
+                                    "description": "The path to the certificate\nfile for the SSL certificate.",
+                                    "type": "String"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "class": "robohydra"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 25,
+            "description": "Serves a static file with correct headers and such, writing the\nresult in the given response object.",
+            "itemtype": "method",
+            "name": "serveStaticFile",
+            "params": [
+                {
+                    "name": "filePath",
+                    "description": "The full path of the file to be served.",
+                    "type": "String"
+                },
+                {
+                    "name": "res",
+                    "description": "Response object to write the response to.",
+                    "type": "Response"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "fs",
+                            "description": "The 'fs' module (or a mock) to be used\nwhen reading from the filesystem.",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "mime",
+                            "description": "The 'mime' module (or a mock) to be\nused when figuring out the MIME type for a file.",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "headers",
+                            "description": "An object with the incoming\nrequest headers (for caching and such).",
+                            "type": "Object"
+                        },
+                        {
+                            "name": "indexFiles",
+                            "description": "An array with the filenames to\nbe used as index if the given file path is a directory (by\ndefault, \"index.html\", \"index.htm\", \"home.html\" and\n\"home.htm\").",
+                            "type": "Array"
+                        }
+                    ]
+                }
+            ],
+            "class": "robohydra"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 102,
+            "description": "Proxies the given request to the given URL, writing the result\nin the given response object.",
+            "itemtype": "method",
+            "name": "proxyRequest",
+            "params": [
+                {
+                    "name": "req",
+                    "description": "The request object to proxy.",
+                    "type": "Request"
+                },
+                {
+                    "name": "res",
+                    "description": "The response object to write the result to.",
+                    "type": "Response"
+                },
+                {
+                    "name": "proxyTo",
+                    "description": "The URL to proxy to, either in the form of\na URL object (result of the url.parse method) or a string.",
+                    "type": "URL"
+                },
+                {
+                    "name": "opts",
+                    "description": "",
+                    "type": "Object",
+                    "props": [
+                        {
+                            "name": "httpRequestFunction",
+                            "description": "The http.request\nfunction or a mock of it.",
+                            "type": "Function"
+                        },
+                        {
+                            "name": "httpsRequestFunction",
+                            "description": "The https.request\nfunction or a mock of it.",
+                            "type": "Function"
+                        },
+                        {
+                            "name": "setHostHeader",
+                            "description": "Specifies if the \"Host\"\nheader should be set in the proxied request, so pretend as if\nthe original request was indeed intended for the final\nURL. Defaults to false.",
+                            "type": "Boolean"
+                        }
+                    ]
+                }
+            ],
+            "class": "robohydra"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 234,
+            "description": "Request URL path, including GET parameters (eg. `/foo`,\n`/bar/qux`, `/articles?order=date`).",
+            "itemtype": "attribute",
+            "name": "url",
+            "type": "String",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 241,
+            "description": "Request method, normalised to uppercase.",
+            "itemtype": "attribute",
+            "name": "method",
+            "type": "String",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 247,
+            "description": "Request headers. Note that the header names are Node-style\n(ie. lowercase).",
+            "itemtype": "attribute",
+            "name": "headers",
+            "type": "Object",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 254,
+            "description": "Request body, if the body was parseable. Otherwise,\n`undefined`.",
+            "itemtype": "attribute",
+            "name": "rawBody",
+            "type": "Buffer",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 261,
+            "description": "Request body parameters.",
+            "itemtype": "attribute",
+            "name": "bodyParams",
+            "type": "Object",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 267,
+            "description": "Request query parameters (\"GET\" parameters).",
+            "itemtype": "attribute",
+            "name": "queryParams",
+            "type": "Object",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 273,
+            "description": "Request query parameters (\"GET\" parameters).",
+            "itemtype": "attribute",
+            "name": "getParams",
+            "type": "Object",
+            "deprecated": true,
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 280,
+            "description": "Request URL path captured parameters. Note that this attribute\nis only available in request objects passed directly by\nRoboHydra, not in user-created request objects.\n\nWhen defining URL paths, expressions like `:id` or `:user` can\nbe used as part of the regular expression (eg. `/save/:id` or\n`/:user/preferences`). These expressions will match any URL\npath fragment, and the matched contents will be available in\nthe `params` object in the request object. For example, if you\nhave a head for path `/articles/:articleid/view` and you\nreceive a request for\n`/articles/introduction-to-robohydra/view`, the request object\nwill have a `params` property with a single property,\n`articleid` with value `introduction-to-robohydra`.",
+            "itemtype": "attribute",
+            "name": "params",
+            "type": "Object",
+            "class": "Request"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 331,
+            "description": "Response body.",
+            "itemtype": "attribute",
+            "name": "body",
+            "type": "Buffer",
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 337,
+            "description": "Response status code (by default, `200`).",
+            "itemtype": "attribute",
+            "name": "statusCode",
+            "type": "Integer",
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 343,
+            "description": "Response headers. Note that the header names are Node-style\n(ie. lowercase).",
+            "itemtype": "attribute",
+            "name": "headers",
+            "type": "Object",
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 350,
+            "description": "Whether the response is finished.",
+            "itemtype": "attribute",
+            "name": "ended",
+            "type": "Boolean",
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 378,
+            "description": "Sets and writes the response headers.",
+            "itemtype": "method",
+            "name": "writeHead",
+            "params": [
+                {
+                    "name": "statusCode",
+                    "description": "The response's status code.",
+                    "type": "Integer"
+                },
+                {
+                    "name": "headers",
+                    "description": "The response's headers.",
+                    "type": "Object"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 393,
+            "description": "Appends data to the response body. This method allows a\nRoboHydra head to write the response body in chunks, and the\nresponse will be sent in chunks to the client (so you could,\nsay, send data, then wait, then send more data, wait, then\nclose the connection).",
+            "itemtype": "method",
+            "name": "write",
+            "params": [
+                {
+                    "name": "chunk",
+                    "description": "Data to add to the current response\nbody. This parameter can be a string, too.",
+                    "type": "Buffer"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 421,
+            "description": "Appends the given data to the response body and closes\nit. Equivalent to calling the `write` method, then `end`.",
+            "itemtype": "method",
+            "name": "send",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "to add to the response body.",
+                    "type": "Buffer"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 432,
+            "description": "Marks the response as complete and calls the 'end'\ncallback. When called in the response object provided by\nRoboHydra, this closes the connection.",
+            "itemtype": "method",
+            "name": "end",
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 454,
+            "description": "Copies the response given as a parameter into the current\nresponse object. This is intended to be used when the response\ngiven as a parameter is already finished.",
+            "itemtype": "method",
+            "name": "copyFrom",
+            "params": [
+                {
+                    "name": "res",
+                    "description": "Response object to copy.",
+                    "type": "Response"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 468,
+            "description": "Forwards the response given as a parameter. That is, copies the\ngiven response in the current object, then marks the given\nobject as finished.",
+            "itemtype": "method",
+            "name": "forward",
+            "params": [
+                {
+                    "name": "res",
+                    "description": "The response object to forward.",
+                    "type": "Response"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 480,
+            "description": "Adds a callback to the given event. An event can have more than\none callback. All callbacks for an event will be called in\norder when the event is triggered.\n\nThe callback function will receive a single parameter, `event`,\nan object with the property `type` set to the event type, plus\ndifferent properties according to the event fired. It returns\nthe response object.\n\nThe list of response object events is:\n\n* `head`: Fired when the header is written. Event objects for\nthis event contain two properties, `statusCode` and\n`headers`.\n* `data`: Fired when there is data written in the response\nobject. Event objects for this event contain a single property,\n`data`, an instance of `Buffer`.\n* `end`: Fired when the response is finished. Event objects for\nthis event contain a single property, `response`, the response\nobject that fired the event.\n\nFor responses you have created yourself to pass to the `next`\nfunction, the `end` event would typically be used to inspect or\nmodify the response contents, then write data to the response\nobject you received, possibly with the help of the methods\nbelow.",
+            "itemtype": "method",
+            "name": "on",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The name of the event to attach the\ncallback to. Possible event names are `head`, `data` and `end`.",
+                    "type": "String"
+                },
+                {
+                    "name": "cb",
+                    "description": "The callback to attach to the given event.",
+                    "type": "Function"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 521,
+            "description": "Follows the given response: as data is written to the given\nresponse object, that same data will be written in the calling\nobject (ie. it honours and replicates streaming). It's similar\nto `copyFrom`, but with the following differences:\n\n* `follow` is to be used _before_ any data is written to the\n  source object (ie. the parameter).\n* `follow` will write data as it is received, instead of\n  everything at once.",
+            "itemtype": "method",
+            "name": "follow",
+            "params": [
+                {
+                    "name": "response",
+                    "description": "Response object to follow.",
+                    "type": "Response"
+                }
+            ],
+            "class": "Response"
+        },
+        {
+            "file": "../robohydra/lib/utils.js",
+            "line": 548,
+            "description": "Chains the response given as a parameter to the current\nobject. This means that as data is written to the current\nobject, that same data will be written in the parameter (ie. it\nhonours and replicates streaming). It's similar to `copyFrom`,\nbut with the following differences:\n\n* `chain` is called on the source object, not the target.\n* `chain` is to be used _before_ any data is written to the\n  source object.\n* `chain` will write data as it's received, instead of\n  everything at once.",
+            "itemtype": "method",
+            "name": "chain",
+            "deprecated": true,
+            "params": [
+                {
+                    "name": "response",
+                    "description": "Response object to chain to the\ncurrent object.",
+                    "type": "Response"
+                }
+            ],
+            "class": "Response"
+        }
+    ],
+    "warnings": []
+}
