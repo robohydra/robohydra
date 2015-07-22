@@ -88,4 +88,6 @@ See the [example
 plugins](https://github.com/robohydra/robohydra/tree/master/examples/plugins)
 and the [standard plugin
 library](https://github.com/robohydra/robohydra/tree/master/plugins)
-in the repository for examples.
+in the repository for code examples. Read also about the [plugin
+standard library](../plugin-stdlib) if you want to avoid implementing
+already available plugins.
