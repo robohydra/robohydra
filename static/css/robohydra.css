@@ -1,5 +1,28 @@
+h2 {
+    padding-top: 35px;
+}
+
 .table td {
     vertical-align: middle;
+}
+
+div.navbar-scrolled {
+    height: 35px;
+}
+div.navbar-scrolled .navbar-brand a {
+    height: 35px;
+}
+div.navbar-scrolled .navbar-brand {
+    height: 35px;
+}
+div.navbar-scrolled .navbar-menu li {
+    height: 35px;
+}
+div.navbar-scrolled .navbar-menu a {
+    height: 35px;
+}
+div.navbar-scrolled img {
+    height: 28px;
 }
 
 .navbar-brand img {
