@@ -10,6 +10,7 @@ This is a summary of the changes between RoboHydra 0.6.1 and RoboHydra
 [ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog).
 
 
-### Some change
+### Fix bug in proxy-cache
 
-Description of the change
+The `proxy-cache` standard plugin wasn't passing the query parameters
+in the proxied requests. Now it does.
