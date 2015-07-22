@@ -13,18 +13,15 @@ That will start a RoboHydra server listening on port 3000, which you
 can kill by hitting Ctrl-C on the console.
 
 Not specifying a configuration file will normally result in an error,
-but you can specify the `-n` flag to make RoboHydra not try to read
-any configuration file. In that case, you _can_ specify a list plugins
-to be loaded:
+but you can specify the `-n` flag to make RoboHydra not read a
+configuration file. In that case, you _can_ specify a list plugins to
+be loaded:
 
     robohydra -n -P logger,replayer
 
 You can load as many plugins as you want. Remember that the order is
 important: the heads declared in the first will catch requests before
 any heads defined in further plugins.
-
-Calling the `robohydra` program without any arguments whastoever will
-show the help.
 
 
 Findings plugins
@@ -55,3 +52,14 @@ like so:
 
 This way, the configuration key `path` will be set to `tmp/test.log`
 for *all* plugins, overriding anything the configuration file says.
+
+
+Other options
+-------------
+
+If you want RoboHydra to listen in a different port you can use the
+`-p` (or `--port`) option. If you don't want RoboHydra to print
+anything on the console, use the `-q` (or `--quiet`) option.
+
+Calling the `robohydra` program without any arguments whastoever will
+show the help.
