@@ -85,7 +85,9 @@ describe("Generic RoboHydra heads", function() {
         var normalHead = new RoboHydraHead({path: '/', handler: function() {}});
         expect(normalHead.attached()).toEqual(true);
 
-        var explicitHead = new RoboHydraHead({path: '/', handler: function() {}});
+        var explicitHead = new RoboHydraHead({detached: false,
+                                              path: '/',
+                                              handler: function() {}});
         expect(explicitHead.attached()).toEqual(true);
     });
 
