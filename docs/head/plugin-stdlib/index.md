@@ -80,7 +80,7 @@ To use it, simply load plugin `logger` anywhere. You can configure the
 name of the log file with the configuration variable `logfilepath`.
 
 See the [standard plugins
-screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM#t=7m30s) for
+screencast](https://www.youtube.com/watch?v=9RESPZZHf5Q#t=25s) for
 more details.
 
 
@@ -103,7 +103,7 @@ interpreted as a regular expression, as it will be the value of the
 The `logger` plugin is a good companion for the `no-caching` plugin,
 as it allows you to see the effects on the requests.  See the
 [standard plugins
-screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM#t=7m30s) for
+screencast](https://www.youtube.com/watch?v=9RESPZZHf5Q#t=25s) for
 more details.
 
 
@@ -157,5 +157,5 @@ fashion). Any requests made to paths that don't have any recorded
 response will result with 404 Not Found.
 
 See the [standard plugins
-screencast](http://www.youtube.com/watch?v=tuEOSoi0RFM#t=31s) for more
+screencast](https://www.youtube.com/watch?v=9RESPZZHf5Q#t=5m44s) for more
 details.
