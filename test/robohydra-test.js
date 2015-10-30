@@ -4,9 +4,11 @@ var buster = require("buster"),
     samsam = require("samsam");
 var path = require("path");
 var RoboHydra = require("../lib/RoboHydra");
-var utils = require("../lib/utils"),
-    Request   = utils.Request,
-    Response  = utils.Response;
+var utils         = require("../lib/utils"),
+    Request       = utils.Request,
+    Response      = utils.Response,
+    resolveConfig = utils.resolveConfig,
+    extendObject  = utils.extendObject;
 var heads                  = require("../lib/heads"),
     RoboHydraHeadStatic    = heads.RoboHydraHeadStatic,
     RoboHydraHead          = heads.RoboHydraHead,
@@ -17,7 +19,6 @@ var helpers              = require("./helpers"),
     headWithPass         = helpers.headWithPass,
     pluginInfoObject     = helpers.pluginInfoObject,
     pluginObjectFromPath = helpers.pluginObjectFromPath;
-var extendObject = require("../lib/utils").extendObject;
 
 buster.spec.expose();
 var expect = buster.expect;
@@ -1700,5 +1701,44 @@ describe("Response object", function() {
         expect(dataSpy).not.toHaveBeenCalled();
         r1.end();
         expect(dataSpy).toHaveBeenCalledOnce();
+    });
+});
+
+describe("Configuration resolver", function() {
+    it("should return simple, correct configuration as-is", function() {
+        var config = {plugins: [{name: "logger", config: {}}]};
+        expect(resolveConfig(config)).toEqual(config);
+    });
+
+    it("should reject configurations with unknown keys", function() {
+        var config = {plugins: ["logger"],
+                      madeUpKey: true};
+        expect(function() {
+            resolveConfig(config);
+        }).toThrow("InvalidRoboHydraConfigurationException");
+    });
+
+    it("should accept all valid configuration keys", function() {
+        var config = {plugins: [{name: "logger", config: {}}],
+                      pluginConfigDefaults: {},
+                      pluginLoadPaths: [],
+                      summoner: {},
+                      secure: false,
+                      sslOptions: {},
+                      port: 3001,
+                      quiet: false};
+        expect(resolveConfig(config)).toEqual(config);
+    });
+
+    it("should inject default configuration into plugin configurations", function() {
+        var config = {pluginConfigDefaults: {foo: "bar"},
+                      plugins: [{name: "logger", config: {}}]};
+        expect(resolveConfig(config).plugins[0].config.foo).toEqual("bar");
+    });
+
+    it("should inject plugin defaults also in compact notation", function() {
+        var config = {pluginConfigDefaults: {foo: "bar"},
+                      plugins: ["logger"]};
+        expect(resolveConfig(config).plugins[0].config.foo).toEqual("bar");
     });
 });

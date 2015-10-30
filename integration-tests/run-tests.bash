@@ -77,3 +77,19 @@ $RHBIN port.conf
 t "Setting a port (file + command-line)"
 check /foo 3002
 $RHBIN -p 3002 port.conf
+
+t "Passing configuration through the command-line"
+check
+$RHBIN vars.conf result=pass
+
+t "Command-line configuration has precedence over configuration file"
+check
+$RHBIN conf.conf result=pass
+
+t "Setting plugin configuration defaults"
+check
+$RHBIN plugin-defaults.conf
+
+t "Command-line configuration has precedence over configuration defaults"
+check
+$RHBIN wrong-plugin-defaults.conf result=pass

@@ -7,7 +7,9 @@
 
 var fs        = require('fs'),
     commander = require('commander');
-var createRoboHydraServer = require('robohydra').createRoboHydraServer;
+var robohydra             = require('robohydra'),
+    createRoboHydraServer = robohydra.createRoboHydraServer,
+    resolveConfig         = robohydra.resolveConfig;
 
 
 (function () {
@@ -59,7 +61,7 @@ var createRoboHydraServer = require('robohydra').createRoboHydraServer;
         }
         var configPath = args.shift();
         var robohydraConfigString = fs.readFileSync(configPath, 'utf-8');
-        fileConfig = JSON.parse(robohydraConfigString);
+        fileConfig = resolveConfig(JSON.parse(robohydraConfigString));
         if (! fileConfig.plugins) {
             showHelpAndDie(configPath + " doesn't seem like a valid RoboHydra plugin (missing 'plugins' property in the top-level object)");
         }

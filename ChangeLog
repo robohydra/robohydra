@@ -1,7 +1,12 @@
 Version 0.x.x (20xx-xx-xx)
 --------------------------
 
-	* Some change
+	* Pass query parameters correctly when proxying requests by using
+	the `proxyRequest` function directly (as opposed to using a
+	`RoboHydraHeadProxy` head.
+
+	* Add a new `pluginConfigDefaults` key to configuration files, to
+	provide configuration defaults for all plugins.
 
 Version 0.6.1 (2015-07-09)
 --------------------------
