@@ -8,6 +8,8 @@ Version 0.x.x (20xx-xx-xx)
 	* Add a new `pluginConfigDefaults` key to configuration files, to
 	provide configuration defaults for all plugins.
 
+	* Don't die if the incoming request body is unparseable.
+
 Version 0.6.1 (2015-07-09)
 --------------------------
 
