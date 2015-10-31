@@ -44,6 +44,28 @@ configuration keys `path` and `logLevel` could be:
                          "logLevel": "warn"}}]}
 {% endhighlight %}
 
+As several plugins might have common configuration options, one can
+specify configuration defaults for all of them in the
+`pluginConfigDefaults` key. That is, this configuration:
+
+{% highlight json %}
+{"plugins": ["logger",
+             {"name": "my-plugin",
+              "config": {"path": "/var/log/example.log",
+                         "logLevel": "warn"}}],
+ "pluginConfigDefaults": {"logLevel": "debug"}}
+{% endhighlight %}
+
+is equivalent to this:
+
+{% highlight json %}
+{"plugins": [{"name": "logger",
+              "config": {"logLevel": "debug"}},
+             {"name": "my-plugin",
+              "config": {"path": "/var/log/example.log",
+                         "logLevel": "warn"}}]}
+{% endhighlight %}
+
 Plugin load paths
 -----------------
 
