@@ -9,7 +9,7 @@
   "dependencies": {
     "mime":      ">= 1.0.0",
     "ejs":       ">= 0.6.1",
-    "qs":        ">= 0.4.2",
+    "qs":        "^5.2.0",
     "commander": ">= 0.6.0",
     "markdown":  ">= 0.3.1",
     "websocket.io": ">= 0.2.1",
