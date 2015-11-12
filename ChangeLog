@@ -1,12 +1,12 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.2 (2015-11-12)
 --------------------------
+
+	* Add a new `pluginConfigDefaults` key to configuration files, to
+	provide configuration defaults for all plugins.
 
 	* Pass query parameters correctly when proxying requests by using
 	the `proxyRequest` function directly (as opposed to using a
 	`RoboHydraHeadProxy` head.
-
-	* Add a new `pluginConfigDefaults` key to configuration files, to
-	provide configuration defaults for all plugins.
 
 	* Don't die if the incoming request body is unparseable.
 
