@@ -10,6 +10,9 @@ Version 0.x.x (20xx-xx-xx)
 
 	* Don't die if the incoming request body is unparseable.
 
+	* Tighten the versioned dependency on qs to avoid breaking
+	compatibility with older versions of Node.
+
 Version 0.6.1 (2015-07-09)
 --------------------------
 
