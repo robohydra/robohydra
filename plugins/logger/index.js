@@ -18,7 +18,7 @@ function printResponseBody(logFileFd, responseBody) {
                  "\n");
 }
 
-function logRequestResponse(logFileFd, req, res, cb) {
+function logRequestResponse(logFileFd, req, res) {
     "use strict";
 
     fs.writeSync(logFileFd, "============================================\n");
@@ -67,7 +67,6 @@ function logRequestResponse(logFileFd, req, res, cb) {
                 } else {
                     printResponseBody(logFileFd, buffer);
                 }
-                cb();
             });
         } else {
             if (res.headers["content-type"] &&
@@ -78,10 +77,7 @@ function logRequestResponse(logFileFd, req, res, cb) {
             } else {
                 printResponseBody(logFileFd, res.body);
             }
-            cb();
         }
-    } else {
-        cb();
     }
 }
 
@@ -101,18 +97,16 @@ function getBodyParts(conf) {
             // Save the original request as it can be modified before
             // the response object end callback gets executed
             var origRequest = new Request(req);
-            var fakeRes = new Response(
-                function() {
-                    logRequestResponse(logFileFd,
-                                       origRequest,
-                                       fakeRes,
-                                       function() {
-                                           res.copyFrom(fakeRes);
-                                           res.end();
-                                       });
-                }
-            );
-            next(req, fakeRes);
+            res.on('end', function(evt) {
+                logRequestResponse(logFileFd,
+                                   origRequest,
+                                   evt.response,
+                                   function() {
+                                       res.copyFrom(evt.res);
+                                       res.end();
+                                   });
+            });
+            next(req, res);
         }
     }), {priority: 'high'});
 

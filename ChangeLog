@@ -1,7 +1,7 @@
 Version 0.x.x (201x-xx-xx)
 --------------------------
 
-	* Some change
+	* Make the logger plugin compatible with streaming.
 
 Version 0.6.2 (2015-11-12)
 --------------------------
