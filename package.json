@@ -4,16 +4,19 @@
   "bin": "./bin/robohydra.js",
   "main": "./lib/exports.js",
   "scripts": {
-      "test": "node_modules/.bin/buster-test"
+    "test": "node_modules/.bin/buster-test",
+    "snyk-protect": "snyk protect",
+    "postinstall": "npm run snyk-protect"
   },
   "dependencies": {
-    "mime":      ">= 1.0.0",
-    "ejs":       ">= 0.6.1",
-    "qs":        "^5.2.0",
+    "mime": ">= 1.0.0",
+    "ejs": ">= 0.6.1",
+    "qs": "^5.2.0",
     "commander": ">= 0.6.0",
-    "markdown":  ">= 0.3.1",
+    "markdown": ">= 0.3.1",
     "websocket.io": ">= 0.2.1",
-    "ws": ">= 0.7.0"
+    "ws": ">= 0.7.0",
+    "snyk": "^1.8.4"
   },
   "devDependencies": {
     "buster": ">= 0.7.0",
@@ -23,5 +26,6 @@
   "repository": {
     "type": "git",
     "url": "http://github.com/robohydra/robohydra.git"
-  }
+  },
+  "snyk": true
 }
