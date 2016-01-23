@@ -88,7 +88,7 @@ describe("RoboHydras", function() {
             hydra.registerPluginObject(pluginInfoObject({
                 heds: []
             }));
-        }).toThrow("InvalidRoboHydraPluginException");
+        }).toThrow({name: "InvalidRoboHydraPluginException"});
     });
 
     it("can't register plugins without name", function() {
@@ -98,7 +98,7 @@ describe("RoboHydras", function() {
                 name: undefined,
                 heads: [new RoboHydraHeadStatic({content: 'foo'})]
             }));
-        }).toThrow("InvalidRoboHydraPluginException");
+        }).toThrow({name: "InvalidRoboHydraPluginException"});
     });
 
     it("can't register plugins with invalid names", function() {
@@ -109,7 +109,7 @@ describe("RoboHydras", function() {
             expect(function() {
                 hydra.registerPluginObject(pluginInfoObject({name: v,
                                                              heads: heads}));
-            }).toThrow("InvalidRoboHydraPluginException");
+            }).toThrow({name: "InvalidRoboHydraPluginException"});
         });
     });
 
@@ -148,7 +148,7 @@ describe("RoboHydras", function() {
                 name: 'simple_plugin',
                 scenarios: {simpleScenario: {instructions: "No heads lol"}}
             }));
-        }).toThrow("InvalidRoboHydraPluginException");
+        }).toThrow({name: "InvalidRoboHydraPluginException"});
     });
 
     it("reject scenarios with unknown properties", function() {
@@ -159,7 +159,7 @@ describe("RoboHydras", function() {
                 scenarios: {simpleScenario: {heads: [],
                                              path: '/wat/no/staph/it'}}
             }));
-        }).toThrow("InvalidRoboHydraPluginException");
+        }).toThrow({name: "InvalidRoboHydraPluginException"});
     });
 
     it("can register plugins with one head and one scenario", function() {
@@ -183,7 +183,7 @@ describe("RoboHydras", function() {
         expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
         expect(function() {
             hydra.registerPluginObject(pluginInfoObject(plugin2));
-        }).toThrow("InvalidRoboHydraConfigurationException");
+        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
     });
 
     it("can register several plugins", function() {
@@ -255,7 +255,7 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject(plugin1));
         expect(function() {
             hydra.getPlugin("plugin11");
-        }).toThrow("RoboHydraPluginNotFoundException");
+        }).toThrow({name: "RoboHydraPluginNotFoundException"});
     });
 
     it("consider all paths 404 when there are no plugins", function() {
@@ -328,7 +328,7 @@ describe("RoboHydras", function() {
         expect(function() {
             hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
                                                          heads: heads}));
-        }).toThrow("DuplicateRoboHydraHeadNameException");
+        }).toThrow({name: "DuplicateRoboHydraHeadNameException"});
         expect(hydra).toHavePluginList([]);
     });
 
@@ -375,16 +375,16 @@ describe("RoboHydras", function() {
 
         expect(function() {
             hydra.findHead('plugin1', 'head1');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
         expect(function() {
             hydra.findHead('plugin', 'head3');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
         expect(function() {
             hydra.findHead('plugin', 'head22');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
         expect(function() {
             hydra.findHead('_plugin', 'head2');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
     });
 
     it("allow attaching and detaching heads", function() {
@@ -407,13 +407,13 @@ describe("RoboHydras", function() {
 
         expect(function() {
             hydra.detachHead('plugin', 'head2');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
         expect(function() {
             hydra.detachHead('plugin2', 'head1');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
         expect(function() {
             hydra.detachHead('_plugin', 'head1');
-        }).toThrow("RoboHydraHeadNotFoundException");
+        }).toThrow({name: "RoboHydraHeadNotFoundException"});
     });
 
     it("throw an error when attaching/detaching already attached/detached heads", function() {
@@ -424,11 +424,11 @@ describe("RoboHydras", function() {
 
         expect(function() {
             hydra.attachHead('plugin', 'head1');
-        }).toThrow("InvalidRoboHydraHeadStateException");
+        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
         hydra.detachHead('plugin', 'head1');
         expect(function() {
             hydra.detachHead('plugin', 'head1');
-        }).toThrow("InvalidRoboHydraHeadStateException");
+        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
     });
 
     it("skips detached heads when dispatching", function(done) {
@@ -520,7 +520,7 @@ describe("RoboHydras", function() {
             hydra.registerDynamicHead(simpleRoboHydraHead('/foo',
                                                           'some content'),
                                       {priority: 'normall'});
-        }).toThrow("RoboHydraException");
+        }).toThrow({name: "RoboHydraException"});
     });
 
     it("places high priority heads above normal priority heads", function(done) {
@@ -712,7 +712,7 @@ describe("RoboHydras", function() {
                 expect(function() {
                     // http://bit.ly/KkdH81
                     next();
-                }).toThrow("InvalidRoboHydraNextParametersException");
+                }).toThrow({name: "InvalidRoboHydraNextParametersException"});
                 res.end();
             }});
         hydra.registerDynamicHead(headCallingNext);
@@ -772,7 +772,7 @@ describe("RoboHydra plugin load system", function() {
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         expect(function() {
             hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        }).toThrow('InvalidRoboHydraPluginException');
+        }).toThrow({name: "InvalidRoboHydraPluginException"});
     });
 });
 
@@ -804,7 +804,7 @@ describe("RoboHydra scenario system", function() {
         var hydra = new RoboHydra();
         expect(function() {
             hydra.startScenario('plugin', 'simpleTest');
-        }).toThrow("InvalidRoboHydraScenarioException");
+        }).toThrow({name: "InvalidRoboHydraScenarioException"});
     });
 
     it("can stop scenarios", function() {
@@ -1429,7 +1429,7 @@ describe("Response object", function() {
         var r = new Response();
         expect(function() {
             r.end();
-        }).toThrow("InvalidRoboHydraResponseException");
+        }).toThrow({name: "InvalidRoboHydraResponseException"});
     });
 
     it("supports basic observers", function() {
@@ -1715,7 +1715,7 @@ describe("Configuration resolver", function() {
                       madeUpKey: true};
         expect(function() {
             resolveConfig(config);
-        }).toThrow("InvalidRoboHydraConfigurationException");
+        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
     });
 
     it("should accept all valid configuration keys", function() {

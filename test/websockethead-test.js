@@ -20,7 +20,7 @@ describe("Generic RoboHydraWebSocket heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraWebSocketHead({path: '/'});
-        }).toThrow("InvalidRoboHydraHeadException");
+        }).toThrow({name: "InvalidRoboHydraHeadException"});
     });
 
     it("can have a name", function() {
@@ -101,13 +101,13 @@ describe("Generic RoboHydraWebSocket heads", function() {
         var head = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
         expect(function() {
             head.attach();
-        }).toThrow("InvalidRoboHydraHeadStateException");
+        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
         expect(head.attached()).toEqual(true);
         head.detach();
         expect(head.attached()).toEqual(false);
         expect(function() {
             head.detach();
-        }).toThrow("InvalidRoboHydraHeadStateException");
+        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
         expect(head.attached()).toEqual(false);
     });
 

@@ -20,7 +20,7 @@ describe("RoboHydra picking system", function() {
                 {},
                 {rootDir: __dirname + '/plugin-fs'}
             );
-        }).toThrow('InvalidRoboHydraConfigurationException');
+        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
     });
 
     it("can specify a picking function when there are multiple", function() {
@@ -43,7 +43,7 @@ describe("RoboHydra picking system", function() {
                 {hydraPickerPlugin: 'another-plugin'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
-        }).toThrow('InvalidRoboHydraConfigurationException');
+        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
     });
 
     it("detects specified picking plugins without a picker function", function() {
@@ -56,7 +56,7 @@ describe("RoboHydra picking system", function() {
                 {hydraPickerPlugin: 'definedtwice'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
-        }).toThrow('InvalidRoboHydraConfigurationException');
+        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
     });
 
     it("has a default picker function", function() {
@@ -84,7 +84,7 @@ describe("RoboHydra picking system", function() {
                 {rootDir: __dirname + '/plugin-fs'}
             );
             summoner.summonRoboHydraForRequest(new Request({url: '/'}));
-        }).toThrow('InvalidRoboHydraPluginException');
+        }).toThrow({name: "InvalidRoboHydraPluginException"});
     });
 
     it("picks the right RoboHydra", function() {
@@ -136,12 +136,13 @@ describe("Plugin loader", function() {
 
     it("fails when loading non-existent plugins", function() {
         expect(function() {
+            /*jshint nonew: false*/
             new RoboHydraSummoner(
                 [{name: 'i-dont-exist', config: {}}],
                 {},
                 {rootDir: rootDir}
             );
-        }).toThrow('RoboHydraPluginNotFoundException');
+        }).toThrow({name: "RoboHydraPluginNotFoundException"});
     });
 
     it("can load a simple plugin", function() {
