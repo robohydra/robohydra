@@ -93,3 +93,11 @@ $RHBIN plugin-defaults.conf
 t "Command-line configuration has precedence over configuration defaults"
 check
 $RHBIN wrong-plugin-defaults.conf result=pass
+
+t "Default plugin configuration doesn't bleed"
+check
+$RHBIN plugin-defaults-bleeding.conf
+
+t "Specific plugin configuration doesn't overwrite previous plugins' config"
+check
+$RHBIN plugin-defaults-overwriting.conf

@@ -1741,4 +1741,14 @@ describe("Configuration resolver", function() {
                       plugins: ["logger"]};
         expect(resolveConfig(config).plugins[0].config.foo).toEqual("bar");
     });
+
+    it("should never mix configuration from different plugins", function() {
+        var config = {pluginConfigDefaults: {foo: "bar"},
+                      plugins: ["logger",
+                                {"name": "blah",
+                                 "config": {
+                                     "foo": "fail"
+                                 }}]};
+        expect(resolveConfig(config).plugins[0].config.foo).not.toEqual("fail");
+    });
 });
