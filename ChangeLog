@@ -1,6 +1,7 @@
-Version 0.x.x (201x-xx-xx)
+Version 0.6.3 (2016-02-20)
 --------------------------
 
+	* Avoid bad plugin config when using pluginConfigDefaults.
 	* Make the logger plugin compatible with streaming.
 
 Version 0.6.2 (2015-11-12)
