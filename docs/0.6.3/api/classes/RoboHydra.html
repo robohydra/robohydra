@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Response - RoboHydra public API</title>
+    <title>RoboHydra - RoboHydra public API</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -83,12 +83,12 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>Response Class</h1>
+                        <h1>RoboHydra Class</h1>
                         <div class="box meta">
                         
                         
                                 <div class="foundat">
-                                    Defined in: <a href="../files/.._robohydra_lib_utils.js.html#l360"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:360</code></a>
+                                    Defined in: <a href="../files/.._robohydra_lib_RoboHydra.js.html#l36"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:36</code></a>
                                 </div>
                         
                         
@@ -96,19 +96,21 @@
                         
                         
                         <div class="box intro">
-                            <p>Represents a server response.</p>
+                            <p>Dispatches the incoming requests. Normally there is only one of
+                        this per server, but there can be several if summoners are
+                        used.</p>
                         
                         </div>
                         
                             <div class="constructor">
                                 <h2>Constructor</h2>
-                                <div id="method_Response" class="method item">
-                                    <h3 class="name"><code>Response</code></h3>
+                                <div id="method_RoboHydra" class="method item">
+                                    <h3 class="name"><code>RoboHydra</code></h3>
                                 
                                         <div class="args">
                                             <span class="paren">(</span><ul class="args-list inline commas">
                                                 <li class="arg">
-                                                        <code>cb</code>
+                                                        <code>extraVars</code>
                                                 </li>
                                             </ul><span class="paren">)</span>
                                         </div>
@@ -123,7 +125,7 @@
                                     <div class="meta">
                                                 <p>
                                                 Defined in
-                                        <a href="../files/.._robohydra_lib_utils.js.html#l360"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:360</code></a>
+                                        <a href="../files/.._robohydra_lib_RoboHydra.js.html#l36"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:36</code></a>
                                         </p>
                                 
                                 
@@ -139,13 +141,15 @@
                                 
                                             <ul class="params-list">
                                                 <li class="param">
-                                                        <code class="param-name">cb</code>
-                                                        <span class="type">Function</span>
+                                                        <code class="param-name">extraVars</code>
+                                                        <span class="type">Object</span>
                                 
                                 
                                                     <div class="param-description">
-                                                        <p>Callback to be used when the response is
-                                finished. See the <code>end</code> event on the <code>on</code> method documentation.</p>
+                                                        <p>An optional object with the extra
+                                configuration variables. These take precedence over any other
+                                configuration variables elsewhere, and are the values passed as
+                                command-line parameters in the &quot;robohydra&quot; executable.</p>
                                 
                                                     </div>
                                 
@@ -162,7 +166,7 @@
                                 <li class="api-class-tab index"><a href="#index">Index</a></li>
                         
                                     <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
-                                    <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
+                                    <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
                             </ul>
                         
                             <div>
@@ -173,144 +177,89 @@
                                             <h3>Methods</h3>
                         
                                             <ul class="index-list methods">
-                                                    <li class="index-item method deprecated">
-                                                        <a href="#method_chain">chain</a>
+                                                    <li class="index-item method">
+                                                        <a href="#method_attachHead">attachHead</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_detachHead">detachHead</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_getModulesObject">getModulesObject</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_getPlugin">getPlugin</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_getPluginNames">getPluginNames</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_getPlugins">getPlugins</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_headForPath">headForPath</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_registerDynamicHead">registerDynamicHead</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_registerPluginObject">registerPluginObject</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_startScenario">startScenario</a>
+                        
+                                                    </li>
+                                                    <li class="index-item method">
+                                                        <a href="#method_stopScenario">stopScenario</a>
+                        
+                                                    </li>
+                                            </ul>
+                                        </div>
+                        
+                                        <div class="index-section properties">
+                                            <h3>Properties</h3>
+                        
+                                            <ul class="index-list properties">
+                                                    <li class="index-item property">
+                                                        <a href="#property_currentScenario">currentScenario</a>
+                        
+                                                    </li>
+                                                    <li class="index-item property deprecated">
+                                                        <a href="#property_scenarioResults">scenarioResults</a>
                         
                                                             <span class="flag deprecated">deprecated</span>
                                                     </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_copyFrom">copyFrom</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_end">end</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_follow">follow</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_forward">forward</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_on">on</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_send">send</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_write">write</a>
-                        
-                                                    </li>
-                                                    <li class="index-item method">
-                                                        <a href="#method_writeHead">writeHead</a>
+                                                    <li class="index-item property">
+                                                        <a href="#property_testResults">testResults</a>
                         
                                                     </li>
                                             </ul>
                                         </div>
                         
-                        
-                                        <div class="index-section attrs">
-                                            <h3>Attributes</h3>
-                        
-                                            <ul class="index-list attrs">
-                                                    <li class="index-item attr">
-                                                        <a href="#attr_body">body</a>
-                                                    </li>
-                                                    <li class="index-item attr">
-                                                        <a href="#attr_ended">ended</a>
-                                                    </li>
-                                                    <li class="index-item attr">
-                                                        <a href="#attr_headers">headers</a>
-                                                    </li>
-                                                    <li class="index-item attr">
-                                                        <a href="#attr_statusCode">statusCode</a>
-                                                    </li>
-                                            </ul>
-                                        </div>
                         
                                 </div>
                         
                                     <div id="methods" class="api-class-tabpanel">
                                         <h2 class="off-left">Methods</h2>
                         
-                                            <div id="method_chain" class="method item deprecated">
-                                                <h3 class="name"><code>chain</code></h3>
+                                            <div id="method_attachHead" class="method item">
+                                                <h3 class="name"><code>attachHead</code></h3>
                                             
                                                     <div class="args">
                                                         <span class="paren">(</span><ul class="args-list inline commas">
                                                             <li class="arg">
-                                                                    <code>response</code>
+                                                                    <code>pluginName</code>
                                                             </li>
-                                                        </ul><span class="paren">)</span>
-                                                    </div>
-                                            
-                                            
-                                                    <span class="flag deprecated">deprecated</span>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l584"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:584</code></a>
-                                                    </p>
-                                            
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Chains the response given as a parameter to the current
-                                            object. This means that as data is written to the current
-                                            object, that same data will be written in the parameter (ie. it
-                                            honours and replicates streaming). It's similar to <code>copyFrom</code>,
-                                            but with the following differences:</p>
-                                            <ul>
-                                            <li><code>chain</code> is called on the source object, not the target.</li>
-                                            <li><code>chain</code> is to be used <em>before</em> any data is written to the
-                                            source object.</li>
-                                            <li><code>chain</code> will write data as it's received, instead of
-                                            everything at once.</li>
-                                            </ul>
-                                            
-                                                </div>
-                                            
-                                                    <div class="params">
-                                                        <h4>Parameters:</h4>
-                                            
-                                                        <ul class="params-list">
-                                                            <li class="param">
-                                                                    <code class="param-name">response</code>
-                                                                    <span class="type"><a href="../classes/Response.html" class="crosslink">Response</a></span>
-                                            
-                                            
-                                                                <div class="param-description">
-                                                                    <p>Response object to chain to the
-                                            current object.</p>
-                                            
-                                                                </div>
-                                            
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                            
-                                            
-                                            </div>
-                                            <div id="method_copyFrom" class="method item">
-                                                <h3 class="name"><code>copyFrom</code></h3>
-                                            
-                                                    <div class="args">
-                                                        <span class="paren">(</span><ul class="args-list inline commas">
                                                             <li class="arg">
-                                                                    <code>res</code>
+                                                                    <code>headName</code>
                                                             </li>
                                                         </ul><span class="paren">)</span>
                                                     </div>
@@ -325,7 +274,7 @@
                                                 <div class="meta">
                                                             <p>
                                                             Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l490"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:490</code></a>
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l346"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:346</code></a>
                                                     </p>
                                             
                                             
@@ -333,9 +282,7 @@
                                                 </div>
                                             
                                                 <div class="description">
-                                                    <p>Copies the response given as a parameter into the current
-                                            response object. This is intended to be used when the response
-                                            given as a parameter is already finished.</p>
+                                                    <p>Attach the given head.</p>
                                             
                                                 </div>
                                             
@@ -344,252 +291,24 @@
                                             
                                                         <ul class="params-list">
                                                             <li class="param">
-                                                                    <code class="param-name">res</code>
-                                                                    <span class="type"><a href="../classes/Response.html" class="crosslink">Response</a></span>
-                                            
-                                            
-                                                                <div class="param-description">
-                                                                    <p>Response object to copy.</p>
-                                            
-                                                                </div>
-                                            
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                            
-                                            
-                                            </div>
-                                            <div id="method_end" class="method item">
-                                                <h3 class="name"><code>end</code></h3>
-                                            
-                                                    <span class="paren">()</span>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l468"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:468</code></a>
-                                                    </p>
-                                            
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Marks the response as complete and calls the 'end'
-                                            callback. When called in the response object provided by
-                                            RoboHydra, this closes the connection.</p>
-                                            
-                                                </div>
-                                            
-                                            
-                                            
-                                            </div>
-                                            <div id="method_follow" class="method item">
-                                                <h3 class="name"><code>follow</code></h3>
-                                            
-                                                    <div class="args">
-                                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                                            <li class="arg">
-                                                                    <code>response</code>
-                                                            </li>
-                                                        </ul><span class="paren">)</span>
-                                                    </div>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l557"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:557</code></a>
-                                                    </p>
-                                            
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Follows the given response: as data is written to the given
-                                            response object, that same data will be written in the calling
-                                            object (ie. it honours and replicates streaming). It's similar
-                                            to <code>copyFrom</code>, but with the following differences:</p>
-                                            <ul>
-                                            <li><code>follow</code> is to be used <em>before</em> any data is written to the
-                                            source object (ie. the parameter).</li>
-                                            <li><code>follow</code> will write data as it is received, instead of
-                                            everything at once.</li>
-                                            </ul>
-                                            
-                                                </div>
-                                            
-                                                    <div class="params">
-                                                        <h4>Parameters:</h4>
-                                            
-                                                        <ul class="params-list">
-                                                            <li class="param">
-                                                                    <code class="param-name">response</code>
-                                                                    <span class="type"><a href="../classes/Response.html" class="crosslink">Response</a></span>
-                                            
-                                            
-                                                                <div class="param-description">
-                                                                    <p>Response object to follow.</p>
-                                            
-                                                                </div>
-                                            
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                            
-                                            
-                                            </div>
-                                            <div id="method_forward" class="method item">
-                                                <h3 class="name"><code>forward</code></h3>
-                                            
-                                                    <div class="args">
-                                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                                            <li class="arg">
-                                                                    <code>res</code>
-                                                            </li>
-                                                        </ul><span class="paren">)</span>
-                                                    </div>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l504"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:504</code></a>
-                                                    </p>
-                                            
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Forwards the response given as a parameter. That is, copies the
-                                            given response in the current object, then marks the given
-                                            object as finished.</p>
-                                            
-                                                </div>
-                                            
-                                                    <div class="params">
-                                                        <h4>Parameters:</h4>
-                                            
-                                                        <ul class="params-list">
-                                                            <li class="param">
-                                                                    <code class="param-name">res</code>
-                                                                    <span class="type"><a href="../classes/Response.html" class="crosslink">Response</a></span>
-                                            
-                                            
-                                                                <div class="param-description">
-                                                                    <p>The response object to forward.</p>
-                                            
-                                                                </div>
-                                            
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                            
-                                            
-                                            </div>
-                                            <div id="method_on" class="method item">
-                                                <h3 class="name"><code>on</code></h3>
-                                            
-                                                    <div class="args">
-                                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                                            <li class="arg">
-                                                                    <code>eventName</code>
-                                                            </li>
-                                                            <li class="arg">
-                                                                    <code>cb</code>
-                                                            </li>
-                                                        </ul><span class="paren">)</span>
-                                                    </div>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l516"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:516</code></a>
-                                                    </p>
-                                            
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Adds a callback to the given event. An event can have more than
-                                            one callback. All callbacks for an event will be called in
-                                            order when the event is triggered.</p>
-                                            <p>The callback function will receive a single parameter, <code>event</code>,
-                                            an object with the property <code>type</code> set to the event type, plus
-                                            different properties according to the event fired. It returns
-                                            the response object.</p>
-                                            <p>The list of response object events is:</p>
-                                            <ul>
-                                            <li><code>head</code>: Fired when the header is written. Event objects for
-                                            this event contain two properties, <code>statusCode</code> and
-                                            <code>headers</code>.</li>
-                                            <li><code>data</code>: Fired when there is data written in the response
-                                            object. Event objects for this event contain a single property,
-                                            <code>data</code>, an instance of <code>Buffer</code>.</li>
-                                            <li><code>end</code>: Fired when the response is finished. Event objects for
-                                            this event contain a single property, <code>response</code>, the response
-                                            object that fired the event.</li>
-                                            </ul>
-                                            <p>For responses you have created yourself to pass to the <code>next</code>
-                                            function, the <code>end</code> event would typically be used to inspect or
-                                            modify the response contents, then write data to the response
-                                            object you received, possibly with the help of the methods
-                                            below.</p>
-                                            
-                                                </div>
-                                            
-                                                    <div class="params">
-                                                        <h4>Parameters:</h4>
-                                            
-                                                        <ul class="params-list">
-                                                            <li class="param">
-                                                                    <code class="param-name">eventName</code>
+                                                                    <code class="param-name">pluginName</code>
                                                                     <span class="type">String</span>
                                             
                                             
                                                                 <div class="param-description">
-                                                                    <p>The name of the event to attach the
-                                            callback to. Possible event names are <code>head</code>, <code>data</code> and <code>end</code>.</p>
+                                                                    <p>The name of the plugin containing the head to
+                                            (re-)attach.</p>
                                             
                                                                 </div>
                                             
                                                             </li>
                                                             <li class="param">
-                                                                    <code class="param-name">cb</code>
-                                                                    <span class="type">Function</span>
+                                                                    <code class="param-name">headName</code>
+                                                                    <span class="type">String</span>
                                             
                                             
                                                                 <div class="param-description">
-                                                                    <p>The callback to attach to the given event.</p>
+                                                                    <p>The name of the head to (re-)attach.</p>
                                             
                                                                 </div>
                                             
@@ -599,13 +318,16 @@
                                             
                                             
                                             </div>
-                                            <div id="method_send" class="method item">
-                                                <h3 class="name"><code>send</code></h3>
+                                            <div id="method_detachHead" class="method item">
+                                                <h3 class="name"><code>detachHead</code></h3>
                                             
                                                     <div class="args">
                                                         <span class="paren">(</span><ul class="args-list inline commas">
                                                             <li class="arg">
-                                                                    <code>data</code>
+                                                                    <code>pluginName</code>
+                                                            </li>
+                                                            <li class="arg">
+                                                                    <code>headName</code>
                                                             </li>
                                                         </ul><span class="paren">)</span>
                                                     </div>
@@ -620,7 +342,7 @@
                                                 <div class="meta">
                                                             <p>
                                                             Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l457"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:457</code></a>
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l335"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:335</code></a>
                                                     </p>
                                             
                                             
@@ -628,8 +350,7 @@
                                                 </div>
                                             
                                                 <div class="description">
-                                                    <p>Appends the given data to the response body and closes
-                                            it. Equivalent to calling the <code>write</code> method, then <code>end</code>.</p>
+                                                    <p>Detach the given head.</p>
                                             
                                                 </div>
                                             
@@ -638,12 +359,24 @@
                                             
                                                         <ul class="params-list">
                                                             <li class="param">
-                                                                    <code class="param-name">data</code>
-                                                                    <span class="type">Buffer</span>
+                                                                    <code class="param-name">pluginName</code>
+                                                                    <span class="type">String</span>
                                             
                                             
                                                                 <div class="param-description">
-                                                                    <p>to add to the response body.</p>
+                                                                    <p>The name of the plugin containing the head to
+                                            detach.</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                            <li class="param">
+                                                                    <code class="param-name">headName</code>
+                                                                    <span class="type">String</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The name of the head to detach.</p>
                                             
                                                                 </div>
                                             
@@ -653,17 +386,20 @@
                                             
                                             
                                             </div>
-                                            <div id="method_write" class="method item">
-                                                <h3 class="name"><code>write</code></h3>
+                                            <div id="method_getModulesObject" class="method item">
+                                                <h3 class="name"><code>getModulesObject</code></h3>
                                             
                                                     <div class="args">
                                                         <span class="paren">(</span><ul class="args-list inline commas">
                                                             <li class="arg">
-                                                                    <code>chunk</code>
+                                                                    <code>conf</code>
                                                             </li>
                                                         </ul><span class="paren">)</span>
                                                     </div>
                                             
+                                                    <span class="returns-inline">
+                                                        <span class="type">Object</span>
+                                                    </span>
                                             
                                             
                                             
@@ -674,7 +410,7 @@
                                                 <div class="meta">
                                                             <p>
                                                             Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l429"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:429</code></a>
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l518"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:518</code></a>
                                                     </p>
                                             
                                             
@@ -682,11 +418,7 @@
                                                 </div>
                                             
                                                 <div class="description">
-                                                    <p>Appends data to the response body. This method allows a
-                                            RoboHydra head to write the response body in chunks, and the
-                                            response will be sent in chunks to the client (so you could,
-                                            say, send data, then wait, then send more data, wait, then
-                                            close the connection).</p>
+                                                    <p>Returns an object with the modules for a given plugin.</p>
                                             
                                                 </div>
                                             
@@ -695,80 +427,573 @@
                                             
                                                         <ul class="params-list">
                                                             <li class="param">
-                                                                    <code class="param-name">chunk</code>
-                                                                    <span class="type">Buffer</span>
-                                            
-                                            
-                                                                <div class="param-description">
-                                                                    <p>Data to add to the current response
-                                            body. This parameter can be a string, too.</p>
-                                            
-                                                                </div>
-                                            
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                            
-                                            
-                                            </div>
-                                            <div id="method_writeHead" class="method item">
-                                                <h3 class="name"><code>writeHead</code></h3>
-                                            
-                                                    <div class="args">
-                                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                                            <li class="arg">
-                                                                    <code>statusCode</code>
-                                                            </li>
-                                                            <li class="arg">
-                                                                    <code>headers</code>
-                                                            </li>
-                                                        </ul><span class="paren">)</span>
-                                                    </div>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l414"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:414</code></a>
-                                                    </p>
-                                            
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Sets and writes the response headers.</p>
-                                            
-                                                </div>
-                                            
-                                                    <div class="params">
-                                                        <h4>Parameters:</h4>
-                                            
-                                                        <ul class="params-list">
-                                                            <li class="param">
-                                                                    <code class="param-name">statusCode</code>
-                                                                    <span class="type">Integer</span>
-                                            
-                                            
-                                                                <div class="param-description">
-                                                                    <p>The response's status code.</p>
-                                            
-                                                                </div>
-                                            
-                                                            </li>
-                                                            <li class="param">
-                                                                    <code class="param-name">headers</code>
+                                                                    <code class="param-name">conf</code>
                                                                     <span class="type">Object</span>
                                             
                                             
                                                                 <div class="param-description">
-                                                                    <p>The response's headers.</p>
+                                                                    <p>The full, resolved configuration for the
+                                            plugin the module object is for.</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                            
+                                                    <div class="returns">
+                                                        <h4>Returns:</h4>
+                                            
+                                                        <div class="returns-description">
+                                                                    <span class="type">Object</span>:
+                                                                <p>Object with the names of the available modules
+                                            as keys, and objects with functions as values.</p>
+                                            
+                                                        </div>
+                                                    </div>
+                                            
+                                            </div>
+                                            <div id="method_getPlugin" class="method item">
+                                                <h3 class="name"><code>getPlugin</code></h3>
+                                            
+                                                    <div class="args">
+                                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                                            <li class="arg">
+                                                                    <code>pluginName</code>
+                                                            </li>
+                                                        </ul><span class="paren">)</span>
+                                                    </div>
+                                            
+                                                    <span class="returns-inline">
+                                                        <span class="type">Object</span>
+                                                    </span>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l241"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:241</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Returns a plugin given its name.</p>
+                                            
+                                                </div>
+                                            
+                                                    <div class="params">
+                                                        <h4>Parameters:</h4>
+                                            
+                                                        <ul class="params-list">
+                                                            <li class="param">
+                                                                    <code class="param-name">pluginName</code>
+                                                                    <span class="type">String</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The name of the plugin</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                            
+                                                    <div class="returns">
+                                                        <h4>Returns:</h4>
+                                            
+                                                        <div class="returns-description">
+                                                                    <span class="type">Object</span>:
+                                                                <p>The plugin with the given name</p>
+                                            
+                                                        </div>
+                                                    </div>
+                                            
+                                            </div>
+                                            <div id="method_getPluginNames" class="method item">
+                                                <h3 class="name"><code>getPluginNames</code></h3>
+                                            
+                                                    <span class="paren">()</span>
+                                            
+                                                    <span class="returns-inline">
+                                                        <span class="type">Array</span>
+                                                    </span>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l223"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:223</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Returns the names of the current plugins, including pseudo-plugins.</p>
+                                            
+                                                </div>
+                                            
+                                            
+                                                    <div class="returns">
+                                                        <h4>Returns:</h4>
+                                            
+                                                        <div class="returns-description">
+                                                                    <span class="type">Array</span>:
+                                                                <p>An array with the names of the plugins in the hydra.</p>
+                                            
+                                                        </div>
+                                                    </div>
+                                            
+                                            </div>
+                                            <div id="method_getPlugins" class="method item">
+                                                <h3 class="name"><code>getPlugins</code></h3>
+                                            
+                                                    <span class="paren">()</span>
+                                            
+                                                    <span class="returns-inline">
+                                                        <span class="type">Array</span>
+                                                    </span>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l232"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:232</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Returns a list of all current plugins, including pseudo-plugins.</p>
+                                            
+                                                </div>
+                                            
+                                            
+                                                    <div class="returns">
+                                                        <h4>Returns:</h4>
+                                            
+                                                        <div class="returns-description">
+                                                                    <span class="type">Array</span>:
+                                                                <p>An array containing all plugins in the hydra.</p>
+                                            
+                                                        </div>
+                                                    </div>
+                                            
+                                            </div>
+                                            <div id="method_headForPath" class="method item">
+                                                <h3 class="name"><code>headForPath</code></h3>
+                                            
+                                                    <div class="args">
+                                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                                            <li class="arg">
+                                                                    <code>req</code>
+                                                            </li>
+                                                            <li class="arg">
+                                                                    <code>afterHead</code>
+                                                            </li>
+                                                        </ul><span class="paren">)</span>
+                                                    </div>
+                                            
+                                                    <span class="returns-inline">
+                                                        <span class="type">RoboHydraHead</span>
+                                                    </span>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l257"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:257</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Returns the first head that matches a given URL.</p>
+                                            
+                                                </div>
+                                            
+                                                    <div class="params">
+                                                        <h4>Parameters:</h4>
+                                            
+                                                        <ul class="params-list">
+                                                            <li class="param">
+                                                                    <code class="param-name">req</code>
+                                                                    <span class="type"><a href="../classes/Request.html" class="crosslink">Request</a></span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>Request object the head must match</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                            <li class="param">
+                                                                    <code class="param-name">afterHead</code>
+                                                                    <span class="type">RoboHydraHead</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>If given, only heads after the
+                                            given one will be considered for matching.</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                            
+                                                    <div class="returns">
+                                                        <h4>Returns:</h4>
+                                            
+                                                        <div class="returns-description">
+                                                                    <span class="type">RoboHydraHead</span>:
+                                                                <p>First head matching the given URL.</p>
+                                            
+                                                        </div>
+                                                    </div>
+                                            
+                                            </div>
+                                            <div id="method_registerDynamicHead" class="method item">
+                                                <h3 class="name"><code>registerDynamicHead</code></h3>
+                                            
+                                                    <div class="args">
+                                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                                            <li class="arg">
+                                                                    <code>head</code>
+                                                            </li>
+                                                            <li class="arg">
+                                                                    <code>opts</code>
+                                                            </li>
+                                                        </ul><span class="paren">)</span>
+                                                    </div>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l184"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:184</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Adds a new (dynamic) head into a hydra. The new head is added
+                                            at the beginning of the appropriate pseudo-plugin (&quot;<em>dynamic</em>&quot;
+                                            by default, &quot;<em>priority-dynamic</em>&quot; if the priority is set to
+                                            &quot;high&quot;). The order of the plugins is: special admin plugin
+                                            (which is normally not visible in the admin interface!),
+                                            &quot;<em>priority-dynamic</em>&quot;, &quot;<em>dynamic</em>&quot;, &quot;<em>current-scenario</em>&quot;, and
+                                            regular plugins.</p>
+                                            
+                                                </div>
+                                            
+                                                    <div class="params">
+                                                        <h4>Parameters:</h4>
+                                            
+                                                        <ul class="params-list">
+                                                            <li class="param">
+                                                                    <code class="param-name">head</code>
+                                                                    <span class="type">RoboHydraHead</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The head to add</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                            <li class="param">
+                                                                    <code class="param-name">opts</code>
+                                                                    <span class="type">Object</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>Options</p>
+                                            
+                                                                </div>
+                                            
+                                                                    <ul class="params-list">
+                                                                        <li class="param">
+                                                                                <code class="param-name">priority</code>
+                                                                                <span class="type">String</span>
+                                            
+                                                                            <div class="param-description">
+                                                                                <p>The priority of the head. Can be
+                                            &quot;normal&quot; or &quot;high&quot;</p>
+                                            
+                                                                            </div>
+                                            
+                                                                        </li>
+                                                                    </ul>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                            
+                                            
+                                            </div>
+                                            <div id="method_registerPluginObject" class="method item">
+                                                <h3 class="name"><code>registerPluginObject</code></h3>
+                                            
+                                                    <div class="args">
+                                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                                            <li class="arg">
+                                                                    <code>pluginObject</code>
+                                                            </li>
+                                                        </ul><span class="paren">)</span>
+                                                    </div>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l152"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:152</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Register the given plugin object at the end of the hydra.</p>
+                                            
+                                                </div>
+                                            
+                                                    <div class="params">
+                                                        <h4>Parameters:</h4>
+                                            
+                                                        <ul class="params-list">
+                                                            <li class="param">
+                                                                    <code class="param-name">pluginObject</code>
+                                                                    <span class="type">Object</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                     
+                                                                </div>
+                                            
+                                                                    <ul class="params-list">
+                                                                        <li class="param">
+                                                                                <code class="param-name">name</code>
+                                                                                <span class="type">String</span>
+                                            
+                                                                            <div class="param-description">
+                                                                                <p>The name of the plugin. Must
+                                            be exclusively comprised of ASCII letters, numbers, underscores
+                                            and dashes. Mandatory.</p>
+                                            
+                                                                            </div>
+                                            
+                                                                        </li>
+                                                                        <li class="param">
+                                                                                <code class="param-name">path</code>
+                                                                                <span class="type">String</span>
+                                            
+                                                                            <div class="param-description">
+                                                                                <p>The path to the plugin
+                                            directory. Mandatory.</p>
+                                            
+                                                                            </div>
+                                            
+                                                                        </li>
+                                                                        <li class="param">
+                                                                                <code class="param-name">config</code>
+                                                                                <span class="type">Object</span>
+                                            
+                                                                            <div class="param-description">
+                                                                                <p>An object with the
+                                            plugin-specific configuration. Optional.</p>
+                                            
+                                                                            </div>
+                                            
+                                                                        </li>
+                                                                        <li class="param">
+                                                                                <code class="param-name">module</code>
+                                                                                <span class="type">Object</span>
+                                            
+                                                                            <div class="param-description">
+                                                                                <p>The plugin module itself
+                                            (ie. an object with the &quot;getBodyParts&quot; function).</p>
+                                            
+                                                                            </div>
+                                            
+                                                                        </li>
+                                                                    </ul>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                            
+                                            
+                                            </div>
+                                            <div id="method_startScenario" class="method item">
+                                                <h3 class="name"><code>startScenario</code></h3>
+                                            
+                                                    <div class="args">
+                                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                                            <li class="arg">
+                                                                    <code>pluginName</code>
+                                                            </li>
+                                                            <li class="arg">
+                                                                    <code>scenarioName</code>
+                                                            </li>
+                                                        </ul><span class="paren">)</span>
+                                                    </div>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l429"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:429</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Start the given scenario.</p>
+                                            
+                                                </div>
+                                            
+                                                    <div class="params">
+                                                        <h4>Parameters:</h4>
+                                            
+                                                        <ul class="params-list">
+                                                            <li class="param">
+                                                                    <code class="param-name">pluginName</code>
+                                                                    <span class="type">String</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The name of the plugin containing
+                                            the scenario to start.</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                            <li class="param">
+                                                                    <code class="param-name">scenarioName</code>
+                                                                    <span class="type">String</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The name of the scenario to start.</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                            
+                                            
+                                            </div>
+                                            <div id="method_stopScenario" class="method item">
+                                                <h3 class="name"><code>stopScenario</code></h3>
+                                            
+                                                    <div class="args">
+                                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                                            <li class="arg">
+                                                                    <code>pluginName</code>
+                                                            </li>
+                                                            <li class="arg">
+                                                                    <code>scenarioName</code>
+                                                            </li>
+                                                        </ul><span class="paren">)</span>
+                                                    </div>
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l470"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:470</code></a>
+                                                    </p>
+                                            
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Stop the given scenario.</p>
+                                            
+                                                </div>
+                                            
+                                                    <div class="params">
+                                                        <h4>Parameters:</h4>
+                                            
+                                                        <ul class="params-list">
+                                                            <li class="param">
+                                                                    <code class="param-name">pluginName</code>
+                                                                    <span class="type">String</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The name of the plugin containing
+                                            the scenario to stop.</p>
+                                            
+                                                                </div>
+                                            
+                                                            </li>
+                                                            <li class="param">
+                                                                    <code class="param-name">scenarioName</code>
+                                                                    <span class="type">String</span>
+                                            
+                                            
+                                                                <div class="param-description">
+                                                                    <p>The name of the scenario to stop.</p>
                                             
                                                                 </div>
                                             
@@ -780,105 +1005,65 @@
                                             </div>
                                     </div>
                         
+                                    <div id="properties" class="api-class-tabpanel">
+                                        <h2 class="off-left">Properties</h2>
                         
-                                    <div id="attrs" class="api-class-tabpanel">
-                                        <h2 class="off-left">Attributes</h2>
-                        
-                                            <div id="attr_body" class="attr item">
-                                                <a name="config_body"></a> 
-                                                <h3 class="name"><code>body</code></h3>
-                                                <span class="type">Buffer</span>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l367"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:367</code></a>
-                                                    </p>
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Response body.</p>
-                                            
-                                                </div>
-                                            
-                                            
-                                            
-                                            </div>
-                                            <div id="attr_ended" class="attr item">
-                                                <a name="config_ended"></a> 
-                                                <h3 class="name"><code>ended</code></h3>
-                                                <span class="type">Boolean</span>
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                                <div class="meta">
-                                                            <p>
-                                                            Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l386"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:386</code></a>
-                                                    </p>
-                                            
-                                            
-                                                </div>
-                                            
-                                                <div class="description">
-                                                    <p>Whether the response is finished.</p>
-                                            
-                                                </div>
-                                            
-                                            
-                                            
-                                            </div>
-                                            <div id="attr_headers" class="attr item">
-                                                <a name="config_headers"></a> 
-                                                <h3 class="name"><code>headers</code></h3>
+                                            <div id="property_currentScenario" class="property item">
+                                                <h3 class="name"><code>currentScenario</code></h3>
                                                 <span class="type">Object</span>
                                             
                                             
                                             
                                             
                                             
-                                            
-                                            
-                                            
                                                 <div class="meta">
                                                             <p>
                                                             Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l379"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:379</code></a>
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l50"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:50</code></a>
                                                     </p>
                                             
                                             
                                                 </div>
                                             
                                                 <div class="description">
-                                                    <p>Response headers. Note that the header names are Node-style
-                                            (ie. lowercase).</p>
+                                                    <p>The currently active scenario, if any. It's an object with the
+                                            keys &quot;plugin&quot; and &quot;scenario&quot;. If there’s no active scenario,
+                                            it’s &quot;*default*&quot; / &quot;*default*&quot;.</p>
                                             
                                                 </div>
                                             
                                             
                                             
                                             </div>
-                                            <div id="attr_statusCode" class="attr item">
-                                                <a name="config_statusCode"></a> 
-                                                <h3 class="name"><code>statusCode</code></h3>
-                                                <span class="type">Integer</span>
+                                            <div id="property_scenarioResults" class="property item deprecated">
+                                                <h3 class="name"><code>scenarioResults</code></h3>
+                                                <span class="type">Object</span>
+                                            
+                                                    <span class="flag deprecated">deprecated</span>
                                             
                                             
                                             
+                                            
+                                                <div class="meta">
+                                                            <p>
+                                                            Defined in
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l73"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:73</code></a>
+                                                    </p>
+                                            
+                                            
+                                                </div>
+                                            
+                                                <div class="description">
+                                                    <p>Deprecated alias for testResults, please use testResults instead.</p>
+                                            
+                                                </div>
+                                            
+                                            
+                                            
+                                            </div>
+                                            <div id="property_testResults" class="property item">
+                                                <h3 class="name"><code>testResults</code></h3>
+                                                <span class="type">Object</span>
                                             
                                             
                                             
@@ -887,14 +1072,23 @@
                                                 <div class="meta">
                                                             <p>
                                                             Defined in
-                                                    <a href="../files/.._robohydra_lib_utils.js.html#l373"><code>..&#x2F;robohydra&#x2F;lib&#x2F;utils.js:373</code></a>
+                                                    <a href="../files/.._robohydra_lib_RoboHydra.js.html#l59"><code>..&#x2F;robohydra&#x2F;lib&#x2F;RoboHydra.js:59</code></a>
                                                     </p>
                                             
                                             
                                                 </div>
                                             
                                                 <div class="description">
-                                                    <p>Response status code (by default, <code>200</code>).</p>
+                                                    <p>Current test (assertion) results. Its keys are plugin names and
+                                            its values are objects with scenario names as keys. The values
+                                            of the latter objects are test results: objects with the keys
+                                            &quot;result&quot; (value is <em>undefined</em> if the test doesn’t have any
+                                            result yet, or the strings &quot;pass&quot; or &quot;fail&quot; if at least one
+                                            assertion has run for that test), &quot;passes&quot; (an array with the
+                                            description of the passing assertions) and &quot;failures&quot; (ditto
+                                            for failing assertions). Assertion results obtained outside of
+                                            a scenario are stored under the plugin name &quot;*default*&quot; and the
+                                            scenario name &quot;*default*&quot;.</p>
                                             
                                                 </div>
                                             
@@ -902,6 +1096,7 @@
                                             
                                             </div>
                                     </div>
+                        
                         
                             </div>
                         </div>
