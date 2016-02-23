@@ -33,7 +33,7 @@ var robohydra             = require('robohydra'),
         return val.split(/:/);
     }
 
-    commander.version('0.6.300000000001').
+    commander.version('0.6.4').
         usage("mysetup.conf [confvar=value confvar2=value2 ...]").
         option('-I <path>', 'Adds a new path in the plugin search path list', colonList).
         option('-P, --plugins <plugin-list>', 'Load plugins at startup', commaList).

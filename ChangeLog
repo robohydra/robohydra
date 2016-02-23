@@ -1,7 +1,7 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.4 (2016-02-23)
 --------------------------
 
-	* Some change.
+	* Disable snyk to avoid installation problems (only on Windows?).
 
 Version 0.6.3 (2016-02-20)
 --------------------------
