@@ -1450,6 +1450,26 @@ describe("Request object", function() {
             expect(req.body).toEqual(obj);
         });
 
+        it("With a content-type of 'application/json', and invalid JSON, it will be null", function() {
+            var data = new Buffer('banana');
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'application/json' }});
+
+            expect(req.body).toEqual(null);
+        });
+
+        it("With a content-type of 'application/json', but invalid 'charset' it will be null", function() {
+            var obj = { a: 'banana' };
+            var data = new Buffer(JSON.stringify(obj));
+             var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'application/json',
+                                             'charset': 'utf-16' }});
+
+            expect(req.body).toEqual(null);
+        });
+
         it("With a content-type of 'text/html', it will be a valid string", function() {
             var data = new Buffer("<h2>Some</h2> <h1>html-marked-up</h1> <b>text</b>");
             var req = new Request({url: '/foo/bar',
@@ -1499,6 +1519,29 @@ describe("Request object", function() {
                                              'charset': targetCharset }});
 
             expect(req.body).toEqual(data.toString(targetCharset.replace('-', '')));
+        });
+
+        it("Will return null & not freak out if the charset is invalid", function() {
+            var targetCharset = 'bananas';
+            var data = new Buffer("Some plaintext");
+            var plainreq;
+            var htmlreq;
+            
+            expect(function() {
+                plainreq = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/plain',
+                                             'charset': targetCharset }});    
+            }).not.toThrow();
+            expect(plainreq.body).toEqual(null)
+
+            expect(function() {
+                htmlreq = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/html',
+                                             'charset': targetCharset }});    
+            }).not.toThrow();
+            expect(htmlreq.body).toEqual(null)
         });
     });
 });
