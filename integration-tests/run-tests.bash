@@ -5,7 +5,7 @@ function t {
 }
 
 function kill_rh {
-    kill `ps u | grep robohydra | grep -v grep | awk '{ print $2 }'`
+    kill -INT `ps u | grep robohydra | grep -v grep | awk '{ print $2 }'`
 }
 
 function wait_for_server {
