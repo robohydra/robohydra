@@ -1420,6 +1420,130 @@ describe("Request object", function() {
         var req = new Request({url: '/foo/bar', method: 'PoSt'});
         expect(req.method).toEqual('POST');
     });
+
+    describe("Body property", function() {
+
+        it("Without any content-type header, it will be a buffer of the post-body", function() {
+            var data = new Buffer("Here is some data");
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data});
+
+            expect(req.body).toEqual(data);
+        });
+
+        it("With an invalid content-type, it will be a buffer of the post-body", function() {
+            var data = new Buffer("Here is some data");
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'ARGLEBARGLE' }});
+
+            expect(req.body).toEqual(data);
+        });
+
+        it("With a content-type of 'application/json', it will be a valid js object", function() {
+            var obj = { a: 'banana' };
+            var data = new Buffer(JSON.stringify(obj));
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'application/json' }});
+
+            expect(req.body).toEqual(obj);
+        });
+
+        it("With a content-type of 'application/json', and invalid JSON, it will be null", function() {
+            var data = new Buffer('banana');
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'application/json' }});
+
+            expect(req.body).toEqual(null);
+        });
+
+        it("With a content-type of 'application/json', but invalid 'charset' it will be null", function() {
+            var obj = { a: 'banana' };
+            var data = new Buffer(JSON.stringify(obj));
+             var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'application/json',
+                                             'charset': 'utf-16' }});
+
+            expect(req.body).toEqual(null);
+        });
+
+        it("With a content-type of 'text/html', it will be a valid string", function() {
+            var data = new Buffer("<h2>Some</h2> <h1>html-marked-up</h1> <b>text</b>");
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/html'}});
+
+            expect(req.body).toEqual(data.toString());
+        });
+
+        it("With a content-type of 'text/plain', it will be a valid string", function() {
+            var data = new Buffer("Some plaintext");
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/plain'}});
+
+            expect(req.body).toEqual(data.toString());
+        });
+
+        it("Will handle a 2-part content-type header without crashing", function() {
+            var data = new Buffer("Some plaintext");
+
+            expect(function() {
+                new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/plain;charset=UTF-8' }});
+            }).not.toThrow();
+        });
+
+        it("Will use the charset specified in the charset header", function() {
+            var targetCharset = 'utf-8';
+            var data = new Buffer("Some plaintext");
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/plain',
+                                             'charset': targetCharset }});
+
+            expect(req.body).toEqual(data.toString(targetCharset.replace('-', '')));  
+        });
+
+        it("Will give priority to the value specified in the charset header", function() {
+            var targetCharset = 'utf-8';
+            var charsetToAvoid = 'UTF-16';
+            var data = new Buffer("Some plaintext");
+            var req = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/plain;charset=' + charsetToAvoid,
+                                             'charset': targetCharset }});
+
+            expect(req.body).toEqual(data.toString(targetCharset.replace('-', '')));
+        });
+
+        it("Will return null & not freak out if the charset is invalid", function() {
+            var targetCharset = 'bananas';
+            var data = new Buffer("Some plaintext");
+            var plainreq;
+            var htmlreq;
+            
+            expect(function() {
+                plainreq = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/plain',
+                                             'charset': targetCharset }});    
+            }).not.toThrow();
+            expect(plainreq.body).toEqual(null)
+
+            expect(function() {
+                htmlreq = new Request({url: '/foo/bar',
+                                   rawBody: data,
+                                   headers: {'content-type': 'text/html',
+                                             'charset': targetCharset }});    
+            }).not.toThrow();
+            expect(htmlreq.body).toEqual(null)
+        });
+    });
 });
 
 describe("Response object", function() {
