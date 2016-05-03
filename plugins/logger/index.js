@@ -34,8 +34,8 @@ function logRequestResponse(logFileFd, req, res) {
         if (req.headers["content-type"] &&
                 req.headers["content-type"].indexOf(formContentType) !== -1) {
             fs.writeSync(logFileFd, "  Body parameters:\n");
-            for (var param in req.bodyParams) {
-                fs.writeSync(logFileFd, "    * " + param + " -> " + req.bodyParams[param] + "\n");
+            for (var param in req.body) {
+                fs.writeSync(logFileFd, "    * " + param + " -> " + req.body[param] + "\n");
             }
         } else {
             fs.writeSync(logFileFd, "  Body:\n");

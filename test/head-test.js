@@ -300,6 +300,32 @@ describe("Generic RoboHydra heads", function() {
             });
         });
     });
+
+    it("don't corrupt the request object when setting params", function(done) {
+        var bodyParams;
+        var head = new RoboHydraHead({path: '/:controller',
+                                      handler: function(req, res) {
+                                          // bodyParams is defined
+                                          // with defineProperty: if
+                                          // the request object is
+                                          // copied attribute by
+                                          // attribute, it won't get
+                                          // the proper data
+                                          bodyParams = req.bodyParams;
+                                          res.send("Response for " + req.url);
+                                      }});
+        withResponse(
+            head,
+            {method: 'POST',
+             path: '/foobar',
+             headers: {'content-type': 'application/x-www-form-urlencoded'},
+             postData: 'foo=bar'},
+            function(/*res*/) {
+                expect(bodyParams.foo).toEqual('bar');
+                done();
+            }
+        );
+    });
 });
 
 describe("Static content RoboHydra heads", function() {
