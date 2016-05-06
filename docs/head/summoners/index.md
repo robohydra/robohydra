@@ -158,9 +158,9 @@ exports.getBodyParts = function() {
                 name: 'loginPage',
                 path: '/.*',
                 handler: function(req, res, next) {
-                    if ('login' in req.bodyParams) {
+                    if ('login' in req.body) {
                         res.headers['set-cookie'] =
-                            cookie.serialize('sessionId', req.bodyParams.login);
+                            cookie.serialize('sessionId', req.body.login);
                         next(req, res);
                         return;
                     }
@@ -182,7 +182,7 @@ exports.getBodyParts = function() {
                 path: '/.*',
                 handler: function(req, res) {
                     var cookies = cookie.parse(req.headers.cookie || "");
-                    var sessionId = cookies.sessionId || req.bodyParams.login;
+                    var sessionId = cookies.sessionId || req.body.login;
                     res.send('You are now logged in as ' + sessionId);
                 }
             })

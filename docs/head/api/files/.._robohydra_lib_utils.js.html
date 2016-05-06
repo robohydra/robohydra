@@ -93,7 +93,8 @@
                             fs    = require(&#x27;fs&#x27;),
                             qs    = require(&#x27;qs&#x27;),
                             mime  = require(&#x27;mime&#x27;);
-                        var exceptions = require(&#x27;./exceptions&#x27;),
+                        var bufferParser = require(&#x27;./bufferParser&#x27;),
+                            exceptions   = require(&#x27;./exceptions&#x27;),
                             InvalidRoboHydraRequestException =
                                 exceptions.InvalidRoboHydraRequestException,
                             InvalidRoboHydraResponseException =
@@ -373,17 +374,26 @@
                              * @type Object
                              */
                             /**
-                             * Request body, if the body was parseable. Otherwise,
-                             * &#x60;undefined&#x60;.
+                             * Request body. Otherwise, &#x60;undefined&#x60;.
                              *
                              * @attribute rawBody
                              * @type Buffer
+                             */
+                            /**
+                             * Parsed request body for common content types (could be a
+                             * string or an object, depending on the content type). If the
+                             * content type is not supported or was unparseable, &#x60;body&#x60; will
+                             * be &#x60;null&#x60;. JSON bodies and form parameters will become objects,
+                             * and plain text and HTML will become strings.
+                             *
+                             * @attribute body
                              */
                             /**
                              * Request body parameters.
                              *
                              * @attribute bodyParams
                              * @type Object
+                             * @deprecated
                              */
                             /**
                              * Request query parameters (&quot;GET&quot; parameters).
@@ -424,11 +434,7 @@
                                 this.headers = extendObject({}, props.headers || {});
                                 this.upgrade = props.upgrade || false;
                                 this.rawBody = props.rawBody || new Buffer(&quot;&quot;);
-                                try {
-                                    this.bodyParams = qs.parse(this.rawBody.toString());
-                                } catch (e) {
-                                    // Ignore, we don&#x27;t care if the body could not be parsed
-                                }
+                                this.body    = bufferParser.parse(this.rawBody, this.headers);
                         
                                 // Calculated
                                 this.queryParams = url.parse(this.url, true).query;
@@ -439,12 +445,22 @@
                                     }
                                 });
                         
+                                Object.defineProperty(this, &quot;bodyParams&quot;, {
+                                    get: function() {
+                                        deprecationWarning(&quot;&#x27;bodyParams&#x27; is deprecated, use &#x27;body&#x27; instead&quot;);
+                                        try {
+                                            return qs.parse(this.rawBody.toString());
+                                        } catch (e) {
+                                            // Ignore, we don&#x27;t care if the body could not be parsed
+                                            return null;
+                                        }
+                                    }
+                                });
+                        
                                 if (this.url === undefined) {
                                     throw new InvalidRoboHydraRequestException(&#x27;url&#x27;, this.url);
                                 }
                             }
-                        
-                        
                         
                             /**
                              * Represents a server response.

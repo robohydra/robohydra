@@ -176,10 +176,13 @@ new RoboHydraHead({
 But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
 `req.queryParams` (`req.getParams` in RoboHydra 0.2 and
-lower). Similarly, the POST parameters and the raw body of the request
-are available as `req.bodyParams` and `req.rawBody` respectively. The
-latter object is of type `Buffer` (see the [Node
-documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
+lower). Similarly, the POST information and the raw body of the
+request are available as `req.body` and `req.rawBody`
+respectively. The former is an object for
+`application/x-www-form-urlencoded` and `application/json` requests,
+plain text for `text/plain` and `text/html`, and null otherwise. The
+latter is an object of type `Buffer` (see the
+[Node documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
 head would match the GET-parameter-style URLs:
 
 {% highlight javascript %}

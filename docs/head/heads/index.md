@@ -120,9 +120,15 @@ new RoboHydraHead({
         for (var qParam in req.queryParams) {
             res.write("  " + qParam + ": " + req.queryParams[qParam] + "\n");
         }
-        res.write("POST params:\n");
-        for (var bParam in req.bodyParams) {
-            res.write("  " + bParam + ": " + req.bodyParams[bParam] + "\n");
+        if (typeof req.body === 'object' && req.body !== null) {
+            res.write("POST params:\n");
+            for (var bParam in req.body) {
+                res.write("  " + bParam + ": " + req.body[bParam] + "\n");
+            }
+        } else {
+            res.write("Raw request body:\n  ");
+            res.write(req.rawBody);
+            res.write("\n");
         }
         res.write("Headers:\n");
         for (var h in req.headers) {
