@@ -1,8 +1,5 @@
 ignore: {}
 patch:
-  'npm:ws:20160104':
-    - 'websocket.io > ws':
-        patched: '2016-01-21T13:36:58.948Z'
   'npm:hawk:20160119':
     - 'jsdom > request > hawk':
         patched: '2016-01-21T13:44:09.279Z'
