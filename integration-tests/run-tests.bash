@@ -34,6 +34,7 @@ function check_connection {
     ( wait_for_server $port && curl http://localhost:$port &>/dev/null && echo -e "\e[32mPASS\e[39m" || echo -e "\e[31mFAIL\e[39m"; kill_rh ) &
 }
 
+export NODE_PATH=../..
 RHBIN="../bin/robohydra.js -q"
 cd `dirname $0`
 
