@@ -1,6 +1,6 @@
 var fs   = require("fs"),
     path = require("path");
-var robohydra     = require("robohydra"),
+var robohydra     = require("../../lib/exports"),
     Response      = robohydra.Response,
     proxyRequest  = robohydra.proxyRequest,
     heads         = robohydra.heads,
