@@ -11,8 +11,8 @@ RoboHydra HTTP client test tool
   </a>
 </div>
 
-RoboHydra is a web server designed to help you test any kind of HTTP
-client (plus WebSockets if you use the current `master` version!):
+RoboHydra is a web server designed to help you test any kind of HTTP,
+HTTPS or WebSockets client:
 
 * GUIs that use a public API,
 * Mobile applications that communicate with some server,
@@ -73,16 +73,13 @@ For the changes between versions, check the
 License and copyright
 =====================
 
-This code is Copyright 2012-2013 Esteban Manchado Velázquez, and it's
+This code is Copyright 2012-2016 Esteban Manchado Velázquez, and it's
 released under the [Apache 2.0
 license](http://www.apache.org/licenses/LICENSE-2.0.txt). Jacob Rask
 did all the CSS for the admin interface (and I stole it for this
-website). If you knew me you would be able to tell that I hadn't
-written that CSS.
+website).
 
 This project started at [Opera Software ASA](http://opera.com) as an
 internal tool to test some of our projects. Large parts of this code
 were developed there, but as it's pretty generic we decided to open
-source it. See [Opera's GitHub
-account](http://github.com/operasoftware) for more open source
-goodies.
+source it.
