@@ -12,7 +12,7 @@ RoboHydra HTTP client test tool
 </div>
 
 RoboHydra is a web server designed to help you test any kind of HTTP,
-HTTPS or WebSockets client:
+HTTPS, or WebSockets client:
 
 * GUIs that use a public API,
 * Mobile applications that communicate with some server,
