@@ -8,6 +8,10 @@ Version 0.x.x (20xx-xx-xx)
 	same contents as "bodyParams"; for "application/json" requests,
 	"body" will have an object with the parsed JSON body, etc.
 
+	* Add robohydra/ to the plugin search path, so that plugins can be
+	written as robohydra/PLUGINNAME/index.js. This saves one level in
+	the directory structure which proved to be too deep for no gain.
+
 	* Drop websocket.io dependency as it was outdated (spits out
 	warning in Node 6.1.0) and ws could handle its usecase, too.
 
