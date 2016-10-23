@@ -8,6 +8,11 @@ Version 0.x.x (20xx-xx-xx)
 	same contents as "bodyParams"; for "application/json" requests,
 	"body" will have an object with the parsed JSON body, etc.
 
+	* Add a new priority for dynamic heads, "admin", which allows
+	placing heads before the admin plugin. This is useful for
+	replacing parts of the admin UI, or to protect it with a password
+	or against certain IPs ranges.
+
 	* Add robohydra/ to the plugin search path, so that plugins can be
 	written as robohydra/PLUGINNAME/index.js. This saves one level in
 	the directory structure which proved to be too deep for no gain.

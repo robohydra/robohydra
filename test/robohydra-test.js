@@ -513,6 +513,20 @@ describe("RoboHydras", function() {
         }));
     });
 
+    it("can create admin priority heads dynamically", function(done) {
+        var hydra = new RoboHydra();
+        var path = '/robohydra-admin';
+
+        hydra.registerDynamicHead(simpleRoboHydraHead(path, "NO ADMIN 4 U"),
+                                  {priority: 'admin'});
+        expect(hydra).toHavePluginWithHeadcount('*admin-dynamic*', 1);
+
+        hydra.handle(simpleReq(path), new Response(function() {
+            expect(this.body).toHaveEqualBody("NO ADMIN 4 U");
+            done();
+        }));
+    });
+
     it("throw exceptions on wrong priority for dynamic heads", function() {
         var hydra = new RoboHydra();
 
