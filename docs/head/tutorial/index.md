@@ -40,7 +40,7 @@ the appropriate fields, and click on "Create". Don't worry about the
 JSON, it will be `application/json`.
 
 <figure>
-  <img src="/static/img/robohydra-admin1.png" />
+  <img src="robohydra-admin1.png" />
   <figcaption>Figure 1: creating a dynamic head from the RoboHydra
   admin interface</figcaption>
 </figure>
@@ -97,7 +97,7 @@ In this case, our first plugin has a single head of type
 `RoboHydraHeadStatic`. You can use the `RoboHydraHeadStatic` class
 when you only want to return a certain static response regardless of
 the incoming request. Now, save the above text in a file
-`robohydra/plugins/firstplugin/index.js` and start RoboHydra like so:
+`robohydra/firstplugin/index.js` and start RoboHydra like so:
 
     robohydra -n -P firstplugin
 
@@ -151,6 +151,9 @@ exports.getBodyParts = function(conf) {
 };
 {% endhighlight %}
 
+If you now make a request to http://localhost:3000/slow, you will get
+the text response `Some slow response` after one second.
+
 
 Accessing the request data
 --------------------------
@@ -175,15 +178,13 @@ new RoboHydraHead({
 
 But what about URLs like `/slow/?amount=3000`? In that case, you have
 the GET parameters avaiable as properties of the object
-`req.queryParams` (`req.getParams` in RoboHydra 0.2 and
-lower). Similarly, the POST information and the raw body of the
-request are available as `req.body` and `req.rawBody`
+`req.queryParams`. Similarly, the POST information and the raw body of
+the request are available as `req.body` and `req.rawBody`
 respectively. The former is an object for
 `application/x-www-form-urlencoded` and `application/json` requests,
 plain text for `text/plain` and `text/html`, and null otherwise. The
-latter is an object of type `Buffer` (see the
-[Node documentation](http://nodejs.org/docs/latest/api/buffer.html)). This
-head would match the GET-parameter-style URLs:
+latter is a [`Buffer`](http://nodejs.org/docs/latest/api/buffer.html)
+object. This head would match the GET-parameter-style URLs:
 
 {% highlight javascript %}
 new RoboHydraHead({
@@ -216,13 +217,13 @@ files they maintain, and use RoboHydra to serve their local files for
 requests to, say, `/css` and `/js` while it proxies all the rest to
 the common, development server.
 
-Let's demonstrate this with a simple example. Let's say you use
-DuckDuckGo as your search engine, but want to keep [Adam Yauch's
-tribute logo]({{ site.url }}/downloads/logo_homepage.normal.v102.png)
-as the homepage logo. One way to do this is to grab a copy of the logo
-(the one linked in the previous sentence) and the [search box
-icon]({{ site.url }}/downloads/search_dropdown_homepage.v102.png),
-save them in a folder `fake-assets` and write this simple plugin:
+Let's demonstrate this with a simple example. Let's say you are the
+new designer for the RoboHydra homepage, and want to try your new
+assets. You can make images locally, and see how they would look in
+the production RoboHydra homepage by using a simple reverse
+proxy. Download the [new example image](usecases-teaser.v1.jpg) for
+the comic link and the [robohydra logo](/static/img/robohydra.png) and
+save them in a directory `new-assets`. Now, write this simple plugin:
 
 {% highlight javascript %}
 var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
@@ -232,13 +233,13 @@ exports.getBodyParts = function(conf) {
     return {
         heads: [
             new RoboHydraHeadFilesystem({
-                mountPath: '/assets',
-                documentRoot: 'fake-assets'
+                mountPath: '/static/img',
+                documentRoot: 'new-assets'
             }),
 
             new RoboHydraHeadProxy({
                 mountPath: '/',
-                proxyTo: 'http://duckduckgo.com'
+                proxyTo: 'http://robohydra.org'
             })
         ]
     };
@@ -247,9 +248,9 @@ exports.getBodyParts = function(conf) {
 
 Note that the first head that matches the request dispatches it, so
 the order is important! Now save the plugin as
-`robohydra/plugins/ddg/index.js` and start RoboHydra as `robohydra -n
--P ddg`. You should see the DuckDuckGo page completely functional, but
-with the Adam Yauch logo.
+`robohydra/rhimages/index.js` and start RoboHydra as `robohydra -n -P
+rhimages`. You should see the RoboHydra front page as normal, except
+for the new image on the top-right.
 
 Now you know all the basic functionality RoboHydra offers. If you want
 more information, you can read and follow the <a

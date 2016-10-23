@@ -11,15 +11,16 @@ tutorial](../) first.
 Chaining
 --------
 
-If you look at the filenames for the static files we have copied into
-our `fake-assets` folder (see the DuckDuckGo example in the basic
-tutorial), you'll notice that they contain a version number. Now say
-that we don't want those version numbers in our filenames (eg. because
-we want our local files to work even if DuckDuckGo decides to change
-their version number). For these situations, RoboHydra has a simple
-solution: chaining. The idea behind chaining is that each request
-handler can accept an extra parameter, a function that allows the head
-to call any heads below it. As that function can be called with any
+If you look at the filename for the usecase teaser image we have
+copied into our `new-assets` folder (see the RoboHydra front page
+example in the basic tutorial), you'll notice that it contains a
+version number (the `v1` bit). Now say that we don't want those
+version numbers in our filenames (eg. because we want our local files
+to work regardless of the current version on the production front
+page). For these situations, RoboHydra has a simple solution:
+chaining. The idea behind chaining is that each request handler can
+accept an extra parameter `next`, a function that allows the head to
+call any heads below it. As that function can be called with any
 request and response objects, you can do interesting things like
 tweaking the request being processed (eg. change the URL, add or
 remove headers, etc.) or tweaking the response being returned
@@ -28,9 +29,9 @@ several times, to retry a request, combine the responses of several
 requests, or whatever else you might need.
 
 In this example, we're simply going to strip the `.vXXX` part of the
-filenames inside `assets`, where `XXX` are numbers. To do so, simply
-add a new head at the top and tweak the `documentRoot` in the second
-head:
+filenames inside `/static/img/`, where `XXX` are numbers. To do so,
+simply add a new head at the top and tweak the `documentRoot` in the
+second head:
 
 {% highlight javascript %}
 var RoboHydraHeadFilesystem = require("robohydra").heads.RoboHydraHeadFilesystem,
@@ -41,7 +42,7 @@ exports.getBodyParts = function(conf) {
     return {
         heads: [
             new RoboHydraHead({
-                path: '/assets/.*',
+                path: '/static/img/.*',
                 handler: function(req, res, next) {
                     req.url = req.url.replace(new RegExp("\\.v[0-9]+"), "");
                     next(req, res);
@@ -49,13 +50,13 @@ exports.getBodyParts = function(conf) {
             }),
 
             new RoboHydraHeadFilesystem({
-                mountPath: '/assets',
-                documentRoot: 'fake-assets-unversioned'
+                mountPath: '/static/img,
+                documentRoot: 'new-assets-unversioned'
             }),
 
             new RoboHydraHeadProxy({
                 mountPath: '/',
-                proxyTo: 'http://duckduckgo.com'
+                proxyTo: 'http://robohydra.org'
             })
         ]
     };
@@ -63,19 +64,19 @@ exports.getBodyParts = function(conf) {
 {% endhighlight %}
 
 
-Now, create a new directory `fake-assets-unversioned` with the same
-files, but renaming them to `search_dropdown_homepage.png` and
-`logo_homepage.normal.png`. Once you have the new files, start
-RoboHydra again with `robohydra -n -P ddg`. Everything should keep
-working as before, and will keep working even if DuckDuckGo changes
-the version number in the URLs.
+Now, create a new directory `new-assets-unversioned` with the same
+files, but renaming `usecases-teaser.v1.png` to
+`usecases-teaser.png`. Once you have the new files, start RoboHydra
+again with `robohydra -n -P rhimages`. Everything should keep working
+as before, and will keep working even if the RoboHydra front page
+changes the version number in the URLs.
 
 But what about tweaking the response we get from some other head?
-That's interesting, too. Let's turn "Real" (in "Real Privacy" at the
-bottom) into "REAL". To do that, we have to create another head before
-the `RoboHydraHeadProxy`. This new head will call the proxying head
-with the `next` function, but passing a fake response object. Then it
-will tweak the body of that response, _then_ return that tweaked
+That's interesting, too. Let's turn instances of "server" into
+"SERVER". To do that, we have to create another head before the
+`RoboHydraHeadProxy`. This new head will call the proxying head with
+the `next` function, but passing a fake response object. Then it will
+tweak the body of that response, _then_ return that tweaked
 response. It sounds complicated, but the code is simple enough:
 
 {% highlight javascript %}
@@ -86,14 +87,14 @@ var Response = require("robohydra").Response;
 
 // Then, right before the proxy head...
 new RoboHydraHead({
-    path: '/',
+    path: '/.*',
     handler: function(req, res, next) {
         var fakeRes = new Response().
             on('end', function(evt) {
                 evt.response.body =
                     evt.response.body.toString().replace(
-                        new RegExp("Real", "g"),
-                        "REAL"
+                        new RegExp("server", "ig"),
+                        "SERVER"
                     );
                 res.forward(evt.response);
             });
@@ -121,15 +122,17 @@ the code is much more compact and readable. A new version of the above
 head using `RoboHydraHeadFilter` could be:
 
 {% highlight javascript %}
+var RoboHydraHeadFilter = require("robohydra").heads.RoboHydraHeadFilter;
+// ...
 new RoboHydraHeadFilter({
     path: '/',
     filter: function(body) {
         return body.toString().replace(
-                        new RegExp("Real", "g"),
-                        "REAL"
+                        new RegExp("server", "ig"),
+                        "SERVER"
                     );
     }
-})
+}),
 {% endhighlight %}
 
 
@@ -162,7 +165,7 @@ the `/foo` path. If we're serious about testing that client, we
 probably want RoboHydra to return different things, like no results, a
 couple of results or even an internal server error. Let's implement
 those three cases as scenarios. Create a new file
-`robohydra/plugins/search/index.js` with the following contents:
+`robohydra/search/index.js` with the following contents:
 
 {% highlight javascript %}
 var RoboHydraHead           = require("robohydra").heads.RoboHydraHead,
@@ -366,7 +369,7 @@ Let's make a simple, multi-user RoboHydra server. We'll start by
 deciding how we're going to tell the different users apart: although a
 common way to do so in the real world would be to use cookies, as a
 simplification we'll just use the browser user agents. Create a file
-`robohydra/plugins/ua-summoner/index.js` with the following contents:
+`robohydra/ua-summoner/index.js` with the following contents:
 
 {% highlight javascript %}
 exports.getBodyParts = function() {

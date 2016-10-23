@@ -6,7 +6,7 @@ RoboHydra HTTP client test tool
 
 <div class="teaser-pic">
   <a href="/usecases">
-    <img src="/static/img/usecases-teaser.png" />
+    <img src="/static/img/usecases-teaser.v1.png" />
     <figcaption>Read the<br/>use case comics!</figcaption>
   </a>
 </div>
