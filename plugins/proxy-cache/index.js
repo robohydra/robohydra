@@ -1,19 +1,11 @@
 var fs   = require("fs"),
     path = require("path");
-var robohydra     = require("../../lib/exports"),
+var robohydra     = require("robohydra"),
     Response      = robohydra.Response,
     proxyRequest  = robohydra.proxyRequest,
     heads         = robohydra.heads,
     RoboHydraHead = heads.RoboHydraHead;
-
-function cacheFileForUrl(urlPath, cacheDir) {
-    var basename = urlPath.replace(new RegExp("^/"), "").split('/').
-        map(function(dir) { return encodeURIComponent(dir); }).
-        join('/');
-    // Add trailing slash so that the / of the site is inside the
-    // cache directory
-    return path.join(cacheDir, basename) + (basename === '' ? '/' : '');
-}
+var cacheFileForUrl = require("./utils").cacheFileForUrl;
 
 function mktree(dir, pos) {
     dir = path.normalize(dir);
