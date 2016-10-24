@@ -1,6 +1,6 @@
 ignore: {}
 patch:
   'npm:hawk:20160119':
-    - 'jsdom > request > hawk':
+    - jsdom > request > hawk:
         patched: '2016-01-21T13:44:09.279Z'
 version: v1

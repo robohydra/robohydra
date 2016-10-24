@@ -1,5 +1,4 @@
-RoboHydra server
-================
+# RoboHydra server
 
 RoboHydra is a testing tool for HTTP-based clients (ie. software that
 makes HTTP requests). The idea is, instead of connecting your

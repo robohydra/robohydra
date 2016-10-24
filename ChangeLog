@@ -1,4 +1,4 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.5 (2016-10-24)
 --------------------------
 
 	* Add new "body" property to request objects, and deprecate
