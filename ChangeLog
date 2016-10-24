@@ -8,6 +8,10 @@ Version 0.x.x (20xx-xx-xx)
 	same contents as "bodyParams"; for "application/json" requests,
 	"body" will have an object with the parsed JSON body, etc.
 
+	* Add a new option to RoboHydraHeadFilesystem, "passThrough", to
+	allow requests to pass-through to the next head if no matching
+	static files are found.
+
 	* Add a new priority for dynamic heads, "admin", which allows
 	placing heads before the admin plugin. This is useful for
 	replacing parts of the admin UI, or to protect it with a password

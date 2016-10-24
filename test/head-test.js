@@ -945,6 +945,42 @@ describe("Filesystem RoboHydra heads", function() {
             ['/dir/', {status: 403}]
         ], done);
     });
+
+    it("is able to pass-through requests for non-existent files", function(done) {
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            passThrough: true,
+            fs: fakeFs({
+                '/var/www/index.html': "<h1>INDEX PAGE</h1>"
+            })
+        });
+
+        var next = function(req, res) {
+            res.send("Pass-through to " + req.url + "!");
+        };
+        withResponse(head, {path: '/test', nextFunction: next}, function(res) {
+            expect(res.body).toHaveEqualBody("Pass-through to /test!");
+            done();
+        });
+    });
+
+    it("still returns 404 by default (ie. w/o pass-through)", function(done) {
+        var head = new RoboHydraHeadFilesystem({
+            documentRoot: '/var/www',
+            fs: fakeFs({
+                '/var/www/index.html': "<h1>INDEX PAGE</h1>"
+            })
+        });
+
+        var next = function(req, res) {
+            res.send("Pass-through to " + req.url + "!");
+        };
+        withResponse(head, {path: '/test', nextFunction: next}, function(res) {
+            expect(res.statusCode).toEqual(404);
+            expect(res.body).toHaveEqualBody("Not Found");
+            done();
+        });
+    });
 });
 
 describe("Proxying RoboHydra heads", function() {
