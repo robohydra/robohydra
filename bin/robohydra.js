@@ -88,7 +88,8 @@ var robohydra             = require('robohydra'),
                 summoner: fileConfig.summoner,
                 secure: fileConfig.secure,
                 sslOptions: fileConfig.sslOptions,
-                quiet: commander.quiet || fileConfig.quiet
+                quiet: commander.quiet || fileConfig.quiet,
+                useRawHeaders: Boolean(fileConfig.useRawHeaders)
             },
             extraVars
         );

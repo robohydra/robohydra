@@ -4,3 +4,4 @@ robohydra.log
 node_modules/
 /robohydra.sublime*
 .tern-port
+.idea/
