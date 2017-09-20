@@ -14,8 +14,8 @@ exports.getBodyParts = function() {
                     var wait = 200;
 
                     var res2 = new Response().
-                        on('head', function(statusCode, headers) {
-                            res.writeHead(statusCode, headers);
+                        on('head', function(evt) {
+                            res.writeHead(evt.statusCode, evt.headers);
                         }).
                         on('data', function(evt) {
                             wait = wait * 2;
