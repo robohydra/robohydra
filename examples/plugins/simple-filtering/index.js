@@ -19,8 +19,7 @@ exports.getBodyParts = function() {
 
             new RoboHydraHeadProxy({
                 mountPath: '/',
-                proxyTo: 'http://dev.opera.com',
-                setHostHeader: true
+                proxyTo: 'https://dev.opera.com'
             })
         ]
     };
