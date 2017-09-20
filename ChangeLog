@@ -1,7 +1,8 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.6 (2017-09-20)
 --------------------------
 
-	* Some new feature
+	* Upgrade several dependencies for security reasons. No actual
+	changes to the code.
 
 Version 0.6.5 (2016-10-24)
 --------------------------
