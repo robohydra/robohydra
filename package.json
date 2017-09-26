@@ -7,17 +7,17 @@
     "test": "node_modules/.bin/buster-test"
   },
   "dependencies": {
-    "commander": ">= 0.6.0",
+    "commander": "^0.6.0",
     "ejs": "^2.5.5",
-    "markdown": ">= 0.3.1",
+    "markdown": "^0.3.1",
     "mime": "^1.0.0",
     "qs": "^6.3.1",
     "ws": "^1.1.2"
   },
   "devDependencies": {
-    "buster": ">= 0.7.0",
-    "samsam": ">= 1.1.0",
-    "sinon": ">= 1.7",
+    "buster": "^0.7.0",
+    "samsam": "^1.1.0",
+    "sinon": "^1.7",
     "snyk": "^1.8.4"
   },
   "repository": {
