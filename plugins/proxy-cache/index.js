@@ -7,24 +7,24 @@ var robohydra     = require("robohydra"),
     RoboHydraHead = heads.RoboHydraHead;
 var cacheFileForUrl = require("./utils").cacheFileForUrl;
 
-function mktree(dir, pos) {
-    dir = path.normalize(dir);
-    pos = pos || 0;
-    var dirParts = dir.split(path.sep);
-
-    if (pos >= dirParts.length) {
-        return;
-    }
-
-    var nextDir = dirParts.splice(0, pos + 1).join(path.sep);
-    try {
-        fs.mkdirSync(nextDir);
-    } catch (e) {
-        if (e.code !== 'EEXIST') {
-            throw e;
+function mktree(targetDir) {
+    var sep = path.sep,
+    initDir = path.isAbsolute(targetDir) ? sep : '';
+    //Make array with folder names, Root as number 0
+    targetDir = targetDir.split(sep);
+    //Remove Root, Root always exists, avoid EPERM
+    targetDir.splice(0, 1);
+    targetDir.reduce((parentDir, childDir) => {
+        var curDir = path.resolve(parentDir, childDir);
+        try {
+            fs.mkdirSync(curDir);
+        } catch (err) {
+            if (err.code !== 'EEXIST') {
+                throw err;
+            }
         }
-    }
-    mktree(dir, pos + 1);
+        return curDir;
+    }, initDir);
 }
 
 function proxyAndCacheRequest(req, res, cacheFileBasename, proxyUrl) {
