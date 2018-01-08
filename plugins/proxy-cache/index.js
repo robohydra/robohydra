@@ -73,9 +73,11 @@ exports.getBodyParts = function(conf) {
                 path: '/.*',
                 handler: function(req, res) {
                     if (req.method !== 'GET') {
-                        proxyUrl = proxyUrl.replace(new RegExp('/$'), '') +
-                            req.url;
-                        proxyRequest(req, res, proxyUrl, {setHostHeader: true});
+                    	// made proxyUrl unique,
+                    	// it was concatenating itself over and over, per request
+                    	// which creates incorrect urls
+                        var proxy = proxyUrl.replace(new RegExp('/$'), '') + req.url;
+                        proxyRequest(req, res, proxy, {setHostHeader: true});
                         return;
                     }
 
