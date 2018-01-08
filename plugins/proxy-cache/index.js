@@ -73,9 +73,8 @@ exports.getBodyParts = function(conf) {
                 path: '/.*',
                 handler: function(req, res) {
                     if (req.method !== 'GET') {
-                        proxyUrl = proxyUrl.replace(new RegExp('/$'), '') +
-                            req.url;
-                        proxyRequest(req, res, proxyUrl, {setHostHeader: true});
+                        var url = proxyUrl.replace(new RegExp('/$'), '') + req.url;
+                        proxyRequest(req, res, url, {setHostHeader: true});
                         return;
                     }
 
