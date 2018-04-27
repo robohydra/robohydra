@@ -26,12 +26,11 @@ this:
 Each element in the `plugins` list in the configuration file can be
 one of two things:
 
+* A string with the name of the plugin.
 * A Javascript object with the properties `name` and `config`. The
 former specifies the name of the plugin to load, while the latter
-specifies a Javascript object with the configuration keys and values
-you want to pass to the plugin.
-* A string with the name of the plugin. This is equivalent to setting
-`config` to an empty object.
+specifies a Javascript object with configuration keys and values
+to be passed to the plugin.
 
 For example, a RoboHydra configuration file loading a plugin `logger`
 without special configuration and a plugin named `my-plugin` with the
@@ -146,3 +145,29 @@ Specifying a plugin that doesn't define any picker will result in an
 error. On the other hand, if you only load one plugin that defines a
 picker, there's no need to specify `hydraPickerPlugin` in the
 configuration file.
+
+
+Full example
+------------
+
+This is an example configuration file with every possible option, for
+reference:
+
+{% highlight json %}
+{"plugins": ["logger",
+             "simple-summoner",
+             {"name": "websockets",
+              "config": {"path": "/var/log/example.log",
+                         "logLevel": "warn"}}],
+ "pluginConfigDefaults": {"logLevel": "debug"},
+ "pluginLoadPaths": ["examples/plugins"],
+
+ "port": 3003,
+ "quiet": true,
+
+ "secure": true,
+ "sslOptions": {"key":  "my-key.pem",
+                "cert": "my-cert.pem"},
+
+ "summoner": {"hydraPickerPlugin": "simple-summoner"}}
+{% endhighlight %}
