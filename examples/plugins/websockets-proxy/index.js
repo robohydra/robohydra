@@ -14,7 +14,7 @@ module.exports.getBodyParts = function() {
 
             new RoboHydraWebSocketHeadProxy({
                 name: 'ws-receiver',
-                proxyTo: 'http://localhost:3000',
+                proxyTo: 'ws://localhost:3000',
                 preProcessor: function(data) {
                     if (new RegExp('php', 'i').test(data.toString())) {
                         return false;
