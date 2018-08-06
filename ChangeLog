@@ -1,7 +1,9 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.7 (2018-08-06)
 --------------------------
 
 	* Fix embarrassing bug in the proxy-cache plugin (thanks Anuga!).
+	* Make the WebSocket proxy example a bit more robust.
+	* Upgrade dependencies for security reasons.
 
 Version 0.6.6 (2017-09-20)
 --------------------------
