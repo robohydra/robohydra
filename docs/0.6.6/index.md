@@ -1,12 +1,12 @@
 ---
 layout: default
 ---
-<div class="message info">
-  <img src="/static/img/dialog-information.png"/>
+<div class="message warning">
+  <img src="/static/img/dialog-warning.png"/>
 
-  <strong>Pssst!</strong> If you're using RoboHydra from Git or want
-  to know what's coming in the next version, check the <a
-  href="../head">documentation for the Git version</a>.
+  <strong>Oi!</strong> This is documentation is for an older version
+  of RoboHydra. Unless you know you're using version 0.6.6, please
+  read the <a href="../">documentation for the latest version</a>.
 </div>
 
 Tutorials
