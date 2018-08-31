@@ -275,7 +275,9 @@ describe("RoboHydraWebSocketProxy heads", function() {
         var head = new RoboHydraWebSocketHeadProxy({
             proxyTo: 'ws://example.com',
             webSocketConstructor: function() {
-                this.on = function() {};
+                this.on = function(eventName, f) {
+                    if (eventName === 'open') { f(); }
+                };
                 this.send = function(msg) {
                     expect(msg).toEqual(expectedMessage);
                     done();
@@ -371,7 +373,9 @@ describe("RoboHydraWebSocketProxy heads", function() {
                 return msg + appendedBit;
             },
             webSocketConstructor: function() {
-                this.on = function() {};
+                this.on = function(eventName, f) {
+                    if (eventName === 'open') { f(); }
+                };
                 this.send = function(msg) {
                     expect(msg).toEqual(message + appendedBit);
                     done();
@@ -427,7 +431,9 @@ describe("RoboHydraWebSocketProxy heads", function() {
                 return;
             },
             webSocketConstructor: function() {
-                this.on = function() {};
+                this.on = function(eventName, f) {
+                    if (eventName === 'open') { f(); }
+                };
                 this.send = function(msg) {
                     expect(msg).toEqual(message);
                     done();
@@ -482,7 +488,9 @@ describe("RoboHydraWebSocketProxy heads", function() {
                 return false;
             },
             webSocketConstructor: function() {
-                this.on = function() {};
+                this.on = function(eventName, f) {
+                    if (eventName === 'open') { f(); }
+                };
                 this.send = function() {
                     expect(true).toEqual(false);
                 };
