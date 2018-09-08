@@ -1,7 +1,7 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.8 (2018-09-08)
 --------------------------
 
-	* Something
+	* Fix proxying in Node >= 9.
 
 Version 0.6.7 (2018-08-06)
 --------------------------
