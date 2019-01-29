@@ -4,7 +4,9 @@
   "bin": "./bin/robohydra.js",
   "main": "./lib/exports.js",
   "scripts": {
-    "test": "node_modules/.bin/buster-test"
+    "test": "node_modules/.bin/buster-test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "commander": "^0.6.0",
@@ -12,13 +14,13 @@
     "markdown": "^0.3.1",
     "mime": "^1.0.0",
     "qs": "^6.3.1",
-    "ws": "^1.1.2"
+    "ws": "^1.1.2",
+    "snyk": "^1.123.0"
   },
   "devDependencies": {
     "buster": "^0.7.0",
     "samsam": "^1.1.0",
-    "sinon": "^1.7",
-    "snyk": "^1.8.4"
+    "sinon": "^1.7"
   },
   "repository": {
     "type": "git",
