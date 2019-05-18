@@ -1,6 +1,8 @@
 /*global describe, it*/
 
-var buster = require("buster");
+var mocha = require("mocha");
+var chai = require("chai"),
+    expect = chai.expect;
 var utils   = require("../lib/utils"),
     Request = utils.Request;
 var helpers               = require("./helpers"),
@@ -9,9 +11,11 @@ var helpers               = require("./helpers"),
 var heads                       = require("../lib/heads"),
     RoboHydraWebSocketHead      = heads.RoboHydraWebSocketHead,
     RoboHydraWebSocketHeadProxy = heads.RoboHydraWebSocketHeadProxy;
-
-buster.spec.expose();
-var expect = buster.expect;
+var exceptions = require('../lib/exceptions'),
+    InvalidRoboHydraHeadException =
+        exceptions.InvalidRoboHydraHeadException,
+    InvalidRoboHydraHeadStateException =
+        exceptions.InvalidRoboHydraHeadStateException;
 
 describe("Generic RoboHydraWebSocket heads", function() {
     "use strict";
@@ -20,22 +24,22 @@ describe("Generic RoboHydraWebSocket heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraWebSocketHead({path: '/'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can have a name", function() {
         var head = new RoboHydraWebSocketHead({name: 'foo',
                                                handler: function() {}});
-        expect(head.name).toEqual('foo');
+        expect(head.name).to.equal('foo');
 
         var namelessHead = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
-        expect(namelessHead.name).not.toBeDefined();
+        expect(namelessHead.name).not.to.be.a('string');
     });
 
     it("match all paths by default", function() {
         var head = new RoboHydraWebSocketHead({handler: function() {}});
 
-        expect(head).toBeDefined();
+        expect(head).to.be.an('object');
     });
 
     it("can match simple paths", function() {
@@ -46,10 +50,10 @@ describe("Generic RoboHydraWebSocket heads", function() {
             }
         });
 
-        expect(head).toHandle(simpleWsReq('/foobar'));
-        expect(head).not.toHandle(simpleWsReq('/foobar2'));
-        expect(head).not.toHandle(simpleWsReq('/foobar/2'));
-        expect(head).not.toHandle(simpleWsReq('/'));
+        expect(head).to.handle(simpleWsReq('/foobar'));
+        expect(head).to.not.handle(simpleWsReq('/foobar2'));
+        expect(head).to.not.handle(simpleWsReq('/foobar/2'));
+        expect(head).to.not.handle(simpleWsReq('/'));
     });
 
     it("can match paths with regular expressions", function(done) {
@@ -73,42 +77,42 @@ describe("Generic RoboHydraWebSocket heads", function() {
         var detachedHead = new RoboHydraWebSocketHead({detached: true,
                                                        path: '/',
                                                        handler: function() {}});
-        expect(detachedHead.attached()).toEqual(false);
+        expect(detachedHead.attached()).to.equal(false);
 
         var normalHead = new RoboHydraWebSocketHead({
             path: '/',
             handler: function() {}
         });
-        expect(normalHead.attached()).toEqual(true);
+        expect(normalHead.attached()).to.equal(true);
 
         var explicitHead = new RoboHydraWebSocketHead({
             path: '/',
             handler: function() {}
         });
-        expect(explicitHead.attached()).toEqual(true);
+        expect(explicitHead.attached()).to.equal(true);
     });
 
     it("can be attached/detached dynamically", function() {
         var head = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
-        expect(head.attached()).toEqual(true);
+        expect(head.attached()).to.equal(true);
         head.detach();
-        expect(head.attached()).toEqual(false);
+        expect(head.attached()).to.equal(false);
         head.attach();
-        expect(head.attached()).toEqual(true);
+        expect(head.attached()).to.equal(true);
     });
 
     it("can't be attached/detached when already in that state", function() {
         var head = new RoboHydraWebSocketHead({path: '/', handler: function() {}});
         expect(function() {
             head.attach();
-        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
-        expect(head.attached()).toEqual(true);
+        }).to.throw(InvalidRoboHydraHeadStateException);
+        expect(head.attached()).to.equal(true);
         head.detach();
-        expect(head.attached()).toEqual(false);
+        expect(head.attached()).to.equal(false);
         expect(function() {
             head.detach();
-        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
-        expect(head.attached()).toEqual(false);
+        }).to.throw(InvalidRoboHydraHeadStateException);
+        expect(head.attached()).to.equal(false);
     });
 
     it("never dispatch any paths when detached", function() {
@@ -120,14 +124,14 @@ describe("Generic RoboHydraWebSocket heads", function() {
 
         var reqs = [simpleWsReq('/foo'), simpleWsReq('/foo/bar')];
         [headStatic, headDynamic].forEach(function(head) {
-            expect(head).not.toHandle(simpleWsReq('/'));
+            expect(head).not.to.handle(simpleWsReq('/'));
             reqs.forEach(function(path) {
-                expect(head).not.toHandle(path);
+                expect(head).not.to.handle(path);
             });
             head.attach();
-            expect(head).not.toHandle(simpleWsReq('/'));
+            expect(head).not.to.handle(simpleWsReq('/'));
             reqs.forEach(function(path) {
-                expect(head).toHandle(path);
+                expect(head).to.handle(path);
             });
         });
     });
@@ -139,10 +143,10 @@ describe("Generic RoboHydraWebSocket heads", function() {
 
         var head = new RoboHydraWebSocketHead({path: '/foo/ba*', handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(simpleWsReq(path));
+            expect(head).to.handle(simpleWsReq(path));
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(simpleWsReq(path));
+            expect(head).not.to.handle(simpleWsReq(path));
         });
     });
 
@@ -155,10 +159,10 @@ describe("Generic RoboHydraWebSocket heads", function() {
         var head = new RoboHydraWebSocketHead({path: '/:controller/:action/:id',
                                                handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(simpleWsReq(path));
+            expect(head).to.handle(simpleWsReq(path));
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(simpleWsReq(path));
+            expect(head).not.to.handle(simpleWsReq(path));
         });
     });
 
@@ -168,13 +172,13 @@ describe("Generic RoboHydraWebSocket heads", function() {
                                                hostname: 'example.com',
                                                handler: handler});
 
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'example.com',
                       upgrade: 'websocket'}
         }));
-        expect(head).not.toHandle(new Request({
+        expect(head).not.to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'localhost',
@@ -188,22 +192,22 @@ describe("Generic RoboHydraWebSocket heads", function() {
                                                hostname: 'local.*',
                                                handler: handler});
 
-        expect(head).not.toHandle(new Request({
+        expect(head).not.to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'example.com', upgrade: 'websocket'}
         }));
-        expect(head).not.toHandle(new Request({
+        expect(head).not.to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'www.local', upgrade: 'websocket'}
         }));
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'localhost', upgrade: 'websocket'}
         }));
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'localserver', upgrade: 'websocket'}
@@ -216,7 +220,7 @@ describe("Generic RoboHydraWebSocket heads", function() {
                                                hostname: 'example.com',
                                                handler: handler});
 
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             upgrade: true,
             headers: {host: 'example.com:3000',
@@ -236,19 +240,19 @@ describe("Generic RoboHydraWebSocket heads", function() {
         });
 
         head.handle(simpleWsReq('/article/show/123'));
-        expect(controller).toEqual('article');
-        expect(action).toEqual('show');
-        expect(id).toEqual('123');
+        expect(controller).to.equal('article');
+        expect(action).to.equal('show');
+        expect(id).to.equal('123');
 
         head.handle(simpleWsReq('/page/edit/456/'));
-        expect(controller).toEqual('page');
-        expect(action).toEqual('edit');
-        expect(id).toEqual('456');
+        expect(controller).to.equal('page');
+        expect(action).to.equal('edit');
+        expect(id).to.equal('456');
 
         head.handle(simpleWsReq('/widget/search/term?page=2'));
-        expect(controller).toEqual('widget');
-        expect(action).toEqual('search');
-        expect(id).toEqual('term');
+        expect(controller).to.equal('widget');
+        expect(action).to.equal('search');
+        expect(id).to.equal('term');
     });
 });
 
@@ -261,7 +265,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
             proxyTo: 'ws://example.com/bar',
             webSocketConstructor: function(url) {
                 this.on = function() {};
-                expect(url).toEqual('ws://example.com/bar/qux');
+                expect(url).to.equal('ws://example.com/bar/qux');
                 done();
             }
         });
@@ -279,7 +283,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
                     if (eventName === 'open') { f(); }
                 };
                 this.send = function(msg) {
-                    expect(msg).toEqual(expectedMessage);
+                    expect(msg).to.equal(expectedMessage);
                     done();
                 };
             }
@@ -312,7 +316,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
         head.handle(simpleWsReq('/foo/qux'), {
             on: function() {},
             send: function(msg) {
-                expect(msg).toEqual(expectedMessage);
+                expect(msg).to.equal(expectedMessage);
                 done();
             },
             close: function() {}
@@ -336,7 +340,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
             on: function() {},
             send: function() {},
             close: function() {
-                expect(true).toEqual(true);
+                expect(true).to.equal(true);
                 done();
             }
         });
@@ -348,7 +352,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
             webSocketConstructor: function() {
                 this.on = function() {};
                 this.close = function() {
-                    expect(true).toEqual(true);
+                    expect(true).to.equal(true);
                     done();
                 };
             }
@@ -377,7 +381,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
                     if (eventName === 'open') { f(); }
                 };
                 this.send = function(msg) {
-                    expect(msg).toEqual(message + appendedBit);
+                    expect(msg).to.equal(message + appendedBit);
                     done();
                 };
                 this.close = function() {};
@@ -416,7 +420,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
         head.handle(simpleWsReq('/foo/qux'), {
             on: function() {},
             send: function(msg) {
-                expect(msg).toEqual(message + appendedBit);
+                expect(msg).to.equal(message + appendedBit);
                 done();
             },
             close: function() {}
@@ -435,7 +439,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
                     if (eventName === 'open') { f(); }
                 };
                 this.send = function(msg) {
-                    expect(msg).toEqual(message);
+                    expect(msg).to.equal(message);
                     done();
                 };
                 this.close = function() {};
@@ -473,7 +477,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
         head.handle(simpleWsReq('/foo/qux'), {
             on: function() {},
             send: function(msg) {
-                expect(msg).toEqual(message);
+                expect(msg).to.equal(message);
                 done();
             },
             close: function() {}
@@ -492,10 +496,10 @@ describe("RoboHydraWebSocketProxy heads", function() {
                     if (eventName === 'open') { f(); }
                 };
                 this.send = function() {
-                    expect(true).toEqual(false);
+                    expect(true).to.equal(false);
                 };
                 this.close = function() {
-                    expect(true).toEqual(true);
+                    expect(true).to.equal(true);
                     done();
                 };
             }
@@ -531,7 +535,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
                 };
                 this.send = function() {};
                 this.close = function() {
-                    expect(true).toEqual(true);
+                    expect(true).to.equal(true);
                     done();
                 };
             }
@@ -544,7 +548,7 @@ describe("RoboHydraWebSocketProxy heads", function() {
                 }
             },
             send: function() {
-                expect(true).toEqual(false);
+                expect(true).to.equal(false);
             },
             close: function() {}
         });

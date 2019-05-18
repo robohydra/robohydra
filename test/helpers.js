@@ -1,8 +1,10 @@
-var buster = require("buster"),
-    samsam = require("samsam"),
-    sinon = require("sinon");
-var expect = buster.expect;
 var path = require("path");
+
+var mocha = require("mocha");
+var chai = require("chai"),
+    expect = chai.expect;
+var deepEql = require("deep-eql");
+
 var RoboHydraHead = require("../lib/heads").RoboHydraHead;
 var utils = require("../lib/utils"),
     Request   = utils.Request,
@@ -12,71 +14,69 @@ var utils = require("../lib/utils"),
 (function () {
     "use strict";
 
-    buster.referee.add("responseMatches", {
-        assert: function (actual, expectedResponse) {
-            var r = true;
-            this.actualProps = {};
-            if (typeof(expectedResponse) === 'string') {
-                expectedResponse = {content: expectedResponse};
-            }
-            if (expectedResponse.hasOwnProperty('content')) {
-                this.actualProps.content = actual.body;
-                r = r && (hasEqualBody(this.actualProps.content,
-                                       expectedResponse.content));
-            }
-            if (expectedResponse.hasOwnProperty('statusCode')) {
-                this.actualProps.statusCode = actual.statusCode;
-                r = r && (this.actualProps.statusCode === expectedResponse.statusCode);
-            }
-            if (expectedResponse.hasOwnProperty('contentType')) {
-                this.actualProps.contentType = actual.headers['content-type'];
-                r = r && (this.actualProps.contentType === expectedResponse.contentType);
-            }
-            if (expectedResponse.hasOwnProperty('headers')) {
-                this.actualProps.headers = actual.headers;
-                var headersToCheck = Object.keys(expectedResponse.headers);
-                r = r && headersToCheck.every(function(header) {
-                    return actual.headers[header] === expectedResponse.headers[header];
-                });
-            }
-            return r;
-        },
-        assertMessage: "Expected ${0} to produce response '${1}' (was '${actualProps}')!",
-        refuteMessage: "Expected ${0} to not produce response '${1}'!",
-        expectation: "toMatchResponse"
+    chai.Assertion.addMethod('matchResponse', function(expectedResponse) {
+        var actual = this._obj;
+
+        var r = true;
+        var actualProps = {};
+        // This is equivalent to {content: blah}, handled below
+        if (typeof(expectedResponse) === 'string') {
+            expectedResponse = {content: expectedResponse};
+        }
+
+        if (expectedResponse.hasOwnProperty('content')) {
+            actualProps.content = actual.body;
+            r = r && (hasEqualBody(actualProps.content,
+                                   expectedResponse.content));
+        }
+        if (expectedResponse.hasOwnProperty('statusCode')) {
+            actualProps.statusCode = actual.statusCode;
+            r = r && (actualProps.statusCode === expectedResponse.statusCode);
+        }
+        if (expectedResponse.hasOwnProperty('contentType')) {
+            actualProps.contentType = actual.headers['content-type'];
+            r = r && (actualProps.contentType === expectedResponse.contentType);
+        }
+        if (expectedResponse.hasOwnProperty('headers')) {
+            actualProps.headers = actual.headers;
+            var headersToCheck = Object.keys(expectedResponse.headers);
+            r = r && headersToCheck.every(function(header) {
+                return actual.headers[header] === expectedResponse.headers[header];
+            });
+        }
+
+        this.assert(
+            r,
+            "expected #{act} to match response #{expected}",
+            "expected #{act} to NOT match response",
+            actualProps,
+            expectedResponse
+        );
     });
 
-    buster.referee.add("handles", {
-        assert: function(actual, requestOrUrlPath) {
-            var request = typeof requestOrUrlPath === 'string' ?
-                    new Request({url: requestOrUrlPath}) : requestOrUrlPath;
-            return actual.canHandle(request);
-        },
-        assertMessage: "Expected ${0} to be able to handle path '${1}'!",
-        refuteMessage: "Expected ${0} to not be able to handle path '${1}'!",
-        expectation: "toHandle"
+    chai.Assertion.addMethod('handle', function(requestOrUrlPath) {
+        var actual = this._obj;
+        var request = typeof requestOrUrlPath === 'string' ?
+            new Request({url: requestOrUrlPath}) : requestOrUrlPath;
+        this.assert(
+            actual.canHandle(request),
+            "expected #{this} to handle #{act} but couldn't",
+            "expected #{this} to NOT handle #{act} but could",
+            request,
+            null
+        );
     });
 
-    buster.referee.add("hasTestResult", {
-        assert: function(actual, plugin, test, expectedResult) {
-            this.testResults = actual.testResults;
-            return samsam.deepEqual(this.testResults[plugin][test],
-                                    expectedResult);
-        },
-        assertMessage: "Expected RoboHydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
-        refuteMessage: "Expected RoboHydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
-        expectation: "toHaveTestResult"
-    });
+    chai.Assertion.addMethod('haveTestResult', function(plugin, test, expectedResult) {
+        var actual = this._obj;
 
-    buster.referee.add("hasScenarioTestResult", {
-        assert: function(actual, plugin, scenario, expectedResult) {
-            this.testResults = actual.testResults;
-            return samsam.deepEqual(this.testResults[plugin][scenario],
-                                    expectedResult);
-        },
-        assertMessage: "Expected RoboHydra (w/ results ${testResults}) to have test result ${3} for test ${1}/${2}!",
-        refuteMessage: "Expected RoboHydra (w/ results ${testResults}) to not have test result ${3} for test ${1}/${2}!",
-        expectation: "toHaveTestResult"
+        this.assert(
+            deepEql(actual.testResults[plugin][test], expectedResult),
+            "expected #{this} to have test result #{exp} (was: #{act})",
+            "expected #{this} to NOT have test result #{act}",
+            actual.testResults[plugin][test],
+            expectedResult
+        );
     });
 
     function hasEqualBody(body1, body2) {
@@ -89,33 +89,31 @@ var utils = require("../lib/utils"),
 
         return body1.toString('base64') === body2.toString('base64');
     }
-    buster.referee.add("hasEqualBody", {
-        assert: hasEqualBody,
-        assertMessage: "Expected body ${0} to equal ${1}!",
-        refuteMessage: "Expected body ${0} to not equal ${1}!",
-        expectation: "toHaveEqualBody"
+
+    chai.Assertion.addMethod('haveEqualBody', function(expectedBody) {
+        var actual = this._obj;
+
+        this.assert(
+            hasEqualBody(actual, expectedBody),
+            "expected #{this} to be equal to #{exp}",
+            "expected #{this} to NOT be equal to #{exp}",
+            actual,
+            expectedBody
+        );
     });
 
-    buster.referee.add("equalsPath", {
-        assert: function(actual, expected) {
-            var canonicalActual = path.resolve(actual);
-            var canonicalExpected = path.resolve(expected);
-            return canonicalActual === canonicalExpected;
-        },
-        assertMessage: "Expected ${0} to be the same path as ${1}!",
-        refuteMessage: "Expected ${0} to not be the same path as ${1}!",
-        expectation: "toEqualPath"
-    });
+    chai.Assertion.addMethod('equalPath', function(expected) {
+        var actual = this._obj;
+        var canonicalActual = path.resolve(actual);
+        var canonicalExpected = path.resolve(expected);
 
-    buster.referee.add("equalsText", {
-        assert: function(actual, expected) {
-            var canonicalActual = actual.replace(/\r\n/g, "\n");
-            var canonicalExpected = expected.replace(/\r\n/g, "\n");
-            return canonicalActual === canonicalExpected;
-        },
-        assertMessage: "Expected ${0} to be the same text as ${1}!",
-        refuteMessage: "Expected ${0} to not be the same text as ${1}!",
-        expectation: "toEqualText"
+        this.assert(
+            canonicalActual === canonicalExpected,
+            "expected #{this} to be the same path as #{exp}",
+            "expected #{this} to NOT be the same path as #{exp}",
+            actual,
+            expected
+        );
     });
 
     function withResponse(robohydraOrHead, pathOrObject, cb) {
@@ -135,7 +133,7 @@ var utils = require("../lib/utils"),
             if (typeof(cb) === 'function') { cb(); }
         } else {
             withResponse(head, list[0][0], function(res) {
-                expect(res).toMatchResponse(list[0][1]);
+                expect(res).to.matchResponse(list[0][1]);
                 checkRouting(head, list.slice(1), cb);
             });
         }
@@ -145,9 +143,12 @@ var utils = require("../lib/utils"),
         var fakeSocket;
 
         for (var i = 0, len = list.length; i < len; i++) {
-            fakeSocket = {send: sinon.spy()};
+            fakeSocket = {
+                send: function(data) {
+                    expect(data).to.equal(list[0][1]);
+                }
+            };
             head.handle(simpleWsReq(list[0][0]), fakeSocket);
-            expect(fakeSocket.send.calledWith(list[0][1])).toBe(true);
         }
 
         cb();

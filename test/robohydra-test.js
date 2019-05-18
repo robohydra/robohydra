@@ -1,7 +1,9 @@
 /*global require, describe, it, before, Buffer */
 
-var buster = require("buster"),
-    samsam = require("samsam");
+var mocha = require("mocha");
+var chai = require("chai"),
+    expect = chai.expect;
+var deepEql = require("deep-eql");
 var path = require("path");
 var RoboHydra = require("../lib/RoboHydra");
 var utils         = require("../lib/utils"),
@@ -19,43 +21,105 @@ var helpers              = require("./helpers"),
     headWithPass         = helpers.headWithPass,
     pluginInfoObject     = helpers.pluginInfoObject,
     pluginObjectFromPath = helpers.pluginObjectFromPath;
+var exceptions = require('../lib/exceptions'),
+    InvalidRoboHydraConfigurationException =
+        exceptions.InvalidRoboHydraConfigurationException,
+    InvalidRoboHydraPluginException =
+        exceptions.InvalidRoboHydraPluginException,
+    RoboHydraPluginNotFoundException =
+        exceptions.RoboHydraPluginNotFoundException,
+    RoboHydraHeadNotFoundException =
+        exceptions.RoboHydraHeadNotFoundException,
+    DuplicateRoboHydraHeadNameException =
+        exceptions.DuplicateRoboHydraHeadNameException,
+    InvalidRoboHydraHeadStateException =
+        exceptions.InvalidRoboHydraHeadStateException,
+    InvalidRoboHydraResponseException =
+        exceptions.InvalidRoboHydraResponseException,
+    InvalidRoboHydraNextParametersException =
+        exceptions.InvalidRoboHydraNextParametersException,
+    InvalidRoboHydraScenarioException =
+        exceptions.InvalidRoboHydraScenarioException,
+    RoboHydraException =
+        exceptions.RoboHydraException;
 
-buster.spec.expose();
-var expect = buster.expect;
+chai.Assertion.addMethod('haveHeadAttached', function(pluginName, headName) {
+    var actual = this._obj;
 
-buster.referee.add("hasHeadAttached", {
-    assert: function (actual, pluginName, headName) {
-        "use strict";
-        return actual.isHeadAttached(pluginName, headName);
-    },
-    assertMessage: "Expected ${0} to have a head '${1}/${2}' attached!",
-    refuteMessage: "Expected ${0} to have a head '${1}/${2}' detached!",
-    expectation: "toHaveHeadAttached"
+    this.assert(
+        actual.isHeadAttached(pluginName, headName),
+        "expected #{this} to have a head #{exp} attached",
+        "expected #{this} to have a head #{exp} DETACHED",
+        null,
+        pluginName + "/" + headName
+    );
 });
 
-buster.referee.add("hasPluginList", {
-    assert: function (actual, expectedPluginList) {
-        "use strict";
-        var list = this.actualPluginList = actual.getPluginNames();
-        this.countSpecialPlugins = !!arguments[2];
-        if (! this.countSpecialPlugins) {
-            list = list.filter(function(p) { return p.indexOf("*") === -1; });
-        }
-        return samsam.deepEqual(list, expectedPluginList);
-    },
-    assertMessage: "Expected plugin list (counting hydra-admin: ${countSpecialPlugins}) to be ${1} (was ${actualPluginList})!",
-    refuteMessage: "Expected plugin list (counting hydra-admin: ${countSpecialPlugins}) to not be ${1}!",
-    expectation: "toHavePluginList"
+chai.Assertion.addMethod('havePluginList', function(expectedList) {
+    var actual = this._obj;
+    var actualList = actual.getPluginNames().filter(function(pluginName) {
+        return pluginName.indexOf("*") === -1;
+    });
+    var actualListFlat = actualList.join(",");
+    var expectedListFlat = expectedList.join(",");
+
+    this.assert(
+        deepEql(actualListFlat, expectedListFlat),
+        "expected #{this} to have these plugins: #{exp} (had: #{act})",
+        "expected #{this} to NOT have these plugins: #{exp}",
+        actualListFlat,
+        expectedListFlat
+    );
 });
 
-buster.referee.add("hasPluginWithHeadcount", {
-    assert: function (actual, pluginName, expectedHeadcount) {
-        "use strict";
-        return actual.getPlugin(pluginName).heads.length === expectedHeadcount;
-    },
-    assertMessage: "Expected hydra to have headcount ${2} in plugin ${1}!",
-    refuteMessage: "Expected hydra to not have headcount ${2} in plugin ${1}!",
-    expectation: "toHavePluginWithHeadcount"
+chai.Assertion.addMethod('havePluginWithHeadcount', function(pluginName, expectedHeadcount) {
+    var actual = this._obj;
+    var actualPluginHeadcount = actual.getPlugin(pluginName).heads.length;
+
+    this.assert(
+        actualPluginHeadcount === expectedHeadcount,
+        "expected #{this} to have headcount: #{exp} (had: #{act})",
+        "expected #{this} to NOT have headcount: #{exp}",
+        actualPluginHeadcount,
+        expectedHeadcount
+    );
+});
+
+chai.Assertion.addMethod('haveBeenCalled', function() {
+    var actual = this._obj;
+
+    this.assert(
+        actual.calls.length > 0,
+        "expected #{this} to have been called",
+        "expected #{this} to NOT have been called",
+        actual.calls.length,
+        null
+    );
+});
+
+chai.Assertion.addMethod('haveBeenCalledOnce', function() {
+    var actual = this._obj;
+
+    this.assert(
+        actual.calls.length === 1,
+        "expected #{this} to have been called once (was: #{act})",
+        "expected #{this} to NOT have been called once",
+        actual.calls.length,
+        null
+    );
+});
+
+chai.Assertion.addMethod('haveBeenCalledWith', function(expectedCall) {
+    var actual = this._obj;
+    var lastCall = actual.calls[actual.calls.length - 1];
+
+    this.assert(
+        deepEql(lastCall[0], expectedCall),
+        "expected #{this} to have been called once with #{exp} (was: #{act})",
+        "expected #{this} to NOT have been called once with #{exp}",
+        lastCall[0],
+        expectedCall
+    );
 });
 
 function simpleRoboHydraHead(path, content, moreProps) {
@@ -75,11 +139,20 @@ function simpleRoboHydraWebSocketHead(path, handler, moreProps) {
     return new RoboHydraWebSocketHead(props);
 }
 
+function spy() {
+    var spyFunction = function() {
+        spyFunction.calls.push([].slice.call(arguments, 0));
+    };
+    spyFunction.calls = [];
+
+    return spyFunction;
+}
+
 describe("RoboHydras", function() {
     "use strict";
 
     it("can be created", function() {
-        expect(new RoboHydra()).toBeDefined();
+        expect(new RoboHydra()).to.be.an('object');
     });
 
     it("can't have unknown/mistyped properties", function() {
@@ -88,7 +161,7 @@ describe("RoboHydras", function() {
             hydra.registerPluginObject(pluginInfoObject({
                 heds: []
             }));
-        }).toThrow({name: "InvalidRoboHydraPluginException"});
+        }).to.throw(InvalidRoboHydraPluginException);
     });
 
     it("can't register plugins without name", function() {
@@ -98,7 +171,7 @@ describe("RoboHydras", function() {
                 name: undefined,
                 heads: [new RoboHydraHeadStatic({content: 'foo'})]
             }));
-        }).toThrow({name: "InvalidRoboHydraPluginException"});
+        }).to.throw(InvalidRoboHydraPluginException);
     });
 
     it("can't register plugins with invalid names", function() {
@@ -109,7 +182,7 @@ describe("RoboHydras", function() {
             expect(function() {
                 hydra.registerPluginObject(pluginInfoObject({name: v,
                                                              heads: heads}));
-            }).toThrow({name: "InvalidRoboHydraPluginException"});
+            }).to.throw(InvalidRoboHydraPluginException);
         });
     });
 
@@ -119,8 +192,8 @@ describe("RoboHydras", function() {
             name: 'simple_plugin',
             heads: [simpleRoboHydraHead()]
         }));
-        expect(hydra).toHavePluginList(['simple_plugin']);
-        expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
+        expect(hydra).to.havePluginList(['simple_plugin']);
+        expect(hydra).to.havePluginWithHeadcount('simple_plugin', 1);
     });
 
     it("can register plugins with one scenario", function() {
@@ -129,7 +202,7 @@ describe("RoboHydras", function() {
             name: 'simple_plugin',
             scenarios: {simpleScenario:{heads:[]}}
         }));
-        expect(hydra).toHavePluginList(['simple_plugin']);
+        expect(hydra).to.havePluginList(['simple_plugin']);
     });
 
     it("can register plugins with websocket heads", function() {
@@ -138,7 +211,7 @@ describe("RoboHydras", function() {
             name: 'simple_plugin',
             heads: [simpleRoboHydraWebSocketHead()]
         }));
-        expect(hydra).toHavePluginList(['simple_plugin']);
+        expect(hydra).to.havePluginList(['simple_plugin']);
     });
 
     it("reject scenarios without heads", function() {
@@ -148,7 +221,7 @@ describe("RoboHydras", function() {
                 name: 'simple_plugin',
                 scenarios: {simpleScenario: {instructions: "No heads lol"}}
             }));
-        }).toThrow({name: "InvalidRoboHydraPluginException"});
+        }).to.throw(InvalidRoboHydraPluginException);
     });
 
     it("reject scenarios with unknown properties", function() {
@@ -159,7 +232,7 @@ describe("RoboHydras", function() {
                 scenarios: {simpleScenario: {heads: [],
                                              path: '/wat/no/staph/it'}}
             }));
-        }).toThrow({name: "InvalidRoboHydraPluginException"});
+        }).to.throw(InvalidRoboHydraPluginException);
     });
 
     it("can register plugins with one head and one scenario", function() {
@@ -169,7 +242,7 @@ describe("RoboHydras", function() {
             heads: [simpleRoboHydraHead()],
             scenarios: {simpleScenario: {heads: []}}
         }));
-        expect(hydra).toHavePluginList(['simple_plugin']);
+        expect(hydra).to.havePluginList(['simple_plugin']);
     });
 
     it("can't register two plugins with the same name", function() {
@@ -179,11 +252,11 @@ describe("RoboHydras", function() {
         var plugin2 = {name: 'simple_plugin',
                        heads: [simpleRoboHydraHead('/.*', 'bar')]};
         hydra.registerPluginObject(pluginInfoObject(plugin1));
-        expect(hydra).toHavePluginList(['simple_plugin']);
-        expect(hydra).toHavePluginWithHeadcount('simple_plugin', 1);
+        expect(hydra).to.havePluginList(['simple_plugin']);
+        expect(hydra).to.havePluginWithHeadcount('simple_plugin', 1);
         expect(function() {
             hydra.registerPluginObject(pluginInfoObject(plugin2));
-        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
+        }).to.throw(InvalidRoboHydraConfigurationException);
     });
 
     it("can register several plugins", function() {
@@ -194,12 +267,12 @@ describe("RoboHydras", function() {
         var plugin2 = {name: 'plugin2',
                        heads: [simpleRoboHydraHead('/.*', 'Not Found')]};
         hydra.registerPluginObject(pluginInfoObject(plugin1));
-        expect(hydra).toHavePluginList(['plugin1']);
-        expect(hydra).toHavePluginWithHeadcount('plugin1', 1);
+        expect(hydra).to.havePluginList(['plugin1']);
+        expect(hydra).to.havePluginWithHeadcount('plugin1', 1);
         hydra.registerPluginObject(pluginInfoObject(plugin2));
-        expect(hydra).toHavePluginList(['plugin1', 'plugin2']);
-        expect(hydra).toHavePluginWithHeadcount('plugin1', 1);
-        expect(hydra).toHavePluginWithHeadcount('plugin2', 1);
+        expect(hydra).to.havePluginList(['plugin1', 'plugin2']);
+        expect(hydra).to.havePluginWithHeadcount('plugin1', 1);
+        expect(hydra).to.havePluginWithHeadcount('plugin2', 1);
     });
 
     it("considers plugin configuration when registering plugins", function() {
@@ -211,7 +284,7 @@ describe("RoboHydras", function() {
             config: {myConfVariable: value},
             module: {
                 getBodyParts: function(conf) {
-                    expect(conf.myConfVariable).toEqual(value);
+                    expect(conf.myConfVariable).to.equal(value);
                     return {};
                 }
             }
@@ -231,8 +304,8 @@ describe("RoboHydras", function() {
             config: {configKey: configKeyValue},
             module: {
                 getBodyParts: function(conf) {
-                    expect(conf.configKey).toEqual(overridenConfigKeyValue);
-                    expect(conf.newConfigKey).toEqual(newConfigKeyValue);
+                    expect(conf.configKey).to.equal(overridenConfigKeyValue);
+                    expect(conf.newConfigKey).to.equal(newConfigKeyValue);
                     return {};
                 }
             }
@@ -245,7 +318,7 @@ describe("RoboHydras", function() {
                        heads: [simpleRoboHydraHead('/.*', 'Not Found')]};
         hydra.registerPluginObject(pluginInfoObject(plugin1));
         var p = hydra.getPlugin('plugin1');
-        expect(p.name).toEqual('plugin1');
+        expect(p.name).to.equal('plugin1');
     });
 
     it("throw an exception when getting a non-existent plugin by name", function() {
@@ -255,15 +328,15 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject(plugin1));
         expect(function() {
             hydra.getPlugin("plugin11");
-        }).toThrow({name: "RoboHydraPluginNotFoundException"});
+        }).to.throw(RoboHydraPluginNotFoundException);
     });
 
     it("consider all paths 404 when there are no plugins", function() {
         var hydra = new RoboHydra();
         hydra.handle(simpleReq('/'),
                      new Response(function() {
-                         expect(this.statusCode).toEqual(404);
-                         expect(this.body).toHaveEqualBody('Not Found');
+                         expect(this.statusCode).to.equal(404);
+                         expect(this.body).to.haveEqualBody('Not Found');
                      }));
     });
 
@@ -275,8 +348,8 @@ describe("RoboHydras", function() {
                                                      heads: heads}));
         hydra.handle(simpleReq('/'),
                      new Response(function() {
-                         expect(this.statusCode).toEqual(200);
-                         expect(this.body).toHaveEqualBody(content);
+                         expect(this.statusCode).to.equal(200);
+                         expect(this.body).to.haveEqualBody(content);
                      }));
     });
 
@@ -289,8 +362,8 @@ describe("RoboHydras", function() {
                                                      heads: heads}));
         hydra.handle(simpleReq('/'),
                      new Response(function() {
-                         expect(this.statusCode).toEqual(200);
-                         expect(this.body).toHaveEqualBody(content);
+                         expect(this.statusCode).to.equal(200);
+                         expect(this.body).to.haveEqualBody(content);
                          done();
                      }));
     });
@@ -305,7 +378,7 @@ describe("RoboHydras", function() {
         ['/', '/qux', '/foobar', '/foo/bar', '/bar/foo'].forEach(function(path) {
             hydra.handle(simpleReq(path),
                          new Response(function() {
-                             expect(this.statusCode).toEqual(404);
+                             expect(this.statusCode).to.equal(404);
                          }));
         });
     });
@@ -316,7 +389,7 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
                                                      heads: heads}));
         hydra.handle(simpleReq('/'), new Response(function() {
-            expect(this.statusCode).toEqual(404);
+            expect(this.statusCode).to.equal(404);
             done();
         }));
     });
@@ -328,8 +401,8 @@ describe("RoboHydras", function() {
         expect(function() {
             hydra.registerPluginObject(pluginInfoObject({name: 'plugin1',
                                                          heads: heads}));
-        }).toThrow({name: "DuplicateRoboHydraHeadNameException"});
-        expect(hydra).toHavePluginList([]);
+        }).to.throw(DuplicateRoboHydraHeadNameException);
+        expect(hydra).to.havePluginList([]);
     });
 
     it("allow registering different plugins with common head names", function() {
@@ -350,9 +423,9 @@ describe("RoboHydras", function() {
                                                      heads: headsPlugin1}));
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin2',
                                                      heads: headsPlugin2}));
-        expect(hydra).toHavePluginList(['plugin1', 'plugin2']);
-        expect(hydra).toHavePluginWithHeadcount('plugin1', 2);
-        expect(hydra).toHavePluginWithHeadcount('plugin2', 2);
+        expect(hydra).to.havePluginList(['plugin1', 'plugin2']);
+        expect(hydra).to.havePluginWithHeadcount('plugin1', 2);
+        expect(hydra).to.havePluginWithHeadcount('plugin2', 2);
     });
 
     it("find existing heads", function() {
@@ -362,8 +435,8 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
 
-        expect(hydra.findHead('plugin', 'head1').name).toEqual('head1');
-        expect(hydra.findHead('plugin', 'head2').name).toEqual('head2');
+        expect(hydra.findHead('plugin', 'head1').name).to.equal('head1');
+        expect(hydra.findHead('plugin', 'head2').name).to.equal('head2');
     });
 
     it("throw an error when finding non-existing heads", function() {
@@ -375,16 +448,16 @@ describe("RoboHydras", function() {
 
         expect(function() {
             hydra.findHead('plugin1', 'head1');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
         expect(function() {
             hydra.findHead('plugin', 'head3');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
         expect(function() {
             hydra.findHead('plugin', 'head22');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
         expect(function() {
             hydra.findHead('_plugin', 'head2');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
     });
 
     it("allow attaching and detaching heads", function() {
@@ -394,9 +467,9 @@ describe("RoboHydras", function() {
                                                      heads: heads}));
 
         hydra.detachHead('plugin', 'head1');
-        expect(hydra).not.toHaveHeadAttached('plugin', 'head1');
+        expect(hydra).not.to.haveHeadAttached('plugin', 'head1');
         hydra.attachHead('plugin', 'head1');
-        expect(hydra).toHaveHeadAttached('plugin', 'head1');
+        expect(hydra).to.haveHeadAttached('plugin', 'head1');
     });
 
     it("throw an error when attaching/detaching non-existing heads", function() {
@@ -407,13 +480,13 @@ describe("RoboHydras", function() {
 
         expect(function() {
             hydra.detachHead('plugin', 'head2');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
         expect(function() {
             hydra.detachHead('plugin2', 'head1');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
         expect(function() {
             hydra.detachHead('_plugin', 'head1');
-        }).toThrow({name: "RoboHydraHeadNotFoundException"});
+        }).to.throw(RoboHydraHeadNotFoundException);
     });
 
     it("throw an error when attaching/detaching already attached/detached heads", function() {
@@ -424,11 +497,11 @@ describe("RoboHydras", function() {
 
         expect(function() {
             hydra.attachHead('plugin', 'head1');
-        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
+        }).to.throw(InvalidRoboHydraHeadStateException);
         hydra.detachHead('plugin', 'head1');
         expect(function() {
             hydra.detachHead('plugin', 'head1');
-        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
+        }).to.throw(InvalidRoboHydraHeadStateException);
     });
 
     it("skips detached heads when dispatching", function(done) {
@@ -439,18 +512,18 @@ describe("RoboHydras", function() {
         hydra.registerPluginObject(pluginInfoObject({name: 'plugin',
                                                      heads: heads}));
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.statusCode).toEqual(200);
-            expect(this.body).toHaveEqualBody('foo path');
+            expect(this.statusCode).to.equal(200);
+            expect(this.body).to.haveEqualBody('foo path');
 
             hydra.detachHead('plugin', 'head1');
             hydra.handle(simpleReq(path), new Response(function() {
-                expect(this.statusCode).toEqual(200);
-                expect(this.body).toHaveEqualBody('catch-all');
+                expect(this.statusCode).to.equal(200);
+                expect(this.body).to.haveEqualBody('catch-all');
 
                 hydra.attachHead('plugin', 'head1');
                 hydra.handle(simpleReq(path), new Response(function() {
-                    expect(this.statusCode).toEqual(200);
-                    expect(this.body).toHaveEqualBody('foo path');
+                    expect(this.statusCode).to.equal(200);
+                    expect(this.body).to.haveEqualBody('foo path');
                     done();
                 }));
             }));
@@ -462,10 +535,10 @@ describe("RoboHydras", function() {
         var path = '/foo';
 
         hydra.registerDynamicHead(simpleRoboHydraHead(path, 'some content'));
-        expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
+        expect(hydra).to.havePluginWithHeadcount('*dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody('some content');
+            expect(this.body).to.haveEqualBody('some content');
             done();
         }));
     });
@@ -480,7 +553,7 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead(path, content2));
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody(content2);
+            expect(this.body).to.haveEqualBody(content2);
             done();
         }));
     });
@@ -491,10 +564,10 @@ describe("RoboHydras", function() {
 
         hydra.registerDynamicHead(simpleRoboHydraHead(path, 'some content'),
                                   {priority: 'normal'});
-        expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
+        expect(hydra).to.havePluginWithHeadcount('*dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody('some content');
+            expect(this.body).to.haveEqualBody('some content');
             done();
         }));
     });
@@ -505,10 +578,10 @@ describe("RoboHydras", function() {
 
         hydra.registerDynamicHead(simpleRoboHydraHead(path, 'some content'),
                                   {priority: 'high'});
-        expect(hydra).toHavePluginWithHeadcount('*priority-dynamic*', 1);
+        expect(hydra).to.havePluginWithHeadcount('*priority-dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody('some content');
+            expect(this.body).to.haveEqualBody('some content');
             done();
         }));
     });
@@ -519,10 +592,10 @@ describe("RoboHydras", function() {
 
         hydra.registerDynamicHead(simpleRoboHydraHead(path, "NO ADMIN 4 U"),
                                   {priority: 'admin'});
-        expect(hydra).toHavePluginWithHeadcount('*admin-dynamic*', 1);
+        expect(hydra).to.havePluginWithHeadcount('*admin-dynamic*', 1);
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody("NO ADMIN 4 U");
+            expect(this.body).to.haveEqualBody("NO ADMIN 4 U");
             done();
         }));
     });
@@ -534,7 +607,7 @@ describe("RoboHydras", function() {
             hydra.registerDynamicHead(simpleRoboHydraHead('/foo',
                                                           'some content'),
                                       {priority: 'normall'});
-        }).toThrow({name: "RoboHydraException"});
+        }).to.throw(RoboHydraException);
     });
 
     it("places high priority heads above normal priority heads", function(done) {
@@ -548,13 +621,13 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead('/.*', normalContent));
         hydra.registerDynamicHead(simpleRoboHydraHead(path2, highPrioContent),
                                   {priority: 'high'});
-        expect(hydra).toHavePluginWithHeadcount('*priority-dynamic*', 2);
-        expect(hydra).toHavePluginWithHeadcount('*dynamic*', 1);
+        expect(hydra).to.havePluginWithHeadcount('*priority-dynamic*', 2);
+        expect(hydra).to.havePluginWithHeadcount('*dynamic*', 1);
 
         hydra.handle(simpleReq(path1), new Response(function() {
-            expect(this.body).toHaveEqualBody(highPrioContent);
+            expect(this.body).to.haveEqualBody(highPrioContent);
             hydra.handle(simpleReq(path2), new Response(function() {
-                expect(this.body).toHaveEqualBody(highPrioContent);
+                expect(this.body).to.haveEqualBody(highPrioContent);
                 done();
             }));
         }));
@@ -569,9 +642,9 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead(path2, content2));
 
         hydra.handle(simpleReq(path1), new Response(function() {
-            expect(this.body).toHaveEqualBody(content1);
+            expect(this.body).to.haveEqualBody(content1);
             hydra.handle(simpleReq(path2), new Response(function() {
-                expect(this.body).toHaveEqualBody(content2);
+                expect(this.body).to.haveEqualBody(content2);
                 done();
             }));
         }));
@@ -583,7 +656,7 @@ describe("RoboHydras", function() {
 
         hydra.registerDynamicHead(simpleRoboHydraHead(path, content, {name: name}));
         var dynamicHead = hydra.findHead('*dynamic*', name);
-        expect(dynamicHead).toBeDefined();
+        expect(dynamicHead).to.be.an('object');
     });
 
     it("can detach dynamic heads", function(done) {
@@ -595,11 +668,11 @@ describe("RoboHydras", function() {
                                                       {name: name}));
 
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody(content);
+            expect(this.body).to.haveEqualBody(content);
 
             hydra.detachHead('*dynamic*', name);
             hydra.handle(simpleReq(path), new Response(function() {
-                expect(this.statusCode).toEqual(404);
+                expect(this.statusCode).to.equal(404);
                 done();
             }));
         }));
@@ -619,7 +692,7 @@ describe("RoboHydras", function() {
         hydra.detachHead('*dynamic*', name2);
 
         hydra.handle(simpleReq(path1), new Response(function() {
-            expect(this.body).toHaveEqualBody(content1);
+            expect(this.body).to.haveEqualBody(content1);
             done();
         }));
     });
@@ -630,7 +703,7 @@ describe("RoboHydras", function() {
         hydra.registerDynamicHead(simpleRoboHydraHead());
 
         var dynamicHeads = hydra.getPlugin('*dynamic*').heads;
-        expect(dynamicHeads[0].name).not.toEqual(dynamicHeads[1].name);
+        expect(dynamicHeads[0].name).not.to.equal(dynamicHeads[1].name);
     });
 
     it("can chain a request with two heads", function(done) {
@@ -654,7 +727,7 @@ describe("RoboHydras", function() {
                     headBeingCalled]
         }));
         hydra.handle(simpleReq('/foo'), new Response(function() {
-            expect(resultList).toEqual(['headCallingNext', 'headBeingCalled']);
+            expect(resultList).to.eql(['headCallingNext', 'headBeingCalled']);
             done();
         }));
     });
@@ -690,9 +763,9 @@ describe("RoboHydras", function() {
                     headBeingCalledLast]
         }));
         hydra.handle(simpleReq('/foo'), new Response(function() {
-            expect(resultList).toEqual(['headCallingNext',
-                                        'headBeingCalled',
-                                        'headBeingCalledLast']);
+            expect(resultList).to.eql(['headCallingNext',
+                                       'headBeingCalled',
+                                       'headBeingCalledLast']);
             done();
         }));
     });
@@ -713,7 +786,7 @@ describe("RoboHydras", function() {
             heads: [headCallingNext]
         }));
         hydra.handle(simpleReq('/foo'), new Response(function() {
-            expect(finalRes.statusCode).toEqual(404);
+            expect(finalRes.statusCode).to.equal(404);
             done();
         }));
     });
@@ -726,11 +799,11 @@ describe("RoboHydras", function() {
                 expect(function() {
                     // http://bit.ly/KkdH81
                     next();
-                }).toThrow({name: "InvalidRoboHydraNextParametersException"});
+                }).to.throw(InvalidRoboHydraNextParametersException);
                 res.end();
             }});
         hydra.registerDynamicHead(headCallingNext);
-        hydra.handle(simpleReq('/foo'), new Response(done));
+        hydra.handle(simpleReq('/foo'), new Response(function() { done(); }));
     });
 
     it("return 500 if a head dies", function(done) {
@@ -743,8 +816,8 @@ describe("RoboHydras", function() {
         });
         hydra.registerDynamicHead(dyingHead);
         hydra.handle(simpleReq('/whatever'), new Response(function() {
-            expect(this.statusCode).toEqual(500);
-            expect(this.body.toString()).toMatch(new RegExp('dying'));
+            expect(this.statusCode).to.equal(500);
+            expect(this.body.toString()).to.match(new RegExp('dying'));
             done();
         }));
     });
@@ -758,7 +831,7 @@ describe("RoboHydra plugin load system", function() {
         var pluginName = 'external-scenarios-simple';
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        expect(Object.keys(hydra.getPlugin(pluginName).scenarios)).toEqual(
+        expect(Object.keys(hydra.getPlugin(pluginName).scenarios)).to.eql(
             ['firstScenario']);
     });
 
@@ -767,7 +840,7 @@ describe("RoboHydra plugin load system", function() {
         var pluginName = 'external-scenarios-mixed';
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        expect(Object.keys(hydra.getPlugin(pluginName).scenarios).sort()).toEqual(
+        expect(Object.keys(hydra.getPlugin(pluginName).scenarios).sort()).to.eql(
             ['external', 'internal']);
     });
 
@@ -777,7 +850,7 @@ describe("RoboHydra plugin load system", function() {
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
         var scenarios = Object.keys(hydra.getPlugin(pluginName).scenarios);
-        expect(scenarios.sort()).toEqual(['firstTest', 'secondTest']);
+        expect(scenarios.sort()).to.eql(['firstTest', 'secondTest']);
     });
 
     it("doesn't allow internal and external scenarios with the same name", function() {
@@ -786,7 +859,7 @@ describe("RoboHydra plugin load system", function() {
         var pluginPath = path.join(__dirname, 'plugins', pluginName);
         expect(function() {
             hydra.registerPluginObject(pluginObjectFromPath(pluginPath));
-        }).toThrow({name: "InvalidRoboHydraPluginException"});
+        }).to.throw(InvalidRoboHydraPluginException);
     });
 });
 
@@ -795,8 +868,8 @@ describe("RoboHydra scenario system", function() {
 
     it("has '*default*' as the default scenario", function() {
         var hydra = new RoboHydra();
-        expect(hydra.currentScenario).toEqual({plugin: '*default*',
-                                               scenario: '*default*'});
+        expect(hydra.currentScenario).to.eql({plugin: '*default*',
+                                              scenario: '*default*'});
     });
 
     it("can start scenarios", function() {
@@ -810,15 +883,15 @@ describe("RoboHydra scenario system", function() {
             }
         }));
         hydra.startScenario('plugin', 'simpleTest');
-        expect(hydra.currentScenario).toEqual({plugin: 'plugin',
-                                               scenario: 'simpleTest'});
+        expect(hydra.currentScenario).to.eql({plugin: 'plugin',
+                                              scenario: 'simpleTest'});
     });
 
     it("throws an exception when starting non-existent scenarios", function() {
         var hydra = new RoboHydra();
         expect(function() {
             hydra.startScenario('plugin', 'simpleTest');
-        }).toThrow({name: "InvalidRoboHydraScenarioException"});
+        }).to.throw(InvalidRoboHydraScenarioException);
     });
 
     it("can stop scenarios", function() {
@@ -833,8 +906,8 @@ describe("RoboHydra scenario system", function() {
         }));
         hydra.startScenario('plugin', 'simpleTest');
         hydra.stopScenario();
-        expect(hydra.currentScenario).toEqual({plugin:   '*default*',
-                                               scenario: '*default*'});
+        expect(hydra.currentScenario).to.eql({plugin:   '*default*',
+                                              scenario: '*default*'});
     });
 
     it("stops the previous scenario when starting a new one", function() {
@@ -857,8 +930,8 @@ describe("RoboHydra scenario system", function() {
         }));
         hydra.startScenario('plugin', 'simpleTest');
         hydra.startScenario('plugin2', 'anotherSimpleTest');
-        expect(hydra.currentScenario).toEqual({plugin:   'plugin2',
-                                               scenario: 'anotherSimpleTest'});
+        expect(hydra.currentScenario).to.eql({plugin:   'plugin2',
+                                              scenario: 'anotherSimpleTest'});
     });
 
     it("doesn't activate scenario heads if no scenario is active", function(done) {
@@ -873,7 +946,7 @@ describe("RoboHydra scenario system", function() {
             }
         }));
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.statusCode).toEqual(404);
+            expect(this.statusCode).to.equal(404);
             done();
         }));
     });
@@ -892,7 +965,7 @@ describe("RoboHydra scenario system", function() {
         }));
         hydra.startScenario('plugin', 'someTest');
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.statusCode).toEqual(200);
+            expect(this.statusCode).to.equal(200);
             done();
         }));
     });
@@ -913,7 +986,7 @@ describe("RoboHydra scenario system", function() {
         }));
         hydra.startScenario('plugin', 'someTest');
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.body).toHaveEqualBody(content1);
+            expect(this.body).to.haveEqualBody(content1);
             done();
         }));
     });
@@ -938,10 +1011,10 @@ describe("RoboHydra scenario system", function() {
         }));
         hydra.startScenario('plugin', 'someTest');
         hydra.handle(simpleReq('/'), new Response(function(evt) {
-            expect(evt.response.body.toString()).toEqual(resp1);
+            expect(evt.response.body.toString()).to.equal(resp1);
             hydra.startScenario('plugin', 'someTest');
             hydra.handle(simpleReq('/'), new Response(function(evt2) {
-                expect(evt2.response.body.toString()).toEqual(resp1);
+                expect(evt2.response.body.toString()).to.equal(resp1);
                 done();
             }));
         }));
@@ -961,7 +1034,7 @@ describe("RoboHydra scenario system", function() {
         hydra.startScenario('plugin', 'someTest');
         hydra.stopScenario();
         hydra.handle(simpleReq(path), new Response(function() {
-            expect(this.statusCode).toEqual(404);
+            expect(this.statusCode).to.equal(404);
             done();
         }));
     });
@@ -983,10 +1056,10 @@ describe("RoboHydra scenario system", function() {
         hydra.startScenario('plugin', 'someTest');
         hydra.startScenario('plugin', 'anotherTest');
         var res = new Response(function() {
-            expect(res.statusCode).toEqual(404);
+            expect(res.statusCode).to.equal(404);
 
             var res2 = new Response(function() {
-                expect(res2.statusCode).toEqual(200);
+                expect(res2.statusCode).to.equal(200);
                 done();
             });
             hydra.handle(new Request({url: path2}), res2);
@@ -1003,11 +1076,11 @@ describe("RoboHydra scenario system", function() {
             ]}}
         }));
         hydra.startScenario('plugin', 'testWithAssertion');
-        expect(hydra).toHaveTestResult('plugin',
-                                       'testWithAssertion',
-                                       {result: undefined,
-                                        passes: [],
-                                        failures: []});
+        expect(hydra).to.haveTestResult('plugin',
+                                        'testWithAssertion',
+                                        {result: undefined,
+                                         passes: [],
+                                         failures: []});
     });
 
     it("can execute and count a passing assertion", function(done) {
@@ -1026,10 +1099,10 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(hydra).toHaveTestResult('plugin', 'testWithAssertion',
-                                               {result: 'pass',
-                                                passes: [assertionMessage],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('plugin', 'testWithAssertion',
+                                                {result: 'pass',
+                                                 passes: [assertionMessage],
+                                                 failures: []});
                 done();
             })
         );
@@ -1049,11 +1122,11 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(hydra).toHaveTestResult('plugin',
-                                               'testWithAssertion',
-                                               {result: 'fail',
-                                                passes: [],
-                                                failures: [assertionMessage]});
+                expect(hydra).to.haveTestResult('plugin',
+                                                'testWithAssertion',
+                                                {result: 'fail',
+                                                 passes: [],
+                                                 failures: [assertionMessage]});
                 done();
             })
         );
@@ -1076,7 +1149,7 @@ describe("RoboHydra scenario system", function() {
                 hydra.handle(
                     simpleReq('/p'),
                     new Response(function() {
-                        expect(hydra).toHaveTestResult(
+                        expect(hydra).to.haveTestResult(
                             'plugin',
                             'testWithAssertion',
                             {result: 'fail',
@@ -1105,17 +1178,17 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/f'),
             new Response(function() {
-                expect(hydra).toHaveTestResult('plugin',
-                                               'testWithAssertion',
-                                               {result: 'fail',
-                                                passes: [],
-                                                failures: [failMessage]});
+                expect(hydra).to.haveTestResult('plugin',
+                                                'testWithAssertion',
+                                                {result: 'fail',
+                                                 passes: [],
+                                                 failures: [failMessage]});
                 hydra.startScenario('plugin', 'testWithAssertion');
-                expect(hydra).toHaveTestResult('plugin',
-                                               'testWithAssertion',
-                                               {result: undefined,
-                                                passes: [],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('plugin',
+                                                'testWithAssertion',
+                                                {result: undefined,
+                                                 passes: [],
+                                                 failures: []});
                 done();
             })
         );
@@ -1133,11 +1206,11 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/p'),
             new Response(function() {
-                expect(hydra).toHaveTestResult('*default*',
-                                               '*default*',
-                                               {result: 'pass',
-                                                passes: [passMessage],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('*default*',
+                                                '*default*',
+                                                {result: 'pass',
+                                                 passes: [passMessage],
+                                                 failures: []});
                 done();
             })
         );
@@ -1158,11 +1231,11 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/p'),
             new Response(function() {
-                expect(hydra).toHaveTestResult('*default*',
-                                               '*default*',
-                                               {result: 'pass',
-                                                passes: [passMessage],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('*default*',
+                                                '*default*',
+                                                {result: 'pass',
+                                                 passes: [passMessage],
+                                                 failures: []});
                 done();
             })
         );
@@ -1182,11 +1255,11 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/p'),
             new Response(function() {
-                expect(hydra).toHaveTestResult('plugin',
-                                               'testWithAssertion',
-                                               {result: 'pass',
-                                                passes: [passMessage],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('plugin',
+                                                'testWithAssertion',
+                                                {result: 'pass',
+                                                 passes: [passMessage],
+                                                 failures: []});
                 done();
             })
         );
@@ -1207,11 +1280,11 @@ describe("RoboHydra scenario system", function() {
             simpleReq('/p'),
             new Response(function() {
                 hydra.stopScenario();
-                expect(hydra).toHaveTestResult('plugin',
-                                               'testWithAssertion',
-                                               {result: 'pass',
-                                                passes: [passMessage],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('plugin',
+                                                'testWithAssertion',
+                                                {result: 'pass',
+                                                 passes: [passMessage],
+                                                 failures: []});
                 done();
             })
         );
@@ -1233,11 +1306,11 @@ describe("RoboHydra scenario system", function() {
             simpleReq('/p'),
             new Response(function() {
                 hydra.startScenario('plugin', 'anotherTest');
-                expect(hydra).toHaveTestResult('plugin',
-                                               'scenarioWithAssertion',
-                                               {result: 'pass',
-                                                passes: [passMessage],
-                                                failures: []});
+                expect(hydra).to.haveTestResult('plugin',
+                                                'scenarioWithAssertion',
+                                                {result: 'pass',
+                                                 passes: [passMessage],
+                                                 failures: []});
                 done();
             })
         );
@@ -1263,8 +1336,8 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(executesAfterAssertion).toBeTrue();
-                expect(testResult).toBeFalse();
+                expect(executesAfterAssertion).to.be.true;
+                expect(testResult).to.be.false;
                 done();
             })
         );
@@ -1290,8 +1363,8 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(executesAfterAssertion).toBeTrue();
-                expect(testResult).toBeTrue();
+                expect(executesAfterAssertion).to.be.true;
+                expect(testResult).to.be.true;
                 done();
             })
         );
@@ -1317,7 +1390,7 @@ describe("RoboHydra scenario system", function() {
         hydra.handle(
             simpleReq('/'),
             new Response(function() {
-                expect(hydra).toHaveTestResult(
+                expect(hydra).to.haveTestResult(
                     'plugin',
                     'testWithAssertion',
                     {result: 'fail',
@@ -1340,7 +1413,7 @@ describe("RoboHydra scenario system", function() {
                 }
             }
         }));
-        expect(hydra.getPlugin('plugin').scenarios.testWithInstructions.instructions).toEqual(instructions);
+        expect(hydra.getPlugin('plugin').scenarios.testWithInstructions.instructions).to.equal(instructions);
     });
 });
 
@@ -1360,7 +1433,7 @@ describe("Fixture system", function() {
     it("can load basic fixtures", function(done) {
         this.hydra.handle(simpleReq('/fixtures/basic.txt'),
                           new Response(function() {
-                              expect(this.body.toString()).toMatch(
+                              expect(this.body.toString()).to.match(
                                   new RegExp('Simple fixture'));
                               done();
                           }));
@@ -1369,7 +1442,7 @@ describe("Fixture system", function() {
     it("fails when the fixture doesn't exist", function(done) {
         this.hydra.handle(simpleReq('/fixtures/non-existent'),
                           new Response(function() {
-                              expect(this.statusCode).toEqual(500);
+                              expect(this.statusCode).to.equal(500);
                               done();
                           }));
     });
@@ -1377,7 +1450,7 @@ describe("Fixture system", function() {
     it("loads non-ASCII fixtures", function(done) {
         this.hydra.handle(simpleReq('/fixtures/non-ascii.txt'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqualText(
+                              expect(this.body.toString()).to.equal(
                                   'Velázquez\n');
                               done();
                           }));
@@ -1386,7 +1459,7 @@ describe("Fixture system", function() {
     it("doesn't try to load fixtures from other directories", function(done) {
         this.hydra.handle(simpleReq('/absolute-directory-fixture'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqualText(
+                              expect(this.body.toString()).to.equal(
                                   'This is a fake /etc/passwd\n');
                               done();
                           }));
@@ -1395,7 +1468,7 @@ describe("Fixture system", function() {
     it("doesn't allow leaving the fixture directory", function(done) {
         this.hydra.handle(simpleReq('/relative-directory-fixture'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqualText(
+                              expect(this.body.toString()).to.equal(
                                   'This is a fake /etc/passwd\n');
                               done();
                           }));
@@ -1405,7 +1478,7 @@ describe("Fixture system", function() {
         this.hydra.startScenario('simple-fixtures', 'fixtureLoader');
         this.hydra.handle(simpleReq('/external-test-fixture'),
                           new Response(function() {
-                              expect(this.body.toString()).toEqualText(
+                              expect(this.body.toString()).to.equal(
                                   'Simple fixture\n');
                               done();
                           }));
@@ -1419,20 +1492,20 @@ describe("Request object", function() {
     it("parses the body", function() {
         var req = new Request({url: '/foo/bar',
                                rawBody: new Buffer("foo=bar&qux=meh")});
-        expect(req.bodyParams.foo).toEqual("bar");
-        expect(req.bodyParams.qux).toEqual("meh");
+        expect(req.bodyParams.foo).to.equal("bar");
+        expect(req.bodyParams.qux).to.equal("meh");
     });
 
     it("doesn't freak out if there's no body", function() {
         expect(function() {
             /*jshint nonew: false*/
             new Request({url: '/foo/bar'});
-        }).not.toThrow();
+        }).not.to.throw();
     });
 
     it("normalises the HTTP method name", function() {
         var req = new Request({url: '/foo/bar', method: 'PoSt'});
-        expect(req.method).toEqual('POST');
+        expect(req.method).to.equal('POST');
     });
 
     describe("body property", function() {
@@ -1452,11 +1525,11 @@ describe("Request object", function() {
                                           rawBody: new Buffer("<madeup/>"),
                                           headers: {'content-type': 'application/octet-stream'}});
 
-            expect(reqNoCT.body).toEqual(null);
-            expect(reqEmptyCT.body).toEqual(null);
-            expect(reqInvalidCT.body).toEqual(null);
-            expect(reqOctetStm.body).toEqual(null);
-            expect(reqTextXml.body).toEqual(null);
+            expect(reqNoCT.body).to.equal(null);
+            expect(reqEmptyCT.body).to.equal(null);
+            expect(reqInvalidCT.body).to.equal(null);
+            expect(reqOctetStm.body).to.equal(null);
+            expect(reqTextXml.body).to.equal(null);
         });
 
         it("is an object for 'application/json' content type", function() {
@@ -1466,7 +1539,7 @@ describe("Request object", function() {
                                    rawBody: data,
                                    headers: {'content-type': 'application/json'}});
 
-            expect(req.body).toEqual(obj);
+            expect(req.body).to.eql(obj);
         });
 
         it("is null for 'application/json' content type but invalid JSON", function() {
@@ -1475,7 +1548,7 @@ describe("Request object", function() {
                                    rawBody: data,
                                    headers: {'content-type': 'application/json' }});
 
-            expect(req.body).toEqual(null);
+            expect(req.body).to.equal(null);
         });
 
         it("is null for 'application/json' content type but invalid 'charset'", function() {
@@ -1486,7 +1559,7 @@ describe("Request object", function() {
                                    headers: {'content-type': 'application/json',
                                              'charset': 'utf-16' }});
 
-            expect(req.body).toEqual(null);
+            expect(req.body).to.equal(null);
         });
 
         it("is a valid string for 'text/html' content type", function() {
@@ -1495,7 +1568,7 @@ describe("Request object", function() {
                                    rawBody: data,
                                    headers: {'content-type': 'text/html'}});
 
-            expect(req.body).toEqual(data.toString());
+            expect(req.body).to.equal(data.toString());
         });
 
         it("is a valid string for 'text/plain' content-type", function() {
@@ -1504,7 +1577,7 @@ describe("Request object", function() {
                                    rawBody: data,
                                    headers: {'content-type': 'text/plain'}});
 
-            expect(req.body).toEqual(data.toString());
+            expect(req.body).to.equal(data.toString());
         });
 
         it("picks up charset from 2-part content-type headers", function() {
@@ -1515,7 +1588,7 @@ describe("Request object", function() {
                 new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'text/plain;charset=UTF-8' }});
-            }).not.toThrow();
+            }).not.to.throw();
         });
 
         it("picks up charset from the actual charset header", function() {
@@ -1526,7 +1599,7 @@ describe("Request object", function() {
                                    headers: {'content-type': 'text/plain',
                                              'charset': targetCharset }});
 
-            expect(req.body).toEqual(data.toString(targetCharset.replace('-', '')));  
+            expect(req.body).to.equal(data.toString(targetCharset.replace('-', '')));
         });
 
         it("prefers charset header to the value in content-type", function() {
@@ -1538,7 +1611,7 @@ describe("Request object", function() {
                                    headers: {'content-type': 'text/plain;charset=' + charsetToAvoid,
                                              'charset': targetCharset }});
 
-            expect(req.body).toEqual(data.toString(targetCharset.replace('-', '')));
+            expect(req.body).to.equal(data.toString(targetCharset.replace('-', '')));
         });
 
         it("is null for invalid charsets", function() {
@@ -1552,24 +1625,24 @@ describe("Request object", function() {
                                    rawBody: data,
                                    headers: {'content-type': 'text/plain',
                                              'charset': targetCharset }});    
-            }).not.toThrow();
-            expect(plainreq.body).toEqual(null);
+            }).not.to.throw();
+            expect(plainreq.body).to.equal(null);
 
             expect(function() {
                 htmlreq = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'text/html',
                                              'charset': targetCharset }});    
-            }).not.toThrow();
-            expect(htmlreq.body).toEqual(null);
+            }).not.to.throw();
+            expect(htmlreq.body).to.equal(null);
         });
 
         it("check that body parses x-www-form-urlencoded, too", function () {
             var req = new Request({url: '/',
                                    rawBody: "foo=bar&qux=fluxx",
                                    headers: {'content-type': 'application/x-www-form-urlencoded'}});
-            expect(req.body.foo).toEqual("bar");
-            expect(req.body.qux).toEqual("fluxx");
+            expect(req.body.foo).to.equal("bar");
+            expect(req.body.qux).to.equal("fluxx");
         });
     });
 });
@@ -1581,34 +1654,34 @@ describe("Response object", function() {
         var r = new Response();
         expect(function() {
             r.end();
-        }).toThrow({name: "InvalidRoboHydraResponseException"});
+        }).to.throw(InvalidRoboHydraResponseException);
     });
 
     it("supports basic observers", function() {
-        var headHandler = this.spy();
-        var dataHandler = this.spy();
-        var endHandler  = this.spy();
+        var headHandler = spy();
+        var dataHandler = spy();
+        var endHandler  = spy();
         var r = new Response().on('head', headHandler).
                                on('data', dataHandler).
                                on('end',  endHandler);
         r.writeHead(200);
-        expect(headHandler).toHaveBeenCalled();
-        expect(dataHandler).not.toHaveBeenCalled();
-        expect(endHandler).not.toHaveBeenCalled();
+        expect(headHandler).to.haveBeenCalled();
+        expect(dataHandler).not.to.haveBeenCalled();
+        expect(endHandler).not.to.haveBeenCalled();
         r.write("");
-        expect(dataHandler).toHaveBeenCalled();
-        expect(endHandler).not.toHaveBeenCalled();
+        expect(dataHandler).to.haveBeenCalled();
+        expect(endHandler).not.to.haveBeenCalled();
         r.end();
-        expect(endHandler).toHaveBeenCalled();
+        expect(endHandler).to.haveBeenCalled();
     });
 
     it("supports more than one listener for each event", function() {
-        var headHandler1 = this.spy();
-        var dataHandler1 = this.spy();
-        var endHandler1  = this.spy();
-        var headHandler2 = this.spy();
-        var dataHandler2 = this.spy();
-        var endHandler2  = this.spy();
+        var headHandler1 = spy();
+        var dataHandler1 = spy();
+        var endHandler1  = spy();
+        var headHandler2 = spy();
+        var dataHandler2 = spy();
+        var endHandler2  = spy();
         var r = new Response().on('head', headHandler1).
                                on('data', dataHandler1).
                                on('end',  endHandler1).
@@ -1617,12 +1690,12 @@ describe("Response object", function() {
                                on('end',  endHandler2);
         r.write("");
         r.end();
-        expect(headHandler1).toHaveBeenCalled();
-        expect(dataHandler1).toHaveBeenCalled();
-        expect(endHandler1).toHaveBeenCalled();
-        expect(headHandler2).toHaveBeenCalled();
-        expect(dataHandler2).toHaveBeenCalled();
-        expect(endHandler2).toHaveBeenCalled();
+        expect(headHandler1).to.haveBeenCalled();
+        expect(dataHandler1).to.haveBeenCalled();
+        expect(endHandler1).to.haveBeenCalled();
+        expect(headHandler2).to.haveBeenCalled();
+        expect(dataHandler2).to.haveBeenCalled();
+        expect(endHandler2).to.haveBeenCalled();
     });
 
     it("produces a head event on (but before!) the first data event", function() {
@@ -1639,61 +1712,61 @@ describe("Response object", function() {
             });
         r.write("");
         r.end();
-        expect(callOrder).toEqual(["head", "data", "end"]);
+        expect(callOrder).to.eql(["head", "data", "end"]);
     });
 
     it("doesn't produce a head event if writeHead was called", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r = new Response().on('head', headHandler).
-                               on('end',  this.spy());
+                               on('end',  spy());
         r.writeHead(200);
         r.write("");
-        expect(headHandler).toHaveBeenCalledOnce();
+        expect(headHandler).to.haveBeenCalledOnce();
     });
 
     it("doesn't produce a head event if one was produced already", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r = new Response().on('head', headHandler).
-                               on('end',  this.spy());
+                               on('end',  spy());
         r.write("");
         r.write("");
-        expect(headHandler).toHaveBeenCalledOnce();
+        expect(headHandler).to.haveBeenCalledOnce();
     });
 
     it("calls explicit 'head' event handler with empty header object if no headers", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r = new Response().on('head', headHandler).
-                               on('end',  this.spy());
+                               on('end',  spy());
         var statusCode = 200;
         r.writeHead(statusCode);
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: {}});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: {}});
     });
 
     it("calls implicit 'head' event handler with empty header object if no headers", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r = new Response().on('head', headHandler).
-                               on('end',  this.spy());
+                               on('end',  spy());
         var statusCode = 200;
         r.statusCode = statusCode;
         r.write("");
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: {}});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: {}});
     });
 
     it("calls implicit 'head' event with correct headers", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r = new Response().on('head', headHandler).
-                               on('end',  this.spy());
+                               on('end',  spy());
         var statusCode = 200, headers = {foobar: 'qux'};
         r.statusCode = statusCode;
         r.headers    = headers;
         r.write("");
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: headers});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: headers});
     });
 
     it("produces a head event on (but before!) 'end', if there was no data", function() {
@@ -1702,8 +1775,8 @@ describe("Response object", function() {
         var r = new Response().
             on('head', function(evt) {
                 var sc = evt.statusCode, h = evt.headers;
-                expect(sc).toEqual(statusCode);
-                expect(h.location).toEqual(locationHeader);
+                expect(sc).to.equal(statusCode);
+                expect(h.location).to.equal(locationHeader);
                 callOrder.push("head");
             }).
             on('data', function() {
@@ -1715,7 +1788,7 @@ describe("Response object", function() {
         r.statusCode = statusCode;
         r.headers = {location: locationHeader};
         r.end();
-        expect(callOrder).toEqual(["head", "end"]);
+        expect(callOrder).to.eql(["head", "end"]);
     });
 
     it("doesn't produce a head event on 'end', if there was one already", function() {
@@ -1724,8 +1797,8 @@ describe("Response object", function() {
         var r = new Response().
             on('head', function(evt) {
                 var sc = evt.statusCode, h = evt.headers;
-                expect(sc).toEqual(statusCode);
-                expect(h.location).toEqual(locationHeader);
+                expect(sc).to.equal(statusCode);
+                expect(h.location).to.equal(locationHeader);
                 callOrder.push("head");
             }).
             on('data', function() {
@@ -1736,13 +1809,13 @@ describe("Response object", function() {
             });
         r.writeHead(statusCode, {location: locationHeader});
         r.end();
-        expect(callOrder).toEqual(["head", "end"]);
+        expect(callOrder).to.eql(["head", "end"]);
     });
 
     it("allows easy response chaining (deprecated)", function() {
-        var headHandler = this.spy();
-        var dataHandler = this.spy();
-        var endHandler  = this.spy();
+        var headHandler = spy();
+        var dataHandler = spy();
+        var endHandler  = spy();
         var r1 = new Response().on('head', headHandler).
                                 on('data', dataHandler).
                                 on('end',  endHandler);
@@ -1751,26 +1824,26 @@ describe("Response object", function() {
         // Do things on r2, expect them to happen on r1
         var statusCode = 200, headers = {foobar: 'qux'};
         r2.writeHead(statusCode, headers);
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: headers});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: headers});
         var buffer = new Buffer("foobar");
         r2.write(buffer);
-        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
-                                                  data: buffer});
+        expect(dataHandler).to.haveBeenCalledWith({type: 'data',
+                                                   data: buffer});
         var buffer2 = new Buffer("qux");
         r2.write(buffer2);
-        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
-                                                  data: buffer2});
+        expect(dataHandler).to.haveBeenCalledWith({type: 'data',
+                                                   data: buffer2});
         r2.end();
-        expect(endHandler).toHaveBeenCalledWith({type: 'end',
-                                                 response: r1});
+        expect(endHandler).to.haveBeenCalledWith({type: 'end',
+                                                  response: r1});
     });
 
     it("allows follow other responses", function() {
-        var headHandler = this.spy();
-        var dataHandler = this.spy();
-        var endHandler  = this.spy();
+        var headHandler = spy();
+        var dataHandler = spy();
+        var endHandler  = spy();
         var r1 = new Response().on('head', headHandler).
                                 on('data', dataHandler).
                                 on('end',  endHandler);
@@ -1779,27 +1852,27 @@ describe("Response object", function() {
         // Do things on r2, expect them to happen on r1
         var statusCode = 200, headers = {foobar: 'qux'};
         r2.writeHead(statusCode, headers);
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: headers});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: headers});
         var buffer = new Buffer("foobar");
         r2.write(buffer);
-        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
-                                                  data: buffer});
+        expect(dataHandler).to.haveBeenCalledWith({type: 'data',
+                                                   data: buffer});
         var buffer2 = new Buffer("qux");
         r2.write(buffer2);
-        expect(dataHandler).toHaveBeenCalledWith({type: 'data',
-                                                  data: buffer2});
+        expect(dataHandler).to.haveBeenCalledWith({type: 'data',
+                                                   data: buffer2});
         r2.end();
-        expect(endHandler).toHaveBeenCalledWith({type: 'end',
-                                                 response: r1});
+        expect(endHandler).to.haveBeenCalledWith({type: 'end',
+                                                  response: r1});
     });
 
     it("triggers implicit head events when chaining (deprecated)", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r1 = new Response().on('head', headHandler).
-                                on('data', this.spy()).
-                                on('end',  this.spy());
+                                on('data', spy()).
+                                on('end',  spy());
         var r2 = new Response().chain(r1);
 
         // Do things on r2, expect them to happen on r1
@@ -1807,16 +1880,16 @@ describe("Response object", function() {
         r2.statusCode = statusCode;
         r2.headers    = headers;
         r2.write("foobar");
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: headers});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: headers});
     });
 
     it("triggers implicit head events when following", function() {
-        var headHandler = this.spy();
+        var headHandler = spy();
         var r1 = new Response().on('head', headHandler).
-                                on('data', this.spy()).
-                                on('end',  this.spy());
+                                on('data', spy()).
+                                on('end',  spy());
         var r2 = r1.follow(new Response());
 
         // Do things on r2, expect them to happen on r1
@@ -1824,42 +1897,42 @@ describe("Response object", function() {
         r2.statusCode = statusCode;
         r2.headers    = headers;
         r2.write("foobar");
-        expect(headHandler).toHaveBeenCalledWith({type: 'head',
-                                                  statusCode: statusCode,
-                                                  headers: headers});
+        expect(headHandler).to.haveBeenCalledWith({type: 'head',
+                                                   statusCode: statusCode,
+                                                   headers: headers});
     });
 
     it("doesn't write an empty body when copying responses", function() {
         var r1 = new Response(function() {});
-        r1.write = this.spy();
+        r1.write = spy();
         var r2 = new Response(function() {});
 
         r2.statusCode = 200;
         r2.end();
         r1.copyFrom(r2);
         r1.end();
-        expect(r1.write).not.toHaveBeenCalled();
+        expect(r1.write).not.to.haveBeenCalled();
     });
 
     it("doesn't break streaming when using copyFrom", function() {
-        var dataSpy = this.spy();
+        var dataSpy = spy();
         var r1 = new Response().on('data', dataSpy).on('end', function() {});
-        r1.write = this.spy();
+        r1.write = spy();
         var r2 = new Response(function() {});
 
         r2.write("foobar");
         r2.end();
         r1.copyFrom(r2);
-        expect(dataSpy).not.toHaveBeenCalled();
+        expect(dataSpy).not.to.haveBeenCalled();
         r1.end();
-        expect(dataSpy).toHaveBeenCalledOnce();
+        expect(dataSpy).to.haveBeenCalledOnce();
     });
 });
 
 describe("Configuration resolver", function() {
     it("should return simple, correct configuration as-is", function() {
         var config = {plugins: [{name: "logger", config: {}}]};
-        expect(resolveConfig(config)).toEqual(config);
+        expect(resolveConfig(config)).to.eql(config);
     });
 
     it("should reject configurations with unknown keys", function() {
@@ -1867,7 +1940,7 @@ describe("Configuration resolver", function() {
                       madeUpKey: true};
         expect(function() {
             resolveConfig(config);
-        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
+        }).to.throw(InvalidRoboHydraConfigurationException);
     });
 
     it("should accept all valid configuration keys", function() {
@@ -1879,19 +1952,19 @@ describe("Configuration resolver", function() {
                       sslOptions: {},
                       port: 3001,
                       quiet: false};
-        expect(resolveConfig(config)).toEqual(config);
+        expect(resolveConfig(config)).to.eql(config);
     });
 
     it("should inject default configuration into plugin configurations", function() {
         var config = {pluginConfigDefaults: {foo: "bar"},
                       plugins: [{name: "logger", config: {}}]};
-        expect(resolveConfig(config).plugins[0].config.foo).toEqual("bar");
+        expect(resolveConfig(config).plugins[0].config.foo).to.equal("bar");
     });
 
     it("should inject plugin defaults also in compact notation", function() {
         var config = {pluginConfigDefaults: {foo: "bar"},
                       plugins: ["logger"]};
-        expect(resolveConfig(config).plugins[0].config.foo).toEqual("bar");
+        expect(resolveConfig(config).plugins[0].config.foo).to.equal("bar");
     });
 
     it("should never mix configuration from different plugins", function() {
@@ -1901,6 +1974,6 @@ describe("Configuration resolver", function() {
                                  "config": {
                                      "foo": "fail"
                                  }}]};
-        expect(resolveConfig(config).plugins[0].config.foo).not.toEqual("fail");
+        expect(resolveConfig(config).plugins[0].config.foo).not.to.equal("fail");
     });
 });

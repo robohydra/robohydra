@@ -1,10 +1,9 @@
 /*global describe, it*/
 
-var buster = require("buster");
+var mocha = require("mocha");
+var chai = require("chai"),
+    expect = chai.expect;
 var proxyCacheUtils = require("../plugins/proxy-cache/utils.js");
-
-buster.spec.expose();
-var expect = buster.expect;
 
 describe("Proxy-cache plugin", function() {
     "use strict";
@@ -18,7 +17,7 @@ describe("Proxy-cache plugin", function() {
         };
         for (var url in expectedUrls) {
             var cachePath = proxyCacheUtils.cacheFileForUrl(url, "dir");
-            expect(cachePath).toEqual(expectedUrls[url]);
+            expect(cachePath).to.equal(expectedUrls[url]);
         }
     });
 
@@ -29,7 +28,7 @@ describe("Proxy-cache plugin", function() {
         };
         for (var url in expectedUrls) {
             var cachePath = proxyCacheUtils.cacheFileForUrl(url, "dir");
-            expect(cachePath).toEqual(expectedUrls[url]);
+            expect(cachePath).to.equal(expectedUrls[url]);
         }
     });
 });

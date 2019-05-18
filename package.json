@@ -4,7 +4,8 @@
   "bin": "./bin/robohydra.js",
   "main": "./lib/exports.js",
   "scripts": {
-    "test": "node_modules/.bin/buster-test"
+    "test": "node_modules/.bin/mocha",
+    "watch": "node_modules/.bin/mocha -w"
   },
   "dependencies": {
     "commander": "^2.19.0",
@@ -15,9 +16,8 @@
     "ws": "^1.1.2"
   },
   "devDependencies": {
-    "buster": "^0.7.0",
-    "samsam": "^1.1.0",
-    "sinon": "^1.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
     "snyk": "^1.8.4"
   },
   "repository": {

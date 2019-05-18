@@ -1,8 +1,11 @@
 /*global describe, it*/
 
-var buster = require("buster"),
-    zlib   = require("zlib"),
+var mocha = require("mocha");
+var chai = require("chai"),
+    expect = chai.expect;
+var zlib   = require("zlib"),
     fs     = require("fs");
+
 var helpers         = require("./helpers"),
     checkRouting    = helpers.checkRouting,
     withResponse    = helpers.withResponse,
@@ -20,11 +23,9 @@ var heads                   = require("../lib/heads"),
     RoboHydraHeadFilter     = heads.RoboHydraHeadFilter,
     RoboHydraHeadWatchdog   = heads.RoboHydraHeadWatchdog,
     RoboHydraHeadReplayer   = heads.RoboHydraHeadReplayer;
-var InvalidRoboHydraHeadException =
-        require("../lib/exceptions").InvalidRoboHydraHeadException;
-
-buster.spec.expose();
-var expect = buster.expect;
+var exceptions = require("../lib/exceptions"),
+    InvalidRoboHydraHeadException = exceptions.InvalidRoboHydraHeadException,
+    InvalidRoboHydraHeadStateException = exceptions.InvalidRoboHydraHeadStateException;
 
 describe("Generic RoboHydra heads", function() {
     "use strict";
@@ -33,21 +34,21 @@ describe("Generic RoboHydra heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHead({path: '/'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
 
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHead({handler: function() {}});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can have a name", function() {
         var head = new RoboHydraHead({name: 'foo',
                                       path: '/', handler: function() {}});
-        expect(head.name).toEqual('foo');
+        expect(head.name).to.equal('foo');
 
         var namelessHead = new RoboHydraHead({path: '/', handler: function() {}});
-        expect(namelessHead.name).not.toBeDefined();
+        expect(namelessHead.name).not.to.be.a('string');
     });
 
     it("can serve simple content", function(done) {
@@ -80,38 +81,38 @@ describe("Generic RoboHydra heads", function() {
         var detachedHead = new RoboHydraHead({detached: true,
                                               path: '/',
                                               handler: function() {}});
-        expect(detachedHead.attached()).toEqual(false);
+        expect(detachedHead.attached()).to.equal(false);
 
         var normalHead = new RoboHydraHead({path: '/', handler: function() {}});
-        expect(normalHead.attached()).toEqual(true);
+        expect(normalHead.attached()).to.equal(true);
 
         var explicitHead = new RoboHydraHead({detached: false,
                                               path: '/',
                                               handler: function() {}});
-        expect(explicitHead.attached()).toEqual(true);
+        expect(explicitHead.attached()).to.equal(true);
     });
 
     it("can be attached/detached dynamically", function() {
         var head = new RoboHydraHead({path: '/', handler: function() {}});
-        expect(head.attached()).toEqual(true);
+        expect(head.attached()).to.equal(true);
         head.detach();
-        expect(head.attached()).toEqual(false);
+        expect(head.attached()).to.equal(false);
         head.attach();
-        expect(head.attached()).toEqual(true);
+        expect(head.attached()).to.equal(true);
     });
 
     it("can't be attached/detached when already in that state", function() {
         var head = new RoboHydraHead({path: '/', handler: function() {}});
         expect(function() {
             head.attach();
-        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
-        expect(head.attached()).toEqual(true);
+        }).to.throw(InvalidRoboHydraHeadStateException);
+        expect(head.attached()).to.equal(true);
         head.detach();
-        expect(head.attached()).toEqual(false);
+        expect(head.attached()).to.equal(false);
         expect(function() {
             head.detach();
-        }).toThrow({name: "InvalidRoboHydraHeadStateException"});
-        expect(head.attached()).toEqual(false);
+        }).to.throw(InvalidRoboHydraHeadStateException);
+        expect(head.attached()).to.equal(false);
     });
 
     it("never dispatch any paths when detached", function() {
@@ -123,14 +124,14 @@ describe("Generic RoboHydra heads", function() {
 
         var paths = ['/foo', '/foo/bar'];
         [headStatic, headDynamic].forEach(function(head) {
-            expect(head).not.toHandle('/');
+            expect(head).not.to.handle('/');
             paths.forEach(function(path) {
-                expect(head).not.toHandle(path);
+                expect(head).not.to.handle(path);
             });
             head.attach();
-            expect(head).not.toHandle('/');
+            expect(head).not.to.handle('/');
             paths.forEach(function(path) {
-                expect(head).toHandle(path);
+                expect(head).to.handle(path);
             });
         });
     });
@@ -142,10 +143,10 @@ describe("Generic RoboHydra heads", function() {
 
         var head = new RoboHydraHead({path: '/foo/ba*', handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(path);
+            expect(head).to.handle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(path);
+            expect(head).not.to.handle(path);
         });
     });
 
@@ -158,10 +159,10 @@ describe("Generic RoboHydra heads", function() {
         var head = new RoboHydraHead({path: '/:controller/:action/:id',
                                       handler: function() {}});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(path);
+            expect(head).to.handle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(path);
+            expect(head).not.to.handle(path);
         });
     });
 
@@ -176,27 +177,27 @@ describe("Generic RoboHydra heads", function() {
                                                     method: 'GET',
                                                     handler: handler});
 
-        expect(headImplicit).toHandle(new Request({
+        expect(headImplicit).to.handle(new Request({
             url: '/',
             method: 'GET'
         }));
-        expect(headImplicit).toHandle(new Request({
+        expect(headImplicit).to.handle(new Request({
             url: '/',
             method: 'POST'
         }));
-        expect(headExplicitStar).toHandle(new Request({
+        expect(headExplicitStar).to.handle(new Request({
             url: '/',
             method: 'GET'
         }));
-        expect(headExplicitStar).toHandle(new Request({
+        expect(headExplicitStar).to.handle(new Request({
             url: '/',
             method: 'POST'
         }));
-        expect(headSpecificMethod).toHandle(new Request({
+        expect(headSpecificMethod).to.handle(new Request({
             url: '/',
             method: 'GET'
         }));
-        expect(headSpecificMethod).not.toHandle(new Request({
+        expect(headSpecificMethod).not.to.handle(new Request({
             url: '/',
             method: 'POST'
         }));
@@ -208,15 +209,15 @@ describe("Generic RoboHydra heads", function() {
                                       method: ['GeT', 'Options'],
                                       handler: handler});
 
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             method: 'geT'
         }));
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             method: 'optIONS'
         }));
-        expect(head).not.toHandle(new Request({
+        expect(head).not.to.handle(new Request({
             url: '/',
             method: 'POST'
         }));
@@ -228,10 +229,10 @@ describe("Generic RoboHydra heads", function() {
                                       hostname: 'example.com',
                                       handler: handler});
 
-        expect(head).toHandle(new Request({url: '/',
-                                           headers: {host: 'example.com'}}));
-        expect(head).not.toHandle(new Request({url: '/',
-                                               headers: {host: 'localhost'}}));
+        expect(head).to.handle(new Request({url: '/',
+                                            headers: {host: 'example.com'}}));
+        expect(head).not.to.handle(new Request({url: '/',
+                                                headers: {host: 'localhost'}}));
     });
 
     it("dispatch treats hostname as regex", function() {
@@ -240,19 +241,19 @@ describe("Generic RoboHydra heads", function() {
                                       hostname: 'local.*',
                                       handler: handler});
 
-        expect(head).not.toHandle(new Request({
+        expect(head).not.to.handle(new Request({
             url: '/',
             headers: {host: 'example.com'}
         }));
-        expect(head).not.toHandle(new Request({
+        expect(head).not.to.handle(new Request({
             url: '/',
             headers: {host: 'www.local'}
         }));
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             headers: {host: 'localhost'}
         }));
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             headers: {host: 'localserver'}
         }));
@@ -264,7 +265,7 @@ describe("Generic RoboHydra heads", function() {
                                       hostname: 'example.com',
                                       handler: handler});
 
-        expect(head).toHandle(new Request({
+        expect(head).to.handle(new Request({
             url: '/',
             headers: {host: 'example.com:3000'}
         }));
@@ -281,20 +282,20 @@ describe("Generic RoboHydra heads", function() {
                                       }});
 
         withResponse(head, '/article/show/123', function(res) {
-            expect(res).toMatchResponse('Response for /article/show/123');
-            expect(controller).toEqual('article');
-            expect(action).toEqual('show');
-            expect(id).toEqual('123');
+            expect(res).to.matchResponse('Response for /article/show/123');
+            expect(controller).to.equal('article');
+            expect(action).to.equal('show');
+            expect(id).to.equal('123');
             withResponse(head, '/page/edit/456/', function(res) {
-                expect(res).toMatchResponse('Response for /page/edit/456/');
-                expect(controller).toEqual('page');
-                expect(action).toEqual('edit');
-                expect(id).toEqual('456');
+                expect(res).to.matchResponse('Response for /page/edit/456/');
+                expect(controller).to.equal('page');
+                expect(action).to.equal('edit');
+                expect(id).to.equal('456');
                 withResponse(head, '/widget/search/term?page=2', function(res) {
-                    expect(res).toMatchResponse('Response for /widget/search/term?page=2');
-                    expect(controller).toEqual('widget');
-                    expect(action).toEqual('search');
-                    expect(id).toEqual('term');
+                    expect(res).to.matchResponse('Response for /widget/search/term?page=2');
+                    expect(controller).to.equal('widget');
+                    expect(action).to.equal('search');
+                    expect(id).to.equal('term');
                     done();
                 });
             });
@@ -321,7 +322,7 @@ describe("Generic RoboHydra heads", function() {
              headers: {'content-type': 'application/x-www-form-urlencoded'},
              postData: 'foo=bar'},
             function(/*res*/) {
-                expect(bodyParams.foo).toEqual('bar');
+                expect(bodyParams.foo).to.equal('bar');
                 done();
             }
         );
@@ -335,19 +336,19 @@ describe("Static content RoboHydra heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadStatic({});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
 
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadStatic({path: '/'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can't be created with extra, unknown properties", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadStatic({madeUpProperty: true});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can be created with only static content", function(done) {
@@ -381,7 +382,7 @@ describe("Static content RoboHydra heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadStatic({responses: []});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("cannot be created with responses with wrong properties", function() {
@@ -390,7 +391,7 @@ describe("Static content RoboHydra heads", function() {
             new RoboHydraHeadStatic({responses: [{content: "",
                                                   // Typo for "statusCode"
                                                   status: 500}]});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("return 404 when requesting unknown paths", function(done) {
@@ -411,10 +412,10 @@ describe("Static content RoboHydra heads", function() {
             var head = new RoboHydraHeadStatic({path: dispatchPath,
                                                 content: "Some test content"});
             validPaths.forEach(function(path) {
-                expect(head).toHandle(path);
+                expect(head).to.handle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not.toHandle(path);
+                expect(head).not.to.handle(path);
             });
         });
     });
@@ -426,17 +427,17 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({path: '/foo/[^/]+',
                                             content: "Some test content"});
         validPaths.forEach(function(path) {
-            expect(head).toHandle(path);
+            expect(head).to.handle(path);
         });
         invalidPaths.forEach(function(path) {
-            expect(head).not.toHandle(path);
+            expect(head).not.to.handle(path);
         });
     });
 
     it("know which paths they can dispatch by default", function() {
         var head = new RoboHydraHeadStatic({content: "Some test content"});
         ['/', '/foobar', '/foo/bar'].forEach(function(path) {
-            expect(head).toHandle(path);
+            expect(head).to.handle(path);
         });
     });
 
@@ -444,10 +445,10 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({content: ['one', 'two', {three: 3}]});
         withResponse(head, '/json', function(res) {
             var resultObject = JSON.parse(res.body);
-            expect(resultObject.length).toEqual(3);
-            expect(resultObject[0]).toEqual('one');
-            expect(resultObject[1]).toEqual('two');
-            expect(resultObject[2].three).toEqual(3);
+            expect(resultObject.length).to.equal(3);
+            expect(resultObject[0]).to.equal('one');
+            expect(resultObject[1]).to.equal('two');
+            expect(resultObject[2].three).to.equal(3);
             done();
         });
     });
@@ -457,7 +458,7 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({content: "<xml/>",
                                             contentType: contentType});
         withResponse(head, '/', function(res) {
-            expect(res.headers['content-type']).toEqual(contentType);
+            expect(res.headers['content-type']).to.equal(contentType);
             done();
         });
     });
@@ -465,7 +466,7 @@ describe("Static content RoboHydra heads", function() {
     it("return 'application/json' type by default when content is an object", function(done) {
         var head = new RoboHydraHeadStatic({content: {some: 'object'}});
         withResponse(head, '/', function(res) {
-            expect(res.headers['content-type']).toEqual("application/json");
+            expect(res.headers['content-type']).to.equal("application/json");
             done();
         });
     });
@@ -475,7 +476,7 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({content: {some: 'object'},
                                             contentType: contentType});
         withResponse(head, '/', function(res) {
-            expect(res.headers['content-type']).toEqual(contentType);
+            expect(res.headers['content-type']).to.equal(contentType);
             done();
         });
     });
@@ -487,7 +488,7 @@ describe("Static content RoboHydra heads", function() {
             statusCode: statusCode
         });
         withResponse(head, '/', function(res) {
-            expect(res.statusCode).toEqual(statusCode);
+            expect(res.statusCode).to.equal(statusCode);
             done();
         });
     });
@@ -498,7 +499,7 @@ describe("Static content RoboHydra heads", function() {
         var head = new RoboHydraHeadStatic({content: "<xml/>",
                                             headers: headers});
         withResponse(head, '/', function(res) {
-            expect(res.headers['x-random-header']).toEqual(headerValue);
+            expect(res.headers['x-random-header']).to.equal(headerValue);
             done();
         });
     });
@@ -531,7 +532,7 @@ describe("Static content RoboHydra heads", function() {
         ], function() {
             head.reset();
             withResponse(head, '/', function(res) {
-                expect(res.body.toString()).toEqual(response1);
+                expect(res.body.toString()).to.equal(response1);
                 done();
             });
         });
@@ -588,7 +589,7 @@ describe("Static content RoboHydra heads", function() {
                             {content: "response 2"}],
                 repeatMode: 'repeatlast'
             });
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can be configured to repeat the last response", function(done) {
@@ -606,7 +607,7 @@ describe("Static content RoboHydra heads", function() {
         ], function() {
             head.reset();
             withResponse(head, '/', function(res) {
-                expect(res.body.toString()).toEqual(response1);
+                expect(res.body.toString()).to.equal(response1);
                 done();
             });
         });
@@ -620,7 +621,7 @@ describe("Filesystem RoboHydra heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadFilesystem({mountPath: '/'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("serve files from default mountPath = /", function(done) {
@@ -741,10 +742,10 @@ describe("Filesystem RoboHydra heads", function() {
             var head = new RoboHydraHeadFilesystem({mountPath: dispatchPath,
                                                     documentRoot: '/var/www'});
             validPaths.forEach(function(path) {
-                expect(head).toHandle(path);
+                expect(head).to.handle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not.toHandle(path);
+                expect(head).not.to.handle(path);
             });
         });
     });
@@ -789,11 +790,11 @@ describe("Filesystem RoboHydra heads", function() {
             }
         });
         withResponse(head, '/json.txt', function(res) {
-            expect(res.headers['content-type']).toEqual("text/plain");
+            expect(res.headers['content-type']).to.equal("text/plain");
             withResponse(head, '/json.txt?var=val', function(res2) {
-                expect(res2.headers['content-type']).toEqual("text/plain");
+                expect(res2.headers['content-type']).to.equal("text/plain");
                 withResponse(head, '/json.nottxt', function(res3) {
-                    expect(res3.headers['content-type']).toEqual("text/x-fake");
+                    expect(res3.headers['content-type']).to.equal("text/x-fake");
                     done();
                 });
             });
@@ -812,7 +813,7 @@ describe("Filesystem RoboHydra heads", function() {
             })
         });
         withResponse(head, '/json.txt', function(res) {
-            expect(res.headers['last-modified']).toEqual(mtime.toUTCString());
+            expect(res.headers['last-modified']).to.equal(mtime.toUTCString());
             done();
         });
     });
@@ -831,7 +832,7 @@ describe("Filesystem RoboHydra heads", function() {
             })
         });
         withResponse(head, { path: '/json.txt', headers: headers }, function(res) {
-            expect(res.statusCode).toEqual(304);
+            expect(res.statusCode).to.equal(304);
             done();
         });
     });
@@ -959,7 +960,7 @@ describe("Filesystem RoboHydra heads", function() {
             res.send("Pass-through to " + req.url + "!");
         };
         withResponse(head, {path: '/test', nextFunction: next}, function(res) {
-            expect(res.body).toHaveEqualBody("Pass-through to /test!");
+            expect(res.body).to.haveEqualBody("Pass-through to /test!");
             done();
         });
     });
@@ -976,8 +977,8 @@ describe("Filesystem RoboHydra heads", function() {
             res.send("Pass-through to " + req.url + "!");
         };
         withResponse(head, {path: '/test', nextFunction: next}, function(res) {
-            expect(res.statusCode).toEqual(404);
-            expect(res.body).toHaveEqualBody("Not Found");
+            expect(res.statusCode).to.equal(404);
+            expect(res.body).to.haveEqualBody("Not Found");
             done();
         });
     });
@@ -990,7 +991,7 @@ describe("Proxying RoboHydra heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadProxy({mountPath: '/'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("proxy from default mountPath = /", function(done) {
@@ -1156,10 +1157,10 @@ describe("Proxying RoboHydra heads", function() {
                 proxyTo: 'http://www.example.com'
             });
             validPaths.forEach(function(path) {
-                expect(head).toHandle(path);
+                expect(head).to.handle(path);
             });
             invalidPaths.forEach(function(path) {
-                expect(head).not.toHandle(path);
+                expect(head).not.to.handle(path);
             });
         });
     });
@@ -1267,21 +1268,21 @@ describe("RoboHydra filtering heads", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadFilter({path: '/.*'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("cannot be created with a non-function 'filter' property", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadFilter({filter: ''});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can be created with only the 'filter' property", function() {
         expect(function() {
             /*jshint nonew: false*/
             new RoboHydraHeadFilter({filter: '/.*'});
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("filter trivial, non-compressed answers", function(done) {
@@ -1293,7 +1294,7 @@ describe("RoboHydra filtering heads", function() {
 
         var next = function(_, res) { res.send("foobar"); };
         withResponse(head, {path: '/test', nextFunction: next}, function(res) {
-            expect(res.body).toHaveEqualBody("FOOBAR");
+            expect(res.body).to.haveEqualBody("FOOBAR");
             done();
         });
     });
@@ -1315,9 +1316,9 @@ describe("RoboHydra filtering heads", function() {
             res.send(origBody);
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.body).toHaveEqualBody(expectedBody);
-            expect(res.statusCode).toEqual(statusCode);
-            expect(res.headers).toEqual(headers);
+            expect(res.body).to.haveEqualBody(expectedBody);
+            expect(res.statusCode).to.equal(statusCode);
+            expect(res.headers).to.equal(headers);
             done();
         });
     });
@@ -1336,7 +1337,7 @@ describe("RoboHydra filtering heads", function() {
             res.send(origBody);
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.headers).toEqual({
+            expect(res.headers).to.eql({
                 'content-type': contentType,
                 'content-length': "OH HAI response body".length
             });
@@ -1354,7 +1355,7 @@ describe("RoboHydra filtering heads", function() {
             res.send(origBody);
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.headers['content-length']).not.toBeDefined();
+            expect(res.headers['content-length']).not.to.be.a('string');
             done();
         });
     });
@@ -1369,7 +1370,7 @@ describe("RoboHydra filtering heads", function() {
             res.end();
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.headers['content-length']).toEqual(7);
+            expect(res.headers['content-length']).to.equal(7);
             done();
         });
     });
@@ -1385,9 +1386,9 @@ describe("RoboHydra filtering heads", function() {
             res.send(new Buffer("H4sIAAAAAAAAAwvxcAwCAA3VpXcEAAAA", "base64"));
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.headers['content-encoding']).toEqual('gzip');
+            expect(res.headers['content-encoding']).to.equal('gzip');
             zlib.gunzip(res.body, function(err, uncompressedBody) {
-                expect(uncompressedBody).toHaveEqualBody("OH HAI THAR");
+                expect(uncompressedBody).to.haveEqualBody("OH HAI THAR");
                 done();
             });
         });
@@ -1405,9 +1406,9 @@ describe("RoboHydra filtering heads", function() {
                                 "base64"));
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.headers['content-encoding']).toEqual('deflate');
+            expect(res.headers['content-encoding']).to.equal('deflate');
             zlib.inflate(res.body, function(err, uncompressedBody) {
-                expect(uncompressedBody).toHaveEqualBody("- Buzz: heads, heads everywhere");
+                expect(uncompressedBody).to.haveEqualBody("- Buzz: heads, heads everywhere");
                 done();
             });
         });
@@ -1427,7 +1428,7 @@ describe("RoboHydra filtering heads", function() {
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             var bodyString = res.body.toString();
-            expect(bodyString).toEqual("lcase -> " + text.toLowerCase());
+            expect(bodyString).to.equal("lcase -> " + text.toLowerCase());
             done();
         });
     });
@@ -1442,7 +1443,7 @@ describe("RoboHydra filtering heads", function() {
         var res = new Response().
             on('data', function(evt) { actualString = evt.data.toString(); }).
             on('end', function() {
-                expect(actualString).toEqual(text.toLowerCase());
+                expect(actualString).to.equal(text.toLowerCase());
                 done();
             });
         var next = function(_, res) { res.send(new Buffer(text)); };
@@ -1455,7 +1456,7 @@ describe("RoboHydra filtering heads", function() {
         });
         var next = function(_, res) { res.send(new Buffer("foobar")); };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
-            expect(res.statusCode).toEqual(500);
+            expect(res.statusCode).to.equal(500);
             done();
         });
     });
@@ -1470,10 +1471,10 @@ describe("RoboHydra filtering heads", function() {
         });
         expect(function() {
             head.handle(simpleReq('/'), new Response(function(evt) {
-                expect(evt.response.body.toString()).toEqual(responseText);
+                expect(evt.response.body.toString()).to.equal(responseText);
                 throw new InvalidRoboHydraHeadException();
             }));
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 });
 
@@ -1486,7 +1487,7 @@ describe("RoboHydra watchdog heads", function() {
             new RoboHydraHeadWatchdog({
                 path: '/.*'
             });
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("can be created without a reporter", function() {
@@ -1495,7 +1496,7 @@ describe("RoboHydra watchdog heads", function() {
             new RoboHydraHeadWatchdog({
                 watcher: function() { return true; }
             });
-        }).not.toThrow();
+        }).not.to.throw();
     });
 
     it("complain if watcher is not a function", function() {
@@ -1504,7 +1505,7 @@ describe("RoboHydra watchdog heads", function() {
             new RoboHydraHeadWatchdog({
                 watcher: 'not a function'
             });
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("complain if reporter is there but is not a function", function() {
@@ -1514,18 +1515,16 @@ describe("RoboHydra watchdog heads", function() {
                 watcher: function() {},
                 reporter: 'not a function'
             });
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("match all paths by default", function(done) {
-        var spy = this.spy();
         var head = new RoboHydraHeadWatchdog({
             watcher: function() { return true; },
-            reporter: spy
+            reporter: function() { return expect(true).to.be.true; }
         });
 
         var fakeRes = new Response().on('end', function() {
-            expect(spy).toHaveBeenCalledOnce();
             done();
         });
         head.handle(simpleReq('/madeuppath'), fakeRes, function(req, res) {
@@ -1539,7 +1538,7 @@ describe("RoboHydra watchdog heads", function() {
         });
 
         var fakeRes = new Response().on('end', function(/*evt*/) {
-            expect(head.reporter).toBeFunction();
+            expect(head.reporter).to.be.a('function');
             done();
         });
         head.handle(simpleReq('/madeuppath'), fakeRes, function(req, res) {
@@ -1548,15 +1547,13 @@ describe("RoboHydra watchdog heads", function() {
     });
 
     it("don't do anything if the watcher returns false", function(done) {
-        var spy = this.spy();
         var head = new RoboHydraHeadWatchdog({
             watcher: function() { return false; },
-            reporter: spy
+            reporter: function() { return expect(true).to.be.false; }
         });
 
-        var res = new Response().on('end', done);
+        var res = new Response().on('end', function() { done(); });
         head.handle(simpleReq('/madeuppath'), res, function(req, res) {
-            expect(spy).not.toHaveBeenCalled();
             res.end();
         });
     });
@@ -1565,13 +1562,13 @@ describe("RoboHydra watchdog heads", function() {
         var path = '/some/path';
         var head = new RoboHydraHeadWatchdog({
             watcher: function(req) {
-                expect(req.url).toEqual(path);
+                expect(req.url).to.equal(path);
                 return req.url === path;
             },
             reporter: function() {}
         });
 
-        var res = new Response(done);
+        var res = new Response(function() { done(); });
         head.handle(simpleReq(path), res, function(req, res) { res.end(); });
     });
 
@@ -1579,12 +1576,12 @@ describe("RoboHydra watchdog heads", function() {
         var content = "Some random content";
         var head = new RoboHydraHeadWatchdog({
             watcher: function(req, res) {
-                expect(res.body.toString()).toEqual(content);
+                expect(res.body.toString()).to.equal(content);
             },
             reporter: function() {}
         });
 
-        var res = new Response(done);
+        var res = new Response(function() { done(); });
         head.handle(simpleReq('/'), res, function(req, res) {
             res.send(content);
         });
@@ -1594,7 +1591,7 @@ describe("RoboHydra watchdog heads", function() {
         var content = "Some random (but initially compressed) content";
         var head = new RoboHydraHeadWatchdog({
             watcher: function(req, res) {
-                expect(res.body.toString()).toEqual(content);
+                expect(res.body.toString()).to.equal(content);
             },
             reporter: function() {}
         });
@@ -1602,7 +1599,7 @@ describe("RoboHydra watchdog heads", function() {
         zlib.gzip(content, function(err, data) {
             if (err) { throw new Error("WTF DUDE"); }
 
-            var res = new Response(done);
+            var res = new Response(function() { done(); });
             head.handle(simpleReq('/'), res, function(req, res) {
                 res.headers['content-encoding'] = 'gzip';
                 res.send(data);
@@ -1614,7 +1611,7 @@ describe("RoboHydra watchdog heads", function() {
         var content = "Some random (but initially deflated) content";
         var head = new RoboHydraHeadWatchdog({
             watcher: function(req, res) {
-                expect(res.body.toString()).toEqual(content);
+                expect(res.body.toString()).to.equal(content);
             },
             reporter: function() {}
         });
@@ -1622,7 +1619,7 @@ describe("RoboHydra watchdog heads", function() {
         zlib.deflate(content, function(err, data) {
             if (err) { throw new Error("WTF DUDE"); }
 
-            var res = new Response(done);
+            var res = new Response(function() { done(); });
             head.handle(simpleReq('/'), res, function(req, res) {
                 res.headers['content-encoding'] = 'deflate';
                 res.send(data);
@@ -1638,13 +1635,13 @@ describe("RoboHydra watchdog heads", function() {
 
             var head = new RoboHydraHeadWatchdog({
                 watcher: function(req, res) {
-                    expect(res.body.toString()).toEqual(content);
-                    expect(res.rawBody.toString('base64')).toEqual(data.toString('base64'));
+                    expect(res.body.toString()).to.equal(content);
+                    expect(res.rawBody.toString('base64')).to.equal(data.toString('base64'));
                 },
                 reporter: function() {}
             });
 
-            var res = new Response(done);
+            var res = new Response(function() { done(); });
             head.handle(simpleReq('/'), res, function(req, res) {
                 res.headers['content-encoding'] = 'deflate';
                 res.send(data);
@@ -1662,13 +1659,13 @@ describe("RoboHydra watchdog heads", function() {
             var head = new RoboHydraHeadWatchdog({
                 watcher: function(/*req, res*/) { return true; },
                 reporter: function(req, res) {
-                    expect(req.url).toEqual(path);
-                    expect(res.body.toString()).toEqual(content);
-                    expect(res.rawBody.toString('base64')).toEqual(data.toString('base64'));
+                    expect(req.url).to.equal(path);
+                    expect(res.body.toString()).to.equal(content);
+                    expect(res.rawBody.toString('base64')).to.equal(data.toString('base64'));
                 }
             });
 
-            var res = new Response(done);
+            var res = new Response(function() { done(); });
             head.handle(simpleReq(path), res, function(req, res) {
                 res.headers['content-encoding'] = 'deflate';
                 res.send(data);
@@ -1692,7 +1689,7 @@ describe("RoboHydra traffic replayer heads", function() {
             new RoboHydraHeadReplayer({
                 traffic: JSON.stringify(traffic)
             });
-        }).not.toThrow({name: "InvalidRoboHydraHeadException"});
+        }).not.to.throw(InvalidRoboHydraHeadException);
     });
 
     it("complain if traffic is neither an object or a string", function() {
@@ -1701,7 +1698,7 @@ describe("RoboHydra traffic replayer heads", function() {
             new RoboHydraHeadReplayer({
                 traffic: 0
             });
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("complain if traffic is a non-JSON string", function() {
@@ -1710,7 +1707,7 @@ describe("RoboHydra traffic replayer heads", function() {
             new RoboHydraHeadReplayer({
                 traffic: "this is not JSON :-("
             });
-        }).toThrow({name: "InvalidRoboHydraHeadException"});
+        }).to.throw(InvalidRoboHydraHeadException);
     });
 
     it("return 404 on non-mentioned paths", function(done) {
@@ -1719,7 +1716,7 @@ describe("RoboHydra traffic replayer heads", function() {
         });
 
         withResponse(head, '/', function(res) {
-            expect(res.statusCode).toEqual(404);
+            expect(res.statusCode).to.equal(404);
             done();
         });
     });
@@ -1730,7 +1727,7 @@ describe("RoboHydra traffic replayer heads", function() {
         });
 
         withResponse(head, '/foo', function(res) {
-            expect(res.statusCode).toEqual(404);
+            expect(res.statusCode).to.equal(404);
             done();
         });
     });
@@ -1778,7 +1775,7 @@ describe("RoboHydra traffic replayer heads", function() {
             head.reset();
 
             withResponse(head, '/foo', function(res) {
-                expect(res.body.toString()).toEqual("uno");
+                expect(res.body.toString()).to.equal("uno");
                 done();
             });
         });
@@ -1796,7 +1793,7 @@ describe("RoboHydra traffic replayer heads", function() {
             });
 
         withResponse(head, '/img/robohydra.png', function(res) {
-            expect(res.body.toString('base64')).toEqual(imageDataB64);
+            expect(res.body.toString('base64')).to.equal(imageDataB64);
             done();
         });
     });
@@ -1807,9 +1804,9 @@ describe("RoboHydra traffic replayer heads", function() {
         });
 
         withResponse(head, '/foo', function(res) {
-            expect(Object.keys(res.headers).length).toEqual(0);
-            expect(res.statusCode).toEqual(200);
-            expect(res.body.toString()).toEqual("foo");
+            expect(Object.keys(res.headers).length).to.equal(0);
+            expect(res.statusCode).to.equal(200);
+            expect(res.body.toString()).to.equal("foo");
             done();
         });
     });

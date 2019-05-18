@@ -1,6 +1,7 @@
 /*global describe, it*/
 
-var buster = require("buster");
+var mocha = require("mocha");
+var expect = require("expect");
 var RoboHydra = require("../lib/RoboHydra");
 var utils = require("../lib/utils"),
     Request   = utils.Request,
@@ -11,9 +12,6 @@ var helpers          = require("./helpers"),
     pluginInfoObject = helpers.pluginInfoObject,
     withResponse     = helpers.withResponse,
     headWithFail     = helpers.headWithFail;
-
-buster.spec.expose();
-var expect = buster.expect;
 
 function registerSimplePlugin(robohydra, props) {
     var scenarios = {};
@@ -66,9 +64,9 @@ describe("Admin RoboHydra UI", function() {
 
         var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
-            expect(this.body).toMatch(pluginName);
-            expect(this.body).toMatch(headName);
-            expect(this.body).toMatch(/RoboHydra Admin/);
+            expect(this.body.toString()).toMatch(pluginName);
+            expect(this.body.toString()).toMatch(headName);
+            expect(this.body.toString()).toMatch(/RoboHydra Admin/);
             done();
         });
         robohydra.handle(req, res);

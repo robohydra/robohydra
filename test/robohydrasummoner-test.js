@@ -1,12 +1,22 @@
 /*global require, describe, it*/
 
-var buster = require("buster");
-var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
-var Request = require("../lib/utils").Request;
 var path = require('path');
 
-buster.spec.expose();
-var expect = buster.expect;
+var mocha = require("mocha");
+var chai = require("chai"),
+    expect = chai.expect;
+
+var RoboHydraSummoner = require('../lib/robohydrasummoner').RoboHydraSummoner;
+var Request = require("../lib/utils").Request;
+var exceptions = require('../lib/exceptions'),
+    InvalidRoboHydraConfigurationException =
+        exceptions.InvalidRoboHydraConfigurationException,
+    InvalidRoboHydraPluginException =
+        exceptions.InvalidRoboHydraPluginException,
+    RoboHydraPluginNotFoundException =
+        exceptions.RoboHydraPluginNotFoundException;
+// This is to load the extra chai assertions
+var helpers = require("./helpers");
 
 describe("RoboHydra picking system", function() {
     "use strict";
@@ -20,7 +30,7 @@ describe("RoboHydra picking system", function() {
                 {},
                 {rootDir: __dirname + '/plugin-fs'}
             );
-        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
+        }).to.throw(InvalidRoboHydraConfigurationException);
     });
 
     it("can specify a picking function when there are multiple", function() {
@@ -31,7 +41,7 @@ describe("RoboHydra picking system", function() {
             {rootDir: __dirname + '/plugin-fs'}
         );
         var h = summoner.summonRoboHydraForRequest(new Request({url: '/'}));
-        expect(h.name).toEqual('simple-authenticator-fixed-user');
+        expect(h.name).to.equal('simple-authenticator-fixed-user');
     });
 
     it("detects non-existent, specified picking functions", function() {
@@ -43,7 +53,7 @@ describe("RoboHydra picking system", function() {
                 {hydraPickerPlugin: 'another-plugin'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
-        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
+        }).to.throw(InvalidRoboHydraConfigurationException);
     });
 
     it("detects specified picking plugins without a picker function", function() {
@@ -56,7 +66,7 @@ describe("RoboHydra picking system", function() {
                 {hydraPickerPlugin: 'definedtwice'},
                 {rootDir: __dirname + '/plugin-fs'}
             );
-        }).toThrow({name: "InvalidRoboHydraConfigurationException"});
+        }).to.throw(InvalidRoboHydraConfigurationException);
     });
 
     it("has a default picker function", function() {
@@ -73,7 +83,7 @@ describe("RoboHydra picking system", function() {
         var hydra2 = summoner.summonRoboHydraForRequest(new Request({
             url: '/?user=user2'
         }));
-        expect(hydra2.randomProperty).toEqual(seen);
+        expect(hydra2.randomProperty).to.equal(seen);
     });
 
     it("rejects pickers that are not functions", function() {
@@ -84,7 +94,7 @@ describe("RoboHydra picking system", function() {
                 {rootDir: __dirname + '/plugin-fs'}
             );
             summoner.summonRoboHydraForRequest(new Request({url: '/'}));
-        }).toThrow({name: "InvalidRoboHydraPluginException"});
+        }).to.throw(InvalidRoboHydraPluginException);
     });
 
     it("picks the right RoboHydra", function() {
@@ -105,9 +115,9 @@ describe("RoboHydra picking system", function() {
         }));
         hydra2.startScenario('right-robohydra-test', 'robohydra2');
 
-        expect(hydra2.randomProperty).not.toBeDefined();
-        expect(hydra1.currentScenario.scenario).toEqual('robohydra1');
-        expect(hydra2.currentScenario.scenario).toEqual('robohydra2');
+        expect(hydra2.randomProperty).to.be.an('undefined');
+        expect(hydra1.currentScenario.scenario).to.equal('robohydra1');
+        expect(hydra2.currentScenario.scenario).to.equal('robohydra2');
     });
 
     it("Hydras know their own name", function() {
@@ -124,8 +134,8 @@ describe("RoboHydra picking system", function() {
             url: '/?user=user2'
         }));
 
-        expect(hydra1.name).toEqual('user1');
-        expect(hydra2.name).toEqual('user2');
+        expect(hydra1.name).to.equal('user1');
+        expect(hydra2.name).to.equal('user2');
     });
 });
 
@@ -142,7 +152,7 @@ describe("Plugin loader", function() {
                 {},
                 {rootDir: rootDir}
             );
-        }).toThrow({name: "RoboHydraPluginNotFoundException"});
+        }).to.throw(RoboHydraPluginNotFoundException);
     });
 
     it("can load a simple plugin", function() {
@@ -152,14 +162,14 @@ describe("Plugin loader", function() {
             {},
             {rootDir: rootDir}
         );
-        expect(lair.pluginInfoList[0].path).toEqualPath(
+        expect(lair.pluginInfoList[0].path).to.equalPath(
             rootDir + '/usr/share/robohydra/plugins/simple');
-        expect(lair.pluginInfoList[0].config.configKey).toEqual(configKeyValue);
+        expect(lair.pluginInfoList[0].config.configKey).to.equal(configKeyValue);
     });
 
     it("can load plugins with the simplified syntax", function() {
         var lair = new RoboHydraSummoner(["simple"], {}, {rootDir: rootDir});
-        expect(lair.pluginInfoList[0].path).toEqualPath(
+        expect(lair.pluginInfoList[0].path).to.equalPath(
             rootDir + '/usr/share/robohydra/plugins/simple');
     });
 
@@ -169,7 +179,7 @@ describe("Plugin loader", function() {
             {},
             {rootDir: rootDir}
         );
-        expect(lair.pluginInfoList[0].path).toEqualPath(
+        expect(lair.pluginInfoList[0].path).to.equalPath(
             rootDir + '/usr/local/share/robohydra/plugins/definedtwice');
     });
 
@@ -180,7 +190,7 @@ describe("Plugin loader", function() {
             {rootDir: rootDir,
              extraPluginLoadPaths: ['/opt/robohydra/plugins']}
         );
-        expect(lair.pluginInfoList[0].path).toEqualPath(
+        expect(lair.pluginInfoList[0].path).to.equalPath(
             rootDir + '/opt/robohydra/plugins/definedtwice');
     });
 
@@ -192,7 +202,7 @@ describe("Plugin loader", function() {
              extraPluginLoadPaths: ['/opt/robohydra/plugins',
                                     '/opt/project/robohydra-plugins']}
         );
-        expect(lair.pluginInfoList[0].path).toEqualPath(
+        expect(lair.pluginInfoList[0].path).to.equalPath(
             rootDir + '/opt/project/robohydra-plugins/definedtwice');
     });
 
@@ -204,7 +214,7 @@ describe("Plugin loader", function() {
              extraPluginLoadPaths: ['/opt/robohydra/plugins',
                                     '/opt/project/robohydra-plugins']}
         );
-        expect(lair.pluginInfoList[0].path).toEqualPath(
+        expect(lair.pluginInfoList[0].path).to.equalPath(
             rootDir + '/opt/robohydra/plugins/customloadpath');
     });
 });
