@@ -81,10 +81,10 @@ var utils = require("../lib/utils"),
 
     function hasEqualBody(body1, body2) {
         if (typeof(body1) === 'string') {
-            body1 = new Buffer(body1);
+            body1 = Buffer.from(body1);
         }
         if (typeof(body2) === 'string') {
-            body2 = new Buffer(body2);
+            body2 = Buffer.from(body2);
         }
 
         return body1.toString('base64') === body2.toString('base64');
@@ -243,7 +243,7 @@ var utils = require("../lib/utils"),
                     resCallback({
                         on: function(event, handler) {
                             if (event === 'data') {
-                                handler(new Buffer(requestDispatcher(method, path, headers, self.data, h, p)));
+                                handler(Buffer.from(requestDispatcher(method, path, headers, self.data, h, p)));
                             }
                             if (event === 'end') {
                                 handler();

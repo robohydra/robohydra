@@ -38,7 +38,7 @@ exports.getBodyParts = function() {
                 path: '/data',
                 handler: function(req, res) {
                     for (var i = 0, len = 5; i < len; i++) {
-                        res.write(new Buffer("Some data here -> " + i + "\n"));
+                        res.write(Buffer.from("Some data here -> " + i + "\n"));
                     }
                     res.end();
                 }

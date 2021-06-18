@@ -157,11 +157,11 @@ exports.getBodyParts = function(conf) {
                              currentTrafficData[req.url].length);
                         res.statusCode = currentResponse.statusCode;
                         res.headers    = currentResponse.headers;
-                        res.send(new Buffer(currentResponse.body,
-                                            'base64'));
+                        res.send(Buffer.from(currentResponse.body,
+                                             'base64'));
                     } else {
                         res.statusCode = 404;
-                        res.send(new Buffer("Not Found", "utf-8"));
+                        res.send(Buffer.from("Not Found", "utf-8"));
                     }
                 }
             }),

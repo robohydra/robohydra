@@ -1383,7 +1383,7 @@ describe("RoboHydra filtering heads", function() {
         var next = function(_, res) {
             res.headers['content-encoding'] = 'gzip';
             // "THAR" gzip'ed
-            res.send(new Buffer("H4sIAAAAAAAAAwvxcAwCAA3VpXcEAAAA", "base64"));
+            res.send(Buffer.from("H4sIAAAAAAAAAwvxcAwCAA3VpXcEAAAA", "base64"));
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             expect(res.headers['content-encoding']).to.equal('gzip');
@@ -1396,14 +1396,14 @@ describe("RoboHydra filtering heads", function() {
 
     it("transparently uncompress and compress back deflate", function(done) {
         var head = new RoboHydraHeadFilter({
-            filter: function(text) { return new Buffer("- Buzz: " + text.toString()); }
+            filter: function(text) { return Buffer.from("- Buzz: " + text.toString()); }
         });
 
         var next = function(_, res) {
             res.headers['content-encoding'] = 'deflate';
             // "heads, heads everywhere" deflated
-            res.send(new Buffer("eJzLSE1MKdZRyABRCqllqUWV5RmpRakAZNMIvQ==",
-                                "base64"));
+            res.send(Buffer.from("eJzLSE1MKdZRyABRCqllqUWV5RmpRakAZNMIvQ==",
+                                 "base64"));
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             expect(res.headers['content-encoding']).to.equal('deflate');
@@ -1424,7 +1424,7 @@ describe("RoboHydra filtering heads", function() {
         var text = "THISISVERYCOMPRESSEDDATANOTREALLY";
         var next = function(_, res) {
             res.headers['content-encoding'] = 'made-up';
-            res.send(new Buffer(text));
+            res.send(Buffer.from(text));
         };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             var bodyString = res.body.toString();
@@ -1446,7 +1446,7 @@ describe("RoboHydra filtering heads", function() {
                 expect(actualString).to.equal(text.toLowerCase());
                 done();
             });
-        var next = function(_, res) { res.send(new Buffer(text)); };
+        var next = function(_, res) { res.send(Buffer.from(text)); };
         head.handle(simpleReq('/'), res, next);
     });
 
@@ -1454,7 +1454,7 @@ describe("RoboHydra filtering heads", function() {
         var head = new RoboHydraHeadFilter({
             filter: function(body) { body.replace(/foo/, "bar"); }
         });
-        var next = function(_, res) { res.send(new Buffer("foobar")); };
+        var next = function(_, res) { res.send(Buffer.from("foobar")); };
         withResponse(head, {path: '/', nextFunction: next}, function(res) {
             expect(res.statusCode).to.equal(500);
             done();

@@ -1491,7 +1491,7 @@ describe("Request object", function() {
 
     it("parses the body", function() {
         var req = new Request({url: '/foo/bar',
-                               rawBody: new Buffer("foo=bar&qux=meh")});
+                               rawBody: Buffer.from("foo=bar&qux=meh")});
         expect(req.bodyParams.foo).to.equal("bar");
         expect(req.bodyParams.qux).to.equal("meh");
     });
@@ -1510,7 +1510,7 @@ describe("Request object", function() {
 
     describe("body property", function() {
         it("is null for useless content-type headers", function() {
-            var data = new Buffer("Here is some data"),
+            var data = Buffer.from("Here is some data"),
                 reqNoCT = new Request({url: '/foo/bar', rawBody: data}),
                 reqEmptyCT = new Request({url: '/foo/bar',
                                           rawBody: data,
@@ -1522,7 +1522,7 @@ describe("Request object", function() {
                                            rawBody: data,
                                            headers: {'content-type': 'application/octet-stream'}}),
                 reqTextXml = new Request({url: '/foo/bar',
-                                          rawBody: new Buffer("<madeup/>"),
+                                          rawBody: Buffer.from("<madeup/>"),
                                           headers: {'content-type': 'application/octet-stream'}});
 
             expect(reqNoCT.body).to.equal(null);
@@ -1534,7 +1534,7 @@ describe("Request object", function() {
 
         it("is an object for 'application/json' content type", function() {
             var obj = {a: 'banana'};
-            var data = new Buffer(JSON.stringify(obj));
+            var data = Buffer.from(JSON.stringify(obj));
             var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'application/json'}});
@@ -1543,7 +1543,7 @@ describe("Request object", function() {
         });
 
         it("is null for 'application/json' content type but invalid JSON", function() {
-            var data = new Buffer('banana');
+            var data = Buffer.from('banana');
             var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'application/json' }});
@@ -1553,7 +1553,7 @@ describe("Request object", function() {
 
         it("is null for 'application/json' content type but invalid 'charset'", function() {
             var obj = { a: 'banana' };
-            var data = new Buffer(JSON.stringify(obj));
+            var data = Buffer.from(JSON.stringify(obj));
              var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'application/json',
@@ -1563,7 +1563,7 @@ describe("Request object", function() {
         });
 
         it("is a valid string for 'text/html' content type", function() {
-            var data = new Buffer("<h2>Some</h2> <h1>html-marked-up</h1> <b>text</b>");
+            var data = Buffer.from("<h2>Some</h2> <h1>html-marked-up</h1> <b>text</b>");
             var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'text/html'}});
@@ -1572,7 +1572,7 @@ describe("Request object", function() {
         });
 
         it("is a valid string for 'text/plain' content-type", function() {
-            var data = new Buffer("Some plaintext");
+            var data = Buffer.from("Some plaintext");
             var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'text/plain'}});
@@ -1581,7 +1581,7 @@ describe("Request object", function() {
         });
 
         it("picks up charset from 2-part content-type headers", function() {
-            var data = new Buffer("Some plaintext");
+            var data = Buffer.from("Some plaintext");
 
             expect(function() {
                 /*jshint nonew: false*/
@@ -1593,7 +1593,7 @@ describe("Request object", function() {
 
         it("picks up charset from the actual charset header", function() {
             var targetCharset = 'utf-8';
-            var data = new Buffer("Some plaintext");
+            var data = Buffer.from("Some plaintext");
             var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'text/plain',
@@ -1605,7 +1605,7 @@ describe("Request object", function() {
         it("prefers charset header to the value in content-type", function() {
             var targetCharset = 'utf-8';
             var charsetToAvoid = 'UTF-16';
-            var data = new Buffer("Some plaintext");
+            var data = Buffer.from("Some plaintext");
             var req = new Request({url: '/foo/bar',
                                    rawBody: data,
                                    headers: {'content-type': 'text/plain;charset=' + charsetToAvoid,
@@ -1616,7 +1616,7 @@ describe("Request object", function() {
 
         it("is null for invalid charsets", function() {
             var targetCharset = 'bananas';
-            var data = new Buffer("Some plaintext");
+            var data = Buffer.from("Some plaintext");
             var plainreq;
             var htmlreq;
             
@@ -1827,11 +1827,11 @@ describe("Response object", function() {
         expect(headHandler).to.haveBeenCalledWith({type: 'head',
                                                    statusCode: statusCode,
                                                    headers: headers});
-        var buffer = new Buffer("foobar");
+        var buffer = Buffer.from("foobar");
         r2.write(buffer);
         expect(dataHandler).to.haveBeenCalledWith({type: 'data',
                                                    data: buffer});
-        var buffer2 = new Buffer("qux");
+        var buffer2 = Buffer.from("qux");
         r2.write(buffer2);
         expect(dataHandler).to.haveBeenCalledWith({type: 'data',
                                                    data: buffer2});
@@ -1855,11 +1855,11 @@ describe("Response object", function() {
         expect(headHandler).to.haveBeenCalledWith({type: 'head',
                                                    statusCode: statusCode,
                                                    headers: headers});
-        var buffer = new Buffer("foobar");
+        var buffer = Buffer.from("foobar");
         r2.write(buffer);
         expect(dataHandler).to.haveBeenCalledWith({type: 'data',
                                                    data: buffer});
-        var buffer2 = new Buffer("qux");
+        var buffer2 = Buffer.from("qux");
         r2.write(buffer2);
         expect(dataHandler).to.haveBeenCalledWith({type: 'data',
                                                    data: buffer2});
