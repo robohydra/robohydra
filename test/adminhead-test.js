@@ -1,7 +1,7 @@
 /*global describe, it*/
 
 var mocha = require("mocha");
-var expect = require("expect");
+var expect = require("chai").expect;
 var RoboHydra = require("../lib/RoboHydra");
 var utils = require("../lib/utils"),
     Request   = utils.Request,
@@ -44,9 +44,9 @@ describe("Admin RoboHydra UI", function() {
 
         var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
-            expect(res.statusCode).toEqual(200);
+            expect(res.statusCode).to.equal(200);
             var res2 = new Response(function() {
-                expect(res2.statusCode).toEqual(404);
+                expect(res2.statusCode).to.equal(404);
                 done();
             });
             robohydra.handle(new Request({url: '/blah'}), res2);
@@ -64,9 +64,9 @@ describe("Admin RoboHydra UI", function() {
 
         var req = new Request({url: '/robohydra-admin'});
         var res = new Response(function() {
-            expect(this.body.toString()).toMatch(pluginName);
-            expect(this.body.toString()).toMatch(headName);
-            expect(this.body.toString()).toMatch(/RoboHydra Admin/);
+            expect(this.body.toString()).to.match(new RegExp(pluginName));
+            expect(this.body.toString()).to.match(new RegExp(headName));
+            expect(this.body.toString()).to.match(/RoboHydra Admin/);
             done();
         });
         robohydra.handle(req, res);
@@ -88,9 +88,9 @@ describe("REST API", function() {
         registerSimplePlugin(robohydra, { name: pluginName });
 
         withResponse(robohydra, restUrl('/plugins'), function(resp) {
-            expect(resp.statusCode).toEqual(200);
+            expect(resp.statusCode).to.equal(200);
             var info = JSON.parse(resp.body.toString());
-            expect(info.plugins).toEqual([pluginName]);
+            expect(info.plugins).to.deep.equal([pluginName]);
             done();
         });
     });
@@ -107,10 +107,10 @@ describe("REST API", function() {
 
         var url = restUrl('/plugins/' + pluginName);
         withResponse(robohydra, url, function(resp) {
-            expect(resp.statusCode).toEqual(200);
+            expect(resp.statusCode).to.equal(200);
             var info = JSON.parse(resp.body.toString());
-            expect(info.name).toEqual(pluginName);
-            expect(info.heads).toEqual([
+            expect(info.name).to.equal(pluginName);
+            expect(info.heads).to.deep.equal([
                 {plugin: pluginName,
                  name: headName,
                  attached: true},
@@ -118,7 +118,7 @@ describe("REST API", function() {
                  name: headName2,
                  attached: true}
             ]);
-            expect(info.scenarios).toEqual([
+            expect(info.scenarios).to.deep.equal([
                 {plugin: pluginName,
                  name: 'oneAndOnlyScenario',
                  active: false}
@@ -142,7 +142,7 @@ describe("REST API", function() {
         var url = restUrl('/plugins/' + pluginName);
         withResponse(robohydra, url, function(resp) {
             var initialInfo = JSON.parse(resp.body.toString());
-            expect(initialInfo.scenarios).toEqual([
+            expect(initialInfo.scenarios).to.deep.equal([
                 {plugin: pluginName,
                  name: 'firstScenario',
                  active: true},
@@ -154,7 +154,7 @@ describe("REST API", function() {
             robohydra.startScenario(pluginName, 'secondScenario');
             withResponse(robohydra, url, function(resp) {
                 var updatedInfo = JSON.parse(resp.body.toString());
-                expect(updatedInfo.scenarios).toEqual([
+                expect(updatedInfo.scenarios).to.deep.equal([
                     {plugin: pluginName,
                      name: 'firstScenario',
                      active: false},
@@ -177,10 +177,10 @@ describe("REST API", function() {
 
         var url = restUrl('/plugins/' + pluginName + '/heads/' + headName);
         withResponse(robohydra, url, function(resp) {
-            expect(resp.statusCode).toEqual(200);
+            expect(resp.statusCode).to.equal(200);
             var info = JSON.parse(resp.body.toString());
-            expect(info.plugin).toEqual(pluginName);
-            expect(info.name).toEqual(headName);
+            expect(info.plugin).to.equal(pluginName);
+            expect(info.name).to.equal(headName);
             done();
         });
     });
@@ -198,17 +198,17 @@ describe("REST API", function() {
                              method: 'POST',
                              postData: 'attached=false'};
         withResponse(robohydra, detachRequest, function(detachResp) {
-            expect(detachResp.statusCode).toEqual(200);
+            expect(detachResp.statusCode).to.equal(200);
             var detachInfo = JSON.parse(detachResp.body.toString());
-            expect(detachInfo.plugin).toEqual(pluginName);
-            expect(detachInfo.name).toEqual(headName);
-            expect(detachInfo.attached).toEqual(false);
+            expect(detachInfo.plugin).to.equal(pluginName);
+            expect(detachInfo.name).to.equal(headName);
+            expect(detachInfo.attached).to.equal(false);
 
             withResponse(robohydra, headUrl, function(afterResp) {
                 var afterInfo = JSON.parse(afterResp.body.toString());
-                expect(afterInfo.plugin).toEqual(pluginName);
-                expect(afterInfo.name).toEqual(headName);
-                expect(afterInfo.attached).toEqual(false);
+                expect(afterInfo.plugin).to.equal(pluginName);
+                expect(afterInfo.name).to.equal(headName);
+                expect(afterInfo.attached).to.equal(false);
                 done();
             });
         });
@@ -228,7 +228,7 @@ describe("REST API", function() {
                              method: 'POST',
                              postData: 'attached=false'};
         withResponse(robohydra, detachRequest, function(detachResp) {
-            expect(detachResp.statusCode).toEqual(404);
+            expect(detachResp.statusCode).to.equal(404);
 
             var wrongHeadUrl = restUrl('/plugins/' + pluginName +
                                   '/heads/non-existent-' + headName);
@@ -236,7 +236,7 @@ describe("REST API", function() {
                                   method: 'POST',
                                   postData: 'attached=false'};
             withResponse(robohydra, detachRequest2, function(afterResp) {
-                expect(afterResp.statusCode).toEqual(404);
+                expect(afterResp.statusCode).to.equal(404);
                 done();
             });
         });
@@ -256,13 +256,13 @@ describe("REST API", function() {
                                     method: 'POST',
                                     postData: 'active=true'};
         withResponse(robohydra, startScenarioRequest, function(startResp) {
-            expect(startResp.statusCode).toEqual(200);
+            expect(startResp.statusCode).to.equal(200);
             var startInfo = JSON.parse(startResp.body.toString());
-            expect(startInfo.plugin).toEqual(pluginName);
-            expect(startInfo.name).toEqual(scenarioName);
-            expect(startInfo.active).toEqual(true);
+            expect(startInfo.plugin).to.equal(pluginName);
+            expect(startInfo.name).to.equal(scenarioName);
+            expect(startInfo.active).to.equal(true);
 
-            expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
+            expect(robohydra.currentScenario.scenario).to.equal(scenarioName);
             done();
         });
     });
@@ -281,7 +281,7 @@ describe("REST API", function() {
                                     method: 'POST',
                                     postData: 'active=true'};
         withResponse(robohydra, startScenarioRequest, function(resp1) {
-            expect(resp1.statusCode).toEqual(404);
+            expect(resp1.statusCode).to.equal(404);
 
             var wrongScenarioNameUrl = restUrl('/plugins/' +
                                                    pluginName +
@@ -291,7 +291,7 @@ describe("REST API", function() {
                                          method: 'POST',
                                          postData: 'active=true'};
             withResponse(robohydra, startScenarioRequest2, function(resp2) {
-                expect(resp2.statusCode).toEqual(404);
+                expect(resp2.statusCode).to.equal(404);
                 done();
             });
         });
@@ -313,13 +313,13 @@ describe("REST API", function() {
                                    method: 'POST',
                                    postData: 'active=false'};
         withResponse(robohydra, stopScenarioRequest, function(stopResp) {
-            expect(stopResp.statusCode).toEqual(200);
+            expect(stopResp.statusCode).to.equal(200);
             var stopInfo = JSON.parse(stopResp.body.toString());
-            expect(stopInfo.plugin).toEqual(pluginName);
-            expect(stopInfo.name).toEqual(scenarioName2);
-            expect(stopInfo.active).toEqual(false);
+            expect(stopInfo.plugin).to.equal(pluginName);
+            expect(stopInfo.name).to.equal(scenarioName2);
+            expect(stopInfo.active).to.equal(false);
 
-            expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
+            expect(robohydra.currentScenario.scenario).to.equal(scenarioName);
             done();
         });
     });
@@ -339,13 +339,13 @@ describe("REST API", function() {
                                 method: 'POST',
                                 postData: 'active=true'};
         withResponse(robohydra, pointlessRequest, function(pointlessResp) {
-            expect(pointlessResp.statusCode).toEqual(200);
+            expect(pointlessResp.statusCode).to.equal(200);
             var stopInfo = JSON.parse(pointlessResp.body.toString());
-            expect(stopInfo.plugin).toEqual(pluginName);
-            expect(stopInfo.name).toEqual(scenarioName);
-            expect(stopInfo.active).toEqual(true);
+            expect(stopInfo.plugin).to.equal(pluginName);
+            expect(stopInfo.name).to.equal(scenarioName);
+            expect(stopInfo.active).to.equal(true);
 
-            expect(robohydra.currentScenario.scenario).toEqual(scenarioName);
+            expect(robohydra.currentScenario.scenario).to.equal(scenarioName);
             done();
         });
     });
@@ -371,14 +371,14 @@ describe("REST API", function() {
 
         withResponse(robohydra, '/', function(/*requestForFail*/) {
             withResponse(robohydra, restUrl('/test-results'), function(resp) {
-                expect(resp.statusCode).toEqual(200);
+                expect(resp.statusCode).to.equal(200);
                 var stopInfo = JSON.parse(resp.body.toString());
                 var results1 = stopInfo[pluginName][scenarioName];
-                expect(results1.passes.length).toEqual(0);
-                expect(results1.failures).toEqual([assertionName]);
+                expect(results1.passes.length).to.equal(0);
+                expect(results1.failures).to.deep.equal([assertionName]);
                 var results2 = stopInfo[pluginName][scenarioName2];
-                expect(results2.passes.length).toEqual(0);
-                expect(results2.failures.length).toEqual(0);
+                expect(results2.passes.length).to.equal(0);
+                expect(results2.failures.length).to.equal(0);
                 done();
             });
         });
