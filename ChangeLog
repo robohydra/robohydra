@@ -1,7 +1,10 @@
-Version 0.x.x (20xx-xx-xx)
+Version 0.6.9 (2021-06-19)
 --------------------------
 
-	* Some change
+	* Upgrade several dependencies for security reasons. No actual
+	changes to the code.
+	* Internal clean-ups, including rewriting of tests and avoiding
+	the use of deprecated Buffer APIs.
 
 Version 0.6.8 (2018-09-08)
 --------------------------
