@@ -48,7 +48,8 @@ Download
 ========
 
 First, make sure you have [Node.js](http://nodejs.org/download/)
-installed (at least 0.6). Then, type the following in a terminal:
+installed (version 10 should work). Then, type the following in a
+terminal:
 
     npm install robohydra
 
@@ -69,6 +70,10 @@ YouTube](http://www.youtube.com/user/robohydra/videos).
 
 For the changes between versions, check the
 [ChangeLog](https://raw.github.com/robohydra/robohydra/master/ChangeLog).
+
+**Note that this project is now in maintenance mode: for the most
+part, no new features are added, but there are occasional security
+updates.**
 
 License and copyright
 =====================
